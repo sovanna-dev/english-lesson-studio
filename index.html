@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Create simple, bilingual English lesson animations in your browser.">
   <meta name="theme-color" content="#101827">
-  <title>Lesson Animation Studio</title>
+  <title>Lesson Animation Studio - Modern Chat</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  
   <style>
+/* ===== CSS ដូចគ្នានឹងកូដដើម ===== */
 :root {
   color-scheme: light;
   --ink-950: #101827;
@@ -31,7 +33,7 @@
   --teal-soft: #e9f7f8;
   --danger: #c4574a;
   --success: #2d9b71;
-  --stage: #121a2c;
+  --stage: #12142a;
   --shadow-sm: 0 1px 2px rgba(16, 24, 39, 0.05), 0 4px 12px rgba(16, 24, 39, 0.04);
   --shadow-md: 0 14px 35px rgba(16, 24, 39, 0.1), 0 2px 8px rgba(16, 24, 39, 0.05);
   --shadow-stage: 0 22px 52px rgba(16, 24, 39, 0.15), 0 3px 12px rgba(16, 24, 39, 0.08);
@@ -175,7 +177,6 @@ input[type='range'] {
   display: none !important;
 }
 
-/* Keep file controls accessible and programmatically selectable without showing native chrome. */
 .file-input-hidden {
   position: absolute;
   width: 1px;
@@ -189,7 +190,6 @@ input[type='range'] {
   opacity: 0;
 }
 
-/* A visible native picker is more reliable than a hidden input for background media. */
 .file-input {
   display: block;
   width: 100%;
@@ -225,7 +225,6 @@ input[type='range'] {
   text-align: center;
 }
 
-/* Top navigation */
 .topbar {
   position: relative;
   z-index: 10;
@@ -293,7 +292,6 @@ input[type='range'] {
   gap: 9px;
 }
 
-/* Shared buttons */
 .btn {
   display: inline-flex;
   min-height: 40px;
@@ -418,7 +416,6 @@ input[type='range'] {
   font-size: 10px;
 }
 
-/* Main app shell */
 .workspace {
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--properties-width);
@@ -604,7 +601,6 @@ input[type='range'] {
   background: var(--line);
 }
 
-/* Ratio and layout choices */
 .ratio-group {
   display: grid;
   gap: 8px;
@@ -716,7 +712,6 @@ input[type='range'] {
   text-transform: none;
 }
 
-/* Timeline */
 .timeline-list {
   display: grid;
   gap: 6px;
@@ -770,7 +765,6 @@ input[type='range'] {
   white-space: nowrap;
 }
 
-/* Accordion settings */
 .settings-group {
   border-top: 1px solid var(--line-dark);
 }
@@ -866,7 +860,6 @@ input[type='range'] {
   font-size: 11px;
 }
 
-/* Stage */
 .canvas-toolbar {
   display: flex;
   width: min(100%, 760px);
@@ -945,10 +938,6 @@ input[type='range'] {
   height: auto;
 }
 
-/* Each ratio is capped so BOTH the width and height fit inside the
-   92vw x 92vh safe area, with the browser deriving the other side
-   from aspect-ratio — this keeps the shape exactly as configured
-   instead of stretching/cropping it. */
 .stage-frame:fullscreen .stage.ratio-16-9 {
   width: min(92vw, 163.56vh, 1400px);
 }
@@ -1179,7 +1168,6 @@ input[type='range'] {
   object-fit: cover;
 }
 
-/* Side-by-side preview */
 .stage-flashcard {
   display: none;
   width: 100%;
@@ -1253,7 +1241,356 @@ input[type='range'] {
   }
 }
 
-/* Editable word cards */
+/* ===== CSS សម្រាប់ Modern Chat Layout ===== */
+.stage-dialogue {
+  display: none;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 4%;
+}
+
+.stage.mode-dialogue .stage-sentence,
+.stage.mode-dialogue .stage-flashcard {
+  display: none;
+}
+
+.stage.mode-dialogue .stage-dialogue {
+  display: flex;
+}
+
+.dialogue-chat-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+}
+
+.dialogue-bubble {
+  position: relative;
+  max-width: 75%;
+  min-width: 120px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: left;
+  transition: all 220ms var(--ease-out);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dialogue-bubble.side-a {
+  align-self: flex-start;
+  margin-left: 10px;
+  background: rgba(35, 150, 174, 0.25);
+  border-color: rgba(35, 150, 174, 0.3);
+}
+
+.dialogue-bubble.side-a::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 20px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid rgba(35, 150, 174, 0.25);
+}
+
+.dialogue-bubble.side-b {
+  align-self: flex-end;
+  margin-right: 10px;
+  background: rgba(242, 184, 75, 0.2);
+  border-color: rgba(242, 184, 75, 0.3);
+}
+
+.dialogue-bubble.side-b::before {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 20px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid rgba(242, 184, 75, 0.2);
+}
+
+.dialogue-bubble-speaker {
+  display: block;
+  margin-bottom: 4px;
+  color: #ffd071;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.dialogue-bubble-en {
+  color: var(--paper);
+  font-family: var(--stage-en-font, 'Poppins', sans-serif);
+  font-size: var(--stage-en-size, 20px);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.dialogue-bubble-km {
+  margin-top: 4px;
+  color: var(--gold);
+  font-family: var(--stage-km-font, 'Kantumruy Pro', sans-serif);
+  font-size: var(--stage-km-size, 18px);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.dialogue-bubble-km.hidden-km {
+  display: none;
+}
+
+.dialogue-avatar-col {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.6;
+  transition: all 220ms var(--ease-out);
+  cursor: pointer;
+}
+
+.dialogue-avatar-col.active {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.dialogue-avatar {
+  display: grid;
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dialogue-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dialogue-avatar-name {
+  max-width: 70px;
+  overflow: hidden;
+  color: var(--paper);
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dialogue-row {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.dialogue-row.speaker-a {
+  justify-content: flex-start;
+  flex-direction: row;
+}
+
+.dialogue-row.speaker-b {
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+}
+
+/* Keep portrait dialogue compositions centered instead of top-heavy. */
+.stage.ratio-9-16 .stage-dialogue {
+  align-items: stretch;
+  padding: 8% 7% 14%;
+}
+
+.stage.ratio-9-16 .dialogue-chat-container {
+  justify-content: center;
+  gap: clamp(18px, 4.5vh, 38px);
+  padding: 0;
+}
+
+.stage.ratio-9-16 .dialogue-row {
+  width: 100%;
+  min-height: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.stage.ratio-9-16 .dialogue-bubble {
+  max-width: calc(100% - 58px);
+  padding: 14px 15px;
+}
+
+.stage.ratio-9-16 .dialogue-avatar {
+  width: 52px;
+  height: 52px;
+  font-size: 18px;
+}
+
+.stage.ratio-1-1 .dialogue-chat-container {
+  justify-content: center;
+  gap: 20px;
+}
+
+.dialogue-nav-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+  background: rgba(8, 13, 24, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.dialogue-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: all 160ms var(--ease-out);
+  border: 1px solid transparent;
+  font-size: 13px;
+}
+
+.dialogue-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.dialogue-nav-btn:active {
+  transform: scale(0.94);
+}
+
+.dialogue-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.dialogue-progress-text {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 48px;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.dialogue-bubble.chat-animation {
+  animation: chatBubbleIn 350ms var(--ease-out);
+}
+
+@keyframes chatBubbleIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.typing-indicator {
+  display: inline-flex;
+  gap: 3px;
+  padding: 8px 12px;
+}
+
+.typing-dot {
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: typingBounce 1.2s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+
+/* Mobile responsive */
+@media (max-width: 620px) {
+  .dialogue-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .dialogue-avatar-name {
+    font-size: 8px;
+    max-width: 50px;
+  }
+  
+  .dialogue-bubble {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 14px;
+  }
+  
+  .dialogue-bubble-en {
+    font-size: min(var(--stage-en-size, 20px), 5.5vw);
+  }
+  
+  .dialogue-bubble-km {
+    font-size: min(var(--stage-km-size, 18px), 5vw);
+  }
+  
+  .dialogue-nav-controls {
+    bottom: 6px;
+    gap: 6px;
+    padding: 4px 8px;
+  }
+  
+  .dialogue-nav-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+}
+
 .word-cards {
   display: flex;
   width: min(100%, 760px);
@@ -1319,7 +1656,156 @@ input[type='range'] {
   object-fit: cover;
 }
 
-/* Properties / detail panel */
+.speaker-setup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.speaker-setup-card {
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.speaker-setup-card .field-label {
+  margin-top: 10px;
+}
+
+.speaker-setup-card .field-label:first-child {
+  margin-top: 0;
+}
+
+.speaker-avatar-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 6px;
+  overflow: hidden;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #8290a6;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 160ms var(--ease-out);
+}
+
+.speaker-avatar-preview:hover {
+  border-color: var(--gold);
+  background: rgba(242, 184, 75, 0.1);
+  transform: scale(1.05);
+}
+
+.speaker-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.turn-form-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.turn-form-row select {
+  flex: 0 0 74px;
+}
+
+.turn-list {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(242, 184, 75, 0.4) transparent;
+}
+
+.turn-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.turn-list::-webkit-scrollbar-thumb {
+  background: rgba(242, 184, 75, 0.4);
+  border-radius: 4px;
+}
+
+.turn-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.turn-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.065);
+  font-size: 11px;
+  transition: all 160ms var(--ease-out);
+  cursor: pointer;
+}
+
+.turn-item:hover {
+  border-color: rgba(242, 184, 75, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(2px);
+}
+
+.turn-item .order {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--ink-950);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.turn-item-text {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: #dfe6ee;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.turn-item-text small {
+  display: block;
+  overflow: hidden;
+  color: #8896a9;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.turn-item-remove {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(196, 87, 74, 0.14);
+  color: var(--danger);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.turn-item-remove:hover {
+  background: rgba(196, 87, 74, 0.26);
+}
+
 .no-selection {
   padding: 18px 0;
   color: var(--ink-500);
@@ -1419,7 +1905,6 @@ input[type='range'] {
   margin-top: 8px;
 }
 
-/* Footer status */
 .statusbar {
   display: flex;
   min-height: 44px;
@@ -1436,7 +1921,6 @@ input[type='range'] {
   background: var(--success);
 }
 
-/* Tablet */
 @media (max-width: 1180px) {
   :root {
     --sidebar-width: 254px;
@@ -1458,7 +1942,6 @@ input[type='range'] {
   }
 }
 
-/* Compact tablet / mobile shell */
 @media (max-width: 920px) {
   .workspace {
     display: flex;
@@ -1661,6 +2144,19 @@ input[type='range'] {
     padding-right: 16px;
     padding-left: 16px;
   }
+
+  .dialogue-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .dialogue-bubble-en {
+    font-size: min(var(--stage-en-size, 22px), 6.4vw);
+  }
+
+  .dialogue-bubble-km {
+    font-size: min(var(--stage-km-size, 20px), 6vw);
+  }
 }
 
 @media (max-width: 390px) {
@@ -1695,10 +2191,10 @@ input[type='range'] {
     transition-duration: 0.01ms !important;
   }
 }
-
 </style>
 </head>
 <body>
+  <!-- HTML ដូចគ្នានឹងកូដដើម -->
   <header class="topbar">
     <a class="brand" href="#main-content" aria-label="Lesson Animation Studio home">
       <span class="brand-mark" aria-hidden="true">語</span>
@@ -1729,7 +2225,7 @@ input[type='range'] {
       <div class="panel-intro">
         <span class="eyebrow">Lesson builder</span>
         <h1 id="build-title" class="panel-title">Build your lesson</h1>
-        <p class="panel-description">Turn one English sentence into a visual vocabulary lesson.</p>
+        <p class="panel-description">Turn one English sentence into a visual vocabulary lesson — or build a two‑character dialogue.</p>
       </div>
 
       <div class="section-block">
@@ -1806,6 +2302,57 @@ input[type='range'] {
 
       <div class="divider" role="presentation"></div>
 
+      <section class="section-block" aria-labelledby="dialogue-label">
+        <div id="dialogue-label" class="field-label field-label-row">
+          <span>Dialogue</span>
+          <span class="field-badge">2 characters</span>
+        </div>
+        <p class="field-help">Used when Layout is set to Dialogue. Set up your two speakers, then add turns one at a time.</p>
+
+        <div class="speaker-setup">
+          <div class="speaker-setup-card">
+            <label class="speaker-avatar-preview" id="speakerAAvatarPreview" for="speakerAAvatarInput" tabindex="0" role="button" aria-label="Upload avatar for Speaker A">A</label>
+            <input class="file-input-hidden" type="file" id="speakerAAvatarInput" accept="image/*">
+            <label class="field-label" for="speakerAName">Speaker A name</label>
+            <input type="text" id="speakerAName" placeholder="e.g. Sokha" value="Sokha" autocomplete="off">
+          </div>
+          <div class="speaker-setup-card">
+            <label class="speaker-avatar-preview" id="speakerBAvatarPreview" for="speakerBAvatarInput" tabindex="0" role="button" aria-label="Upload avatar for Speaker B">B</label>
+            <input class="file-input-hidden" type="file" id="speakerBAvatarInput" accept="image/*">
+            <label class="field-label" for="speakerBName">Speaker B name</label>
+            <input type="text" id="speakerBName" placeholder="e.g. Dara" value="Dara" autocomplete="off">
+          </div>
+        </div>
+
+        <label class="field-label grammar-input-label" for="turnEnInput">Turn text</label>
+        <div class="turn-form-row">
+          <select id="turnSpeakerSelect" aria-label="Speaker for this turn">
+            <option value="A">A</option>
+            <option value="B">B</option>
+          </select>
+          <input type="text" id="turnEnInput" placeholder="English, e.g. How are you?" autocomplete="off">
+        </div>
+        <div class="turn-form-row">
+          <input type="text" id="turnKmInput" class="khmer-input" placeholder="ខ្មែរ, ឧទាហរណ៍៖ អ្នកសុខសប្បាយទេ?" autocomplete="off">
+        </div>
+        <button id="addTurnBtn" class="btn btn-soft btn-block btn-small" type="button">
+          <span class="btn-icon" aria-hidden="true">＋</span>
+          <span>Add turn</span>
+        </button>
+
+        <ol id="turnList" class="turn-list" aria-label="Dialogue turns">
+          <li class="timeline-empty">No turns yet — add your first line above.</li>
+        </ol>
+
+        <label class="field-label" for="dialogueTextModeSelect">Bubble text</label>
+        <select id="dialogueTextModeSelect">
+          <option value="together">English + Khmer together</option>
+          <option value="en-then-km">English first, Khmer after</option>
+        </select>
+      </section>
+
+      <div class="divider" role="presentation"></div>
+
       <details class="settings-group" open>
         <summary>Layout <span class="summary-note">How words appear</span></summary>
         <div class="settings-content">
@@ -1818,6 +2365,11 @@ input[type='range'] {
             <button class="ratio-btn" type="button" data-layout="sidebyside" aria-pressed="false">
               <span class="ratio-icon" aria-hidden="true">⇄</span>
               <span class="ratio-copy"><strong>Side-by-side</strong><small>English + Khmer</small></span>
+              <span class="choice-mark" aria-hidden="true">✓</span>
+            </button>
+            <button class="ratio-btn" type="button" data-layout="dialogue" aria-pressed="false">
+              <span class="ratio-icon" aria-hidden="true">☺</span>
+              <span class="ratio-copy"><strong>Dialogue</strong><small>Two characters</small></span>
               <span class="choice-mark" aria-hidden="true">✓</span>
             </button>
           </div>
@@ -1888,7 +2440,7 @@ input[type='range'] {
           <input class="file-input-hidden" type="file" id="audioInput" accept="audio/*">
           <button id="audioRemoveBtn" class="btn btn-danger-ghost btn-block btn-small hidden" type="button">Remove audio</button>
           <label class="field-label field-label-row" for="volumeInput"><span>Volume</span><output id="volumeVal">80%</output></label>
-          <input type="range" id="volumeInput" min="0" max="100" value="80" oninput="this.previousElementSibling.querySelector('output').textContent = this.value + '%'">
+          <input type="range" id="volumeInput" min="0" max="100" value="80">
           <audio id="audioPlayer" hidden></audio>
         </div>
       </details>
@@ -1925,6 +2477,10 @@ input[type='range'] {
             <div class="flash-en" id="flashEn">—</div>
             <div class="flash-divider" aria-hidden="true"></div>
             <div class="flash-km" id="flashKm">—</div>
+          </div>
+
+          <div class="stage-dialogue" id="stageDialogue" aria-live="polite">
+            <div class="dialogue-chat-container" id="dialogueChatContainer"></div>
           </div>
 
           <div class="stage-image-slot" id="stageImageSlot"></div>
@@ -2003,9 +2559,18 @@ input[type='range'] {
 
   <script>
 // ===== State =====
-// words: [{ id, text, khmer, pos, example, imageData }]
 let words = [];
 let selectedWordId = null;
+let turns = [];
+let speakerA = { name: 'Sokha', avatarData: null };
+let speakerB = { name: 'Dara', avatarData: null };
+let dialogueTextMode = 'together';
+let dialoguePlaybackState = {
+  currentIndex: -1,
+  isPlaying: false,
+  timer: null,
+  totalTurns: 0
+};
 
 // ===== DOM refs =====
 const sentenceInput = document.getElementById('sentenceInput');
@@ -2041,7 +2606,6 @@ const exportBtn = document.getElementById('exportBtn');
 const recordBtn = document.getElementById('recordBtn');
 const statusText = document.getElementById('statusText');
 
-// New settings refs
 const layoutGroup = document.getElementById('layoutGroup');
 const bgColorInput = document.getElementById('bgColorInput');
 const bgImageBtn = document.getElementById('bgImageBtn');
@@ -2075,8 +2639,24 @@ const speedVal = document.getElementById('speedVal');
 const flashEn = document.getElementById('flashEn');
 const flashKm = document.getElementById('flashKm');
 
+const speakerAAvatarPreview = document.getElementById('speakerAAvatarPreview');
+const speakerAAvatarInput = document.getElementById('speakerAAvatarInput');
+const speakerAName = document.getElementById('speakerAName');
+const speakerBAvatarPreview = document.getElementById('speakerBAvatarPreview');
+const speakerBAvatarInput = document.getElementById('speakerBAvatarInput');
+const speakerBName = document.getElementById('speakerBName');
+const turnSpeakerSelect = document.getElementById('turnSpeakerSelect');
+const turnEnInput = document.getElementById('turnEnInput');
+const turnKmInput = document.getElementById('turnKmInput');
+const addTurnBtn = document.getElementById('addTurnBtn');
+const turnListEl = document.getElementById('turnList');
+const dialogueTextModeSelect = document.getElementById('dialogueTextModeSelect');
+
+const stageDialogue = document.getElementById('stageDialogue');
+const dialogueChatContainer = document.getElementById('dialogueChatContainer');
+
 const root = document.documentElement;
-let stepMs = 650; // time per word, configurable
+let stepMs = 650;
 let layoutMode = 'stacked';
 let playing = false;
 let animationTimer = null;
@@ -2132,7 +2712,6 @@ breakBtn.addEventListener('click', () => {
     setStatus('Type a sentence first.');
     return;
   }
-  // split on spaces, keep punctuation attached but strip for matching if needed
   const tokens = raw.split(/\s+/).filter(Boolean);
   words = tokens.map(t => ({
     id: uid(),
@@ -2188,7 +2767,7 @@ function renderWordCards() {
   });
 }
 
-// ===== Render timeline list (left sidebar) =====
+// ===== Render timeline list =====
 function renderTimeline() {
   timelineListEl.innerHTML = '';
   if (words.length === 0) {
@@ -2212,7 +2791,7 @@ function renderTimeline() {
   });
 }
 
-// ===== Render sentence on stage (all words dim, none revealed until Play) =====
+// ===== Render sentence on stage =====
 function renderStageSentence() {
   renderStageGrammar();
   stageSentence.innerHTML = '';
@@ -2270,7 +2849,7 @@ function updateFlashcardPreview() {
   }
 }
 
-// ===== Select a word, populate properties panel =====
+// ===== Select a word =====
 function selectWord(id) {
   selectedWordId = id;
   renderWordCards();
@@ -2372,7 +2951,7 @@ ratioGroup.addEventListener('click', (e) => {
   stage.classList.add('ratio-' + btn.dataset.ratio);
 });
 
-// ===== Export quality (HD / 2K / 4K) =====
+// ===== Export quality =====
 qualityGroup.addEventListener('click', (e) => {
   const btn = e.target.closest('.ratio-btn');
   if (!btn) return;
@@ -2406,7 +2985,354 @@ document.addEventListener('fullscreenchange', () => {
   fullscreenBtn.querySelector('.sr-only').textContent = isFullscreen ? 'Exit full screen' : 'Full screen';
 });
 
-// ===== Play preview: reveal words one by one, show images when relevant =====
+// ===== Dialogue: speaker setup =====
+function renderSpeakerAvatarPreview(previewEl, fallbackLetter, speaker) {
+  previewEl.innerHTML = '';
+  if (speaker.avatarData) {
+    const img = document.createElement('img');
+    img.src = speaker.avatarData;
+    img.alt = '';
+    previewEl.appendChild(img);
+  } else {
+    previewEl.textContent = fallbackLetter;
+  }
+}
+
+function renderDialogueAvatars() {
+  renderSpeakerAvatarPreview(speakerAAvatarPreview, 'A', speakerA);
+  renderSpeakerAvatarPreview(speakerBAvatarPreview, 'B', speakerB);
+}
+
+speakerAAvatarPreview.addEventListener('click', () => speakerAAvatarInput.click());
+speakerAAvatarPreview.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speakerAAvatarInput.click(); }
+});
+speakerBAvatarPreview.addEventListener('click', () => speakerBAvatarInput.click());
+speakerBAvatarPreview.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speakerBAvatarInput.click(); }
+});
+
+speakerAAvatarInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    speakerA.avatarData = ev.target.result;
+    renderDialogueAvatars();
+    if (layoutMode === 'dialogue') {
+      renderDialogueChat();
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+speakerBAvatarInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    speakerB.avatarData = ev.target.result;
+    renderDialogueAvatars();
+    if (layoutMode === 'dialogue') {
+      renderDialogueChat();
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+speakerAName.addEventListener('input', () => {
+  speakerA.name = speakerAName.value.trim() || 'A';
+  renderDialogueAvatars();
+  if (layoutMode === 'dialogue') {
+    renderDialogueChat();
+  }
+});
+
+speakerBName.addEventListener('input', () => {
+  speakerB.name = speakerBName.value.trim() || 'B';
+  renderDialogueAvatars();
+  if (layoutMode === 'dialogue') {
+    renderDialogueChat();
+  }
+});
+
+dialogueTextModeSelect.addEventListener('change', () => {
+  dialogueTextMode = dialogueTextModeSelect.value;
+  if (layoutMode === 'dialogue') {
+    renderDialogueChat();
+  }
+});
+
+// ===== Dialogue: turns =====
+function renderTurnList() {
+  turnListEl.innerHTML = '';
+  if (turns.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'timeline-empty';
+    li.textContent = 'No turns yet — add your first line above.';
+    turnListEl.appendChild(li);
+    return;
+  }
+  turns.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = 'turn-item';
+    li.dataset.index = i;
+    
+    const order = document.createElement('span');
+    order.className = 'order';
+    order.textContent = i + 1;
+
+    const textWrap = document.createElement('span');
+    textWrap.className = 'turn-item-text';
+    const speakerName = t.speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
+    textWrap.textContent = `${speakerName}: ${t.en}`;
+    if (t.km) {
+      const small = document.createElement('small');
+      small.textContent = t.km;
+      textWrap.appendChild(small);
+    }
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'turn-item-remove';
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      turns = turns.filter(x => x.id !== t.id);
+      renderTurnList();
+      setStatus('Turn removed.');
+      if (layoutMode === 'dialogue') {
+        renderDialogueChat();
+      }
+    });
+
+    li.addEventListener('click', () => {
+      if (layoutMode === 'dialogue') {
+        dialoguePlaybackState.currentIndex = i;
+        renderDialogueChat();
+      }
+    });
+
+    li.appendChild(order);
+    li.appendChild(textWrap);
+    li.appendChild(removeBtn);
+    turnListEl.appendChild(li);
+  });
+}
+
+addTurnBtn.addEventListener('click', () => {
+  const en = turnEnInput.value.trim();
+  const km = turnKmInput.value.trim();
+  if (!en) {
+    setStatus('Type the English line for this turn first.');
+    return;
+  }
+  turns.push({
+    id: uid(),
+    speaker: turnSpeakerSelect.value,
+    en,
+    km
+  });
+  turnEnInput.value = '';
+  turnKmInput.value = '';
+  turnSpeakerSelect.value = turnSpeakerSelect.value === 'A' ? 'B' : 'A';
+  renderTurnList();
+  setStatus(`Added turn ${turns.length}. Add the next line, or press Play to preview.`);
+  turnEnInput.focus();
+  
+  if (layoutMode === 'dialogue') {
+    renderDialogueChat();
+  }
+});
+
+turnEnInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addTurnBtn.click();
+  }
+});
+
+// ===== មុខងារថ្មី: បង្ហាញ Dialogue ជា Modern Chat =====
+function renderDialogueChat() {
+  if (!dialogueChatContainer) return;
+  
+  dialogueChatContainer.innerHTML = '';
+  
+  if (turns.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.cssText = 'color: rgba(255,255,255,0.5); text-align: center; font-size: 12px; padding: 20px;';
+    emptyMsg.textContent = 'No dialogue yet — add turns to see the chat here.';
+    dialogueChatContainer.appendChild(emptyMsg);
+    return;
+  }
+  
+  turns.forEach((turn, index) => {
+    const isA = turn.speaker === 'A';
+    const isCurrentTurn = index === dialoguePlaybackState.currentIndex;
+    
+    const row = document.createElement('div');
+    row.className = `dialogue-row ${isA ? 'speaker-a' : 'speaker-b'}`;
+    
+    const avatarCol = document.createElement('div');
+    avatarCol.className = 'dialogue-avatar-col' + (isCurrentTurn ? ' active' : '');
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'dialogue-avatar';
+    
+    if (isA && speakerA.avatarData) {
+      const img = document.createElement('img');
+      img.src = speakerA.avatarData;
+      img.alt = speakerA.name;
+      avatar.appendChild(img);
+    } else if (!isA && speakerB.avatarData) {
+      const img = document.createElement('img');
+      img.src = speakerB.avatarData;
+      img.alt = speakerB.name;
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = isA ? (speakerA.name || 'A').charAt(0).toUpperCase() : (speakerB.name || 'B').charAt(0).toUpperCase();
+    }
+    
+    const nameLabel = document.createElement('span');
+    nameLabel.className = 'dialogue-avatar-name';
+    nameLabel.textContent = isA ? (speakerA.name || 'A') : (speakerB.name || 'B');
+    
+    avatarCol.appendChild(avatar);
+    avatarCol.appendChild(nameLabel);
+    
+    const bubble = document.createElement('div');
+    bubble.className = `dialogue-bubble ${isA ? 'side-a' : 'side-b'}`;
+    
+    if (isCurrentTurn) {
+      bubble.classList.add('chat-animation');
+    }
+    
+    const speakerLabel = document.createElement('span');
+    speakerLabel.className = 'dialogue-bubble-speaker';
+    speakerLabel.textContent = isA ? (speakerA.name || 'A') : (speakerB.name || 'B');
+    bubble.appendChild(speakerLabel);
+    
+    const enText = document.createElement('div');
+    enText.className = 'dialogue-bubble-en';
+    enText.textContent = turn.en;
+    bubble.appendChild(enText);
+    
+    if (turn.km) {
+      const kmText = document.createElement('div');
+      kmText.className = 'dialogue-bubble-km';
+      kmText.textContent = turn.km;
+      bubble.appendChild(kmText);
+    }
+    
+    row.appendChild(avatarCol);
+    row.appendChild(bubble);
+    
+    dialogueChatContainer.appendChild(row);
+  });
+  
+  addDialogueNavigationToStage();
+}
+
+// ===== Navigation controls =====
+function createDialogueNavControls() {
+  const navControls = document.createElement('div');
+  navControls.className = 'dialogue-nav-controls';
+  navControls.innerHTML = `
+    <button class="dialogue-nav-btn" id="dialoguePrevBtn" aria-label="Previous turn">◀</button>
+    <span class="dialogue-progress-text" id="dialogueProgressText">0/0</span>
+    <button class="dialogue-nav-btn" id="dialogueNextBtn" aria-label="Next turn">▶</button>
+  `;
+  return navControls;
+}
+
+function addDialogueNavigationToStage() {
+  const existingControls = document.querySelector('.dialogue-nav-controls');
+  if (existingControls) existingControls.remove();
+  
+  const navControls = createDialogueNavControls();
+  stage.appendChild(navControls);
+  
+  const prevBtn = document.getElementById('dialoguePrevBtn');
+  const nextBtn = document.getElementById('dialogueNextBtn');
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (dialoguePlaybackState.currentIndex > 0) {
+        dialoguePlaybackState.currentIndex--;
+        renderDialogueChat();
+      }
+    });
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (dialoguePlaybackState.currentIndex < turns.length - 1) {
+        dialoguePlaybackState.currentIndex++;
+        renderDialogueChat();
+      }
+    });
+  }
+  
+  updateNavUI();
+}
+
+function updateNavUI() {
+  const progressText = document.getElementById('dialogueProgressText');
+  const prevBtn = document.getElementById('dialoguePrevBtn');
+  const nextBtn = document.getElementById('dialogueNextBtn');
+  const totalTurns = turns.length;
+  const currentIndex = dialoguePlaybackState.currentIndex;
+  
+  if (progressText) progressText.textContent = totalTurns > 0 ? `${Math.max(0, currentIndex + 1)}/${totalTurns}` : '0/0';
+  if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+  if (nextBtn) nextBtn.disabled = currentIndex >= totalTurns - 1;
+}
+
+// ===== Layout mode =====
+layoutGroup.addEventListener('click', (e) => {
+  const btn = e.target.closest('.ratio-btn');
+  if (!btn) return;
+  layoutGroup.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  layoutMode = btn.dataset.layout;
+
+  stage.classList.remove('mode-stacked', 'mode-sidebyside', 'mode-dialogue');
+  stage.classList.add('mode-' + layoutMode);
+
+  const flashcard = document.querySelector('.stage-flashcard');
+
+  if (layoutMode === 'stacked') {
+    stageSentence.style.display = 'flex';
+    flashcard.style.display = 'none';
+    stageDialogue.style.display = 'none';
+    flashEn.textContent = '—';
+    flashKm.textContent = '—';
+    document.querySelectorAll('.stage-word').forEach(el => {
+      el.style.display = 'inline';
+    });
+    const existingControls = document.querySelector('.dialogue-nav-controls');
+    if (existingControls) existingControls.remove();
+  } else if (layoutMode === 'sidebyside') {
+    stageSentence.style.display = 'none';
+    flashcard.style.display = 'flex';
+    stageDialogue.style.display = 'none';
+    updateFlashcardPreview();
+    const existingControls = document.querySelector('.dialogue-nav-controls');
+    if (existingControls) existingControls.remove();
+  } else {
+    stageSentence.style.display = 'none';
+    flashcard.style.display = 'none';
+    stageDialogue.style.display = 'flex';
+    renderDialogueAvatars();
+    dialoguePlaybackState.currentIndex = 0;
+    renderDialogueChat();
+  }
+
+  const layoutNames = { stacked: 'Stacked', sidebyside: 'Side-by-side', dialogue: 'Dialogue' };
+  setStatus(`Switched to ${layoutNames[layoutMode]} layout`);
+});
+
+// ===== Play preview =====
 function setPlayingUI(isPlaying) {
   playBtn.querySelector('.play-dot').textContent = isPlaying ? '⏸' : '▶';
   playBtn.querySelector('span:last-child').textContent = isPlaying ? 'Stop' : 'Play preview';
@@ -2417,11 +3343,15 @@ function setPlayingUI(isPlaying) {
 
 function handlePlayToggle() {
   if (playing) {
-    // Stop playing
     stopPlayback();
     return;
   }
-  if (words.length === 0) {
+  if (layoutMode === 'dialogue') {
+    if (turns.length === 0) {
+      setStatus('Please add at least one dialogue turn first.');
+      return;
+    }
+  } else if (words.length === 0) {
     setStatus('Please break a sentence first.');
     return;
   }
@@ -2433,26 +3363,39 @@ stagePlayBtn.addEventListener('click', handlePlayToggle);
 
 function stopPlayback() {
   playing = false;
+  dialoguePlaybackState.isPlaying = false;
+  
   if (animationTimer) {
     clearTimeout(animationTimer);
     animationTimer = null;
   }
+  
   setPlayingUI(false);
+  
   if (audioPlayer.src) {
     audioPlayer.pause();
   }
-  // Reset highlights
+  
   document.querySelectorAll('.stage-word').forEach(el => {
     el.classList.remove('revealed', 'highlight');
   });
+  
+  if (layoutMode === 'dialogue') {
+    renderDialogueChat();
+  }
+  
   setStatus('Playback stopped.');
 }
 
 function startPlayback() {
+  if (layoutMode === 'dialogue') {
+    startDialoguePlayback();
+    return;
+  }
+
   playing = true;
   setPlayingUI(true);
 
-  // reset
   document.querySelectorAll('.stage-word').forEach(el => {
     el.classList.remove('revealed', 'highlight');
   });
@@ -2461,7 +3404,6 @@ function startPlayback() {
   flashEn.textContent = '—';
   flashKm.textContent = '—';
 
-  // start audio in sync, if loaded
   if (audioPlayer.src) {
     audioPlayer.currentTime = 0;
     audioPlayer.play().catch(() => {});
@@ -2484,7 +3426,6 @@ function startPlayback() {
   }
 
   function step() {
-    // clear previous highlight
     if (i > 0 && layoutMode === 'stacked') {
       const prevEl = stageSentence.children[i - 1];
       if (prevEl) prevEl.classList.remove('highlight');
@@ -2506,11 +3447,10 @@ function startPlayback() {
         el.classList.add('revealed', 'highlight');
       }
     } else {
-      // side-by-side flashcard
       setFlashcardWord(w);
       flashEn.classList.remove('flash-pop');
       flashKm.classList.remove('flash-pop');
-      void flashEn.offsetWidth; // restart animation
+      void flashEn.offsetWidth;
       flashEn.classList.add('flash-pop');
       flashKm.classList.add('flash-pop');
     }
@@ -2524,37 +3464,60 @@ function startPlayback() {
   step();
 }
 
-// ===== Layout mode: Stacked vs Side-by-side =====
-layoutGroup.addEventListener('click', (e) => {
-  const btn = e.target.closest('.ratio-btn');
-  if (!btn) return;
-  layoutGroup.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  layoutMode = btn.dataset.layout;
+// ===== Dialogue playback =====
+function startDialoguePlayback() {
+  playing = true;
+  setPlayingUI(true);
+  dialoguePlaybackState.currentIndex = -1;
+  dialoguePlaybackState.isPlaying = true;
   
-  // Update stage class
-  stage.classList.remove('mode-stacked', 'mode-sidebyside');
-  stage.classList.add('mode-' + layoutMode);
-  
-  // Show/hide appropriate elements
-  const flashcard = document.querySelector('.stage-flashcard');
-  if (layoutMode === 'stacked') {
-    stageSentence.style.display = 'flex';
-    flashcard.style.display = 'none';
-    // Reset flashcard
-    flashEn.textContent = '—';
-    flashKm.textContent = '—';
-    // Show all words dimmed
-    document.querySelectorAll('.stage-word').forEach(el => {
-      el.style.display = 'inline';
-    });
-  } else {
-    stageSentence.style.display = 'none';
-    flashcard.style.display = 'flex';
-    // Update flashcard with selected or first word
-    updateFlashcardPreview();
+  if (audioPlayer.src) {
+    audioPlayer.currentTime = 0;
+    audioPlayer.play().catch(() => {});
   }
-  setStatus(`Switched to ${layoutMode === 'stacked' ? 'Stacked' : 'Side-by-side'} layout`);
+  
+  let i = 0;
+  
+  function step() {
+    if (i >= turns.length) {
+      playing = false;
+      dialoguePlaybackState.isPlaying = false;
+      setPlayingUI(false);
+      if (audioPlayer.src) audioPlayer.pause();
+      setStatus('Playback complete!');
+      return;
+    }
+    
+    dialoguePlaybackState.currentIndex = i;
+    renderDialogueChat();
+    
+    const speakerName = turns[i].speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
+    setStatus(`Turn ${i + 1} of ${turns.length} — ${speakerName}: "${turns[i].en}"`);
+    
+    i++;
+    animationTimer = setTimeout(step, stepMs);
+  }
+  
+  animationTimer = setTimeout(step, Math.max(0, stepMs));
+}
+
+// ===== Keyboard navigation =====
+document.addEventListener('keydown', (e) => {
+  if (layoutMode !== 'dialogue') return;
+  
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (dialoguePlaybackState.currentIndex > 0) {
+      dialoguePlaybackState.currentIndex--;
+      renderDialogueChat();
+    }
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (dialoguePlaybackState.currentIndex < turns.length - 1) {
+      dialoguePlaybackState.currentIndex++;
+      renderDialogueChat();
+    }
+  }
 });
 
 // ===== Background color / image =====
@@ -2596,7 +3559,7 @@ bgImageRemoveBtn.addEventListener('click', () => {
   setStatus('Background image removed.');
 });
 
-// ===== Text style: font + size for English / Khmer on stage =====
+// ===== Text style =====
 enFontSelect.addEventListener('change', () => {
   stage.style.setProperty('--stage-en-font', enFontSelect.value);
 });
@@ -2615,7 +3578,7 @@ kmSizeInput.addEventListener('input', () => {
   kmSizeVal.textContent = kmSizeInput.value + 'px';
 });
 
-// ===== Word box style (applies to word cards under the stage) =====
+// ===== Word box style =====
 boxBgInput.addEventListener('input', () => {
   root.style.setProperty('--box-bg', boxBgInput.value);
 });
@@ -2635,7 +3598,7 @@ imgSizeInput.addEventListener('input', () => {
   imgSizeVal.textContent = imgSizeInput.value + 'px';
 });
 
-// ===== Audio (MP3) =====
+// ===== Audio =====
 audioBtn.addEventListener('click', () => audioInput.click());
 
 audioInput.addEventListener('change', (e) => {
@@ -2664,12 +3627,25 @@ volumeInput.addEventListener('input', () => {
 audioPlayer.volume = 0.8;
 
 // ===== Animation speed =====
-speedInput.addEventListener('input', () => {
-  stepMs = parseInt(speedInput.value, 10);
+function syncAnimationSpeed({ restart = false } = {}) {
+  const nextSpeed = Number.parseInt(speedInput.value, 10);
+  stepMs = Number.isFinite(nextSpeed) ? Math.min(2000, Math.max(200, nextSpeed)) : 650;
+  speedInput.value = String(stepMs);
   speedVal.textContent = (stepMs / 1000).toFixed(2) + 's';
-});
 
-// ===== Save lesson (download as JSON — zero server cost) =====
+  // A timeout that is already waiting cannot change its duration. Restarting
+  // keeps the new speed observable immediately and avoids a stale timer.
+  if (restart && playing) {
+    stopPlayback();
+    startPlayback();
+    setStatus(`Playback restarted at ${(stepMs / 1000).toFixed(2)}s per ${layoutMode === 'dialogue' ? 'turn' : 'word'}.`);
+  }
+}
+
+speedInput.addEventListener('input', () => syncAnimationSpeed({ restart: true }));
+speedInput.addEventListener('change', () => syncAnimationSpeed());
+
+// ===== Save lesson =====
 saveBtn.addEventListener('click', () => {
   const lesson = {
     sentence: sentenceInput.value,
@@ -2694,7 +3670,13 @@ saveBtn.addEventListener('click', () => {
       pos: w.pos,
       example: w.example,
       hasImage: !!w.imageData
-    }))
+    })),
+    dialogue: {
+      speakerA: { name: speakerA.name, hasAvatar: !!speakerA.avatarData },
+      speakerB: { name: speakerB.name, hasAvatar: !!speakerB.avatarData },
+      textMode: dialogueTextMode,
+      turns: turns.map(t => ({ speaker: t.speaker, en: t.en, km: t.km }))
+    }
   };
   const blob = new Blob([JSON.stringify(lesson, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2706,14 +3688,11 @@ saveBtn.addEventListener('click', () => {
   setStatus('Lesson saved as lesson.json.');
 });
 
-// ===== Video export (browser-native WebM) =====
+// ===== Video export =====
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Landscape (16:9) short-edge line counts per quality tier. The other two
-// ratios derive their own dimensions from the same tier so "HD"/"2K"/"4K"
-// mean a consistent step up in resolution across every canvas format.
 const QUALITY_PRESETS = {
   hd: { landscape: { width: 1280, height: 720 }, portrait: { width: 720, height: 1280 }, square: { width: 1080, height: 1080 } },
   '2k': { landscape: { width: 2560, height: 1440 }, portrait: { width: 1440, height: 2560 }, square: { width: 1440, height: 1440 } },
@@ -2740,8 +3719,6 @@ function getSupportedVideoMimeType() {
   ].find(type => MediaRecorder.isTypeSupported(type)) || '';
 }
 
-// Browsers pick a fairly conservative default bitrate that under-serves
-// 2K/4K (comes out blocky). Set it explicitly per quality tier instead.
 function getVideoBitsPerSecond() {
   const bitrateByQuality = { hd: 6000000, '2k': 14000000, '4k': 32000000 };
   return bitrateByQuality[exportQuality] || bitrateByQuality.hd;
@@ -2775,6 +3752,72 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
   ctx.arcTo(x, y + height, x, y, r);
   ctx.arcTo(x, y, x + width, y, r);
   ctx.closePath();
+}
+
+function drawExportBackdrop(ctx, width, height, bgColor, backgroundImage) {
+  ctx.save();
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = bgColor || '#12142a';
+  ctx.fillRect(0, 0, width, height);
+  if (backgroundImage) {
+    const ratio = Math.max(width / backgroundImage.width, height / backgroundImage.height);
+    const drawWidth = backgroundImage.width * ratio;
+    const drawHeight = backgroundImage.height * ratio;
+    ctx.globalAlpha = 0.82;
+    ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
+    ctx.globalAlpha = 1;
+  }
+  const glow = ctx.createRadialGradient(width * 0.18, height * 0.12, 0, width * 0.18, height * 0.12, width * 0.62);
+  glow.addColorStop(0, 'rgba(35, 150, 174, 0.18)');
+  glow.addColorStop(1, 'rgba(35, 150, 174, 0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, width, height);
+  const glow2 = ctx.createRadialGradient(width * 0.86, height * 0.86, 0, width * 0.86, height * 0.86, width * 0.5);
+  glow2.addColorStop(0, 'rgba(242, 184, 75, 0.15)');
+  glow2.addColorStop(1, 'rgba(242, 184, 75, 0)');
+  ctx.fillStyle = glow2;
+  ctx.fillRect(0, 0, width, height);
+  ctx.restore();
+}
+
+function wrapCanvasText(ctx, text, maxWidth) {
+  const rawTokens = String(text || '').trim().split(/\s+/).filter(Boolean);
+  if (!rawTokens.length) return [''];
+
+  // Break long unspaced strings as well. This is important for Khmer text,
+  // URLs, IDs, and user-entered placeholder text such as "sdf...".
+  const tokens = [];
+  rawTokens.forEach(token => {
+    if (ctx.measureText(token).width <= maxWidth) {
+      tokens.push(token);
+      return;
+    }
+    let chunk = '';
+    Array.from(token).forEach(character => {
+      const candidate = chunk + character;
+      if (chunk && ctx.measureText(candidate).width > maxWidth) {
+        tokens.push(chunk);
+        chunk = character;
+      } else {
+        chunk = candidate;
+      }
+    });
+    if (chunk) tokens.push(chunk);
+  });
+
+  const lines = [];
+  let line = tokens[0] || '';
+  for (let i = 1; i < tokens.length; i += 1) {
+    const candidate = `${line} ${tokens[i]}`;
+    if (ctx.measureText(candidate).width <= maxWidth) {
+      line = candidate;
+    } else {
+      lines.push(line);
+      line = tokens[i];
+    }
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : [''];
 }
 
 function drawStageImage(ctx, image, width, y, scale) {
@@ -2817,11 +3860,14 @@ function drawGrammarLabel(ctx, text, width, y, scale) {
   return y + labelHeight;
 }
 
+// ===== កែតម្រូវ drawStackedExportFrame =====
 function drawStackedExportFrame(ctx, width, height, activeIndex, scale, activeImage) {
   const fontSize = Math.max(20, Math.round(Number(enSizeInput.value) * scale));
   const kmFontSize = Math.max(15, Math.round(Number(kmSizeInput.value) * scale));
   const gap = Math.max(12, Math.round(fontSize * 0.38));
   const maxLineWidth = width * 0.82;
+  
+  // រៀបចំ words ជា lines
   const lines = [];
   let currentLine = [];
   let currentWidth = 0;
@@ -2844,37 +3890,50 @@ function drawStackedExportFrame(ctx, width, height, activeIndex, scale, activeIm
   const grammarHeight = grammar ? Math.max(38, Math.round(42 * scale)) : 0;
   const imageHeight = activeImage ? Math.min(Math.max(40, Number(imgSizeInput.value) * scale), width * 0.3, 220 * scale) + 18 * scale : 0;
   const lineHeight = Math.round(fontSize * 1.65);
-  const totalHeight = imageHeight + grammarHeight + (grammar ? 16 * scale : 0) + lines.length * lineHeight;
+  
+  // គណនាកម្ពស់សរុប
+  let totalHeight = imageHeight + grammarHeight + (grammar ? 16 * scale : 0);
+  lines.forEach(line => {
+    totalHeight += lineHeight;
+  });
+  
   let y = (height - totalHeight) / 2;
   y = drawStageImage(ctx, activeImage, width, y, scale);
   y = drawGrammarLabel(ctx, grammar, width, y, scale);
   if (grammar) y += 16 * scale;
 
+  // គូរពាក្យនីមួយៗ
   lines.forEach(line => {
     const lineWidth = line.reduce((sum, entry) => sum + entry.width, 0) + gap * Math.max(0, line.length - 1);
     let x = (width - lineWidth) / 2;
     line.forEach(({ word, index, width: wordWidth }) => {
       const isActive = index === activeIndex;
       const isRevealed = activeIndex >= 0 && index <= activeIndex;
+      
       ctx.globalAlpha = activeIndex < 0 || isRevealed ? 1 : 0.28;
       ctx.fillStyle = isActive ? '#f2b84b' : '#fffdf9';
       ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
       ctx.fillText(word.text, x, y + fontSize);
+      
       if (word.khmer) {
-        ctx.globalAlpha *= 0.85;
+        ctx.globalAlpha = isRevealed ? 0.85 : 0.28;
         ctx.fillStyle = isActive ? '#ffd071' : '#fffdf9';
         ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
-        ctx.fillText(word.khmer, x + (wordWidth - ctx.measureText(word.khmer).width) / 2, y + fontSize + kmFontSize + 5 * scale);
+        const kmText = word.khmer;
+        const kmWidth = ctx.measureText(kmText).width;
+        ctx.fillText(kmText, x + (wordWidth - kmWidth) / 2, y + fontSize + kmFontSize + 5 * scale);
       }
       x += wordWidth + gap;
+      ctx.globalAlpha = 1;
     });
     y += lineHeight;
   });
   ctx.globalAlpha = 1;
 }
 
+// ===== drawSideBySideExportFrame =====
 function drawSideBySideExportFrame(ctx, width, height, activeIndex, scale, activeImage) {
   const index = activeIndex >= 0 ? activeIndex : 0;
   const word = words[index] || { text: '—', khmer: '' };
@@ -2911,8 +3970,262 @@ function drawSideBySideExportFrame(ctx, width, height, activeIndex, scale, activ
   ctx.fillText(word.khmer || '—', left + boxWidth + gap + boxWidth / 2, top + boxHeight / 2);
 }
 
-async function drawExportFrame(ctx, width, height, activeIndex, backgroundImage, activeImage) {
-  const scale = width / 640;
+// ===== drawDialogueExportFrame =====
+function drawDialogueExportFrame(ctx, width, height, turnIndex, scale, avatarImgA, avatarImgB) {
+  const turn = turns[turnIndex] || turns[0];
+  if (!turn) return;
+  const isA = turn.speaker === 'A';
+  const avatarRadius = Math.max(30, 38 * scale);
+  const marginX = width * 0.1;
+  const cy = height / 2;
+  const cxA = marginX + avatarRadius;
+  const cxB = width - marginX - avatarRadius;
+
+  // Draw avatars
+  ctx.save();
+  ctx.globalAlpha = 1;
+  // Avatar A
+  ctx.beginPath();
+  ctx.arc(cxA, cy, avatarRadius, 0, Math.PI * 2);
+  ctx.closePath();
+  if (avatarImgA) {
+    ctx.save();
+    ctx.clip();
+    const ratio = Math.max((avatarRadius * 2) / avatarImgA.width, (avatarRadius * 2) / avatarImgA.height);
+    const drawWidth = avatarImgA.width * ratio;
+    const drawHeight = avatarImgA.height * ratio;
+    ctx.drawImage(avatarImgA, cxA - drawWidth / 2, cy - drawHeight / 2, drawWidth, drawHeight);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = `700 ${Math.round(avatarRadius * 0.7)}px Poppins, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText((speakerA.name || 'A').charAt(0).toUpperCase(), cxA, cy);
+  }
+  ctx.strokeStyle = isA ? 'rgba(35, 150, 174, 0.6)' : 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = Math.max(2, avatarRadius * 0.05);
+  ctx.stroke();
+  
+  // Avatar B
+  ctx.beginPath();
+  ctx.arc(cxB, cy, avatarRadius, 0, Math.PI * 2);
+  ctx.closePath();
+  if (avatarImgB) {
+    ctx.save();
+    ctx.clip();
+    const ratio = Math.max((avatarRadius * 2) / avatarImgB.width, (avatarRadius * 2) / avatarImgB.height);
+    const drawWidth = avatarImgB.width * ratio;
+    const drawHeight = avatarImgB.height * ratio;
+    ctx.drawImage(avatarImgB, cxB - drawWidth / 2, cy - drawHeight / 2, drawWidth, drawHeight);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = `700 ${Math.round(avatarRadius * 0.7)}px Poppins, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText((speakerB.name || 'B').charAt(0).toUpperCase(), cxB, cy);
+  }
+  ctx.strokeStyle = !isA ? 'rgba(242, 184, 75, 0.6)' : 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = Math.max(2, avatarRadius * 0.05);
+  ctx.stroke();
+  
+  ctx.restore();
+
+  // Labels
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.font = `600 ${Math.max(11, Math.round(11 * scale))}px Inter, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(speakerA.name || 'A', cxA, cy + avatarRadius + 10 * scale);
+  ctx.fillText(speakerB.name || 'B', cxB, cy + avatarRadius + 10 * scale);
+
+  // Dialogue bubble
+  const showKm = dialogueTextMode === 'together' ? !!turn.km : (turnIndex !== 'preview' && !!turn.km);
+  const fontSize = Math.max(18, Math.round(Number(enSizeInput.value) * scale));
+  const kmFontSize = Math.max(15, Math.round(Number(kmSizeInput.value) * scale));
+  const bubbleMaxWidth = width - (marginX + avatarRadius) * 2 - 40 * scale;
+
+  const textMaxWidth = Math.max(180 * scale, bubbleMaxWidth - 48 * scale);
+  ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
+  const enLines = wrapCanvasText(ctx, turn.en, textMaxWidth);
+  ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
+  const kmLines = showKm && turn.km ? wrapCanvasText(ctx, turn.km, textMaxWidth) : [];
+  const widestLine = Math.max(
+    ...enLines.map(line => { ctx.font = `600 ${fontSize}px ${enFontSelect.value}`; return ctx.measureText(line).width; }),
+    ...kmLines.map(line => { ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`; return ctx.measureText(line).width; }),
+    90 * scale
+  );
+  const bubbleWidth = Math.min(bubbleMaxWidth, widestLine + 48 * scale);
+  const lineGap = 8 * scale;
+  const enLineHeight = fontSize * 1.22;
+  const kmLineHeight = kmFontSize * 1.22;
+  const bubbleHeight = enLines.length * enLineHeight + (kmLines.length ? lineGap + kmLines.length * kmLineHeight : 0) + 28 * scale;
+  const bubbleX = width / 2 - bubbleWidth / 2;
+  const bubbleY = cy - bubbleHeight / 2;
+
+  ctx.fillStyle = isA ? 'rgba(35, 150, 174, 0.25)' : 'rgba(242, 184, 75, 0.2)';
+  drawRoundedRect(ctx, bubbleX, bubbleY, bubbleWidth, bubbleHeight, 16 * scale);
+  ctx.fill();
+  ctx.strokeStyle = isA ? 'rgba(35, 150, 174, 0.3)' : 'rgba(242, 184, 75, 0.3)';
+  ctx.lineWidth = Math.max(1, scale);
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#fffdf9';
+  ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
+  let textY = bubbleY + 14 * scale;
+  enLines.forEach(line => { ctx.fillText(line, width / 2, textY); textY += enLineHeight; });
+
+  if (kmLines.length) {
+    textY += lineGap;
+    ctx.fillStyle = '#ffd071';
+    ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
+    kmLines.forEach(line => { ctx.fillText(line, width / 2, textY); textY += kmLineHeight; });
+  }
+}
+
+function drawDialoguePortraitExportFrame(ctx, width, height, activeIndex, scale, avatarImgA, avatarImgB) {
+  const topMargin = Math.max(34 * scale, height * 0.065);
+  const bottomMargin = Math.max(70 * scale, height * 0.13);
+  const grammar = grammarInput.value.trim();
+  let y = topMargin;
+  if (grammar) {
+    y = drawGrammarLabel(ctx, grammar, width, y, scale) + 34 * scale;
+  }
+
+  const rowGap = Math.max(24 * scale, height * 0.035);
+  const avatarRadius = Math.max(26 * scale, Math.min(34 * scale, width * 0.085));
+  const sidePadding = width * 0.07;
+  const bubbleMaxWidth = width * 0.68;
+  const contentWidth = width - sidePadding * 2;
+  const rows = turns.map((turn, index) => {
+    const isA = turn.speaker === 'A';
+    const fontSize = Math.max(22, Math.round(Number(enSizeInput.value) * scale));
+    const kmFontSize = Math.max(17, Math.round(Number(kmSizeInput.value) * scale));
+    const bubbleWidth = Math.min(bubbleMaxWidth, Math.max(190 * scale, width * 0.42));
+    const innerWidth = bubbleWidth - 42 * scale;
+    ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
+    const enLines = wrapCanvasText(ctx, turn.en, innerWidth);
+    ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
+    const kmLines = turn.km ? wrapCanvasText(ctx, turn.km, innerWidth) : [];
+    const enLineHeight = fontSize * 1.2;
+    const kmLineHeight = kmFontSize * 1.2;
+    const bubbleHeight = enLines.length * enLineHeight + (kmLines.length ? 10 * scale + kmLines.length * kmLineHeight : 0) + 34 * scale;
+    return { turn, index, isA, fontSize, kmFontSize, enLines, kmLines, enLineHeight, kmLineHeight, bubbleHeight, bubbleWidth };
+  });
+
+  const totalHeight = rows.reduce((sum, row) => sum + Math.max(row.bubbleHeight, avatarRadius * 2 + 26 * scale), 0) + rowGap * Math.max(0, rows.length - 1);
+  y += Math.max(0, (height - bottomMargin - y - totalHeight) / 2);
+
+  rows.forEach(row => {
+    const { turn, index, isA, fontSize, kmFontSize, enLines, kmLines, enLineHeight, kmLineHeight, bubbleHeight, bubbleWidth } = row;
+    const rowHeight = Math.max(bubbleHeight, avatarRadius * 2 + 26 * scale);
+    const bubbleX = isA ? sidePadding + avatarRadius * 2 + 16 * scale : width - sidePadding - avatarRadius * 2 - 16 * scale - bubbleWidth;
+    const bubbleY = y + (rowHeight - bubbleHeight) / 2;
+    const avatarX = isA ? sidePadding + avatarRadius : width - sidePadding - avatarRadius;
+    const avatarY = y + (rowHeight - avatarRadius * 2 - 26 * scale) / 2;
+    const avatarImg = isA ? avatarImgA : avatarImgB;
+    const name = isA ? (speakerA.name || 'A') : (speakerB.name || 'B');
+    const isActive = index === activeIndex;
+
+    ctx.save();
+    ctx.globalAlpha = isActive ? 1 : 0.78;
+    ctx.beginPath();
+    ctx.arc(avatarX, avatarY + avatarRadius, avatarRadius, 0, Math.PI * 2);
+    ctx.closePath();
+    if (avatarImg) {
+      ctx.save();
+      ctx.clip();
+      const ratio = Math.max((avatarRadius * 2) / avatarImg.width, (avatarRadius * 2) / avatarImg.height);
+      ctx.drawImage(avatarImg, avatarX - avatarImg.width * ratio / 2, avatarY + avatarRadius - avatarImg.height * ratio / 2, avatarImg.width * ratio, avatarImg.height * ratio);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.78)';
+      ctx.font = `700 ${Math.round(avatarRadius * 0.72)}px Poppins, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(name.charAt(0).toUpperCase(), avatarX, avatarY + avatarRadius);
+    }
+    ctx.strokeStyle = isActive ? (isA ? 'rgba(35,150,174,0.95)' : 'rgba(242,184,75,0.95)') : 'rgba(255,255,255,0.28)';
+    ctx.lineWidth = Math.max(2, scale * 2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = `600 ${Math.max(11, Math.round(11 * scale))}px Inter, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(name, avatarX, avatarY + avatarRadius * 2 + 7 * scale);
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = isActive ? 1 : 0.78;
+    ctx.fillStyle = isA ? 'rgba(35,150,174,0.42)' : 'rgba(242,184,75,0.34)';
+    drawRoundedRect(ctx, bubbleX, bubbleY, bubbleWidth, bubbleHeight, 18 * scale);
+    ctx.fill();
+    ctx.strokeStyle = isA ? 'rgba(35,150,174,0.68)' : 'rgba(242,184,75,0.62)';
+    ctx.lineWidth = Math.max(1, scale);
+    ctx.stroke();
+    ctx.fillStyle = '#ffd071';
+    ctx.font = `700 ${Math.max(11, Math.round(10 * scale))}px Inter, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(name.toUpperCase(), bubbleX + 18 * scale, bubbleY + 12 * scale);
+    let textY = bubbleY + 29 * scale;
+    ctx.fillStyle = '#fffdf9';
+    ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
+    enLines.forEach(line => { ctx.fillText(line, bubbleX + 18 * scale, textY); textY += enLineHeight; });
+    if (kmLines.length) {
+      textY += 7 * scale;
+      ctx.fillStyle = '#ffd071';
+      ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
+      kmLines.forEach(line => { ctx.fillText(line, bubbleX + 18 * scale, textY); textY += kmLineHeight; });
+    }
+    ctx.restore();
+    y += rowHeight + rowGap;
+  });
+}
+
+// ===== runExportSequence =====
+async function runExportSequence(recorder, canvas, ctx, width, height) {
+  if (layoutMode === 'dialogue') {
+    const backgroundImage = await loadImage(getStageBackgroundSource());
+    const avatarImgA = await loadImage(speakerA.avatarData);
+    const avatarImgB = await loadImage(speakerB.avatarData);
+    for (let index = 0; index < turns.length; index += 1) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = bgColorInput.value || '#12142a';
+      ctx.fillRect(0, 0, width, height);
+      if (backgroundImage) {
+        const ratio = Math.max(width / backgroundImage.width, height / backgroundImage.height);
+        const drawWidth = backgroundImage.width * ratio;
+        const drawHeight = backgroundImage.height * ratio;
+        ctx.globalAlpha = 0.88;
+        ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
+        ctx.globalAlpha = 1;
+      }
+      drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
+      if (height > width) {
+        drawDialoguePortraitExportFrame(ctx, width, height, index, width / 640, avatarImgA, avatarImgB);
+      } else {
+        drawDialogueExportFrame(ctx, width, height, index, width / 640, avatarImgA, avatarImgB);
+      }
+      setStatus(`Rendering video: turn ${index + 1} of ${turns.length}…`);
+      await sleep(stepMs);
+    }
+    return;
+  }
+
+  const backgroundImage = await loadImage(getStageBackgroundSource());
+  const wordImages = await Promise.all(words.map(word => loadImage(word.imageData)));
+  
+  // Draw initial frame
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = bgColorInput.value || '#12142a';
   ctx.fillRect(0, 0, width, height);
@@ -2924,6 +4237,31 @@ async function drawExportFrame(ctx, width, height, activeIndex, backgroundImage,
     ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
     ctx.globalAlpha = 1;
   }
+  drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
+  await drawExportFrame(ctx, width, height, -1, backgroundImage, null);
+  await sleep(Math.min(700, Math.max(350, stepMs)));
+
+  for (let index = 0; index < words.length; index += 1) {
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = bgColorInput.value || '#12142a';
+    ctx.fillRect(0, 0, width, height);
+    if (backgroundImage) {
+      const ratio = Math.max(width / backgroundImage.width, height / backgroundImage.height);
+      const drawWidth = backgroundImage.width * ratio;
+      const drawHeight = backgroundImage.height * ratio;
+      ctx.globalAlpha = 0.88;
+      ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
+      ctx.globalAlpha = 1;
+    }
+    drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
+    await drawExportFrame(ctx, width, height, index, backgroundImage, wordImages[index]);
+    setStatus(`Rendering video: word ${index + 1} of ${words.length}…`);
+    await sleep(stepMs);
+  }
+}
+
+async function drawExportFrame(ctx, width, height, activeIndex, backgroundImage, activeImage) {
+  const scale = width / 640;
   if (layoutMode === 'sidebyside') {
     drawSideBySideExportFrame(ctx, width, height, activeIndex, scale, activeImage);
   } else {
@@ -2931,10 +4269,14 @@ async function drawExportFrame(ctx, width, height, activeIndex, backgroundImage,
   }
 }
 
+// ===== exportVideo =====
 async function exportVideo() {
   if (exportingVideo) return;
-  if (words.length === 0) {
-    setStatus('Please break a sentence before exporting a video.');
+  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : words.length > 0;
+  if (!hasContent) {
+    setStatus(layoutMode === 'dialogue'
+      ? 'Please add at least one dialogue turn before exporting a video.'
+      : 'Please break a sentence before exporting a video.');
     return;
   }
   const mimeType = getSupportedVideoMimeType();
@@ -2966,20 +4308,9 @@ async function exportVideo() {
   });
 
   try {
-    const backgroundImage = await loadImage(getStageBackgroundSource());
-    const wordImages = await Promise.all(words.map(word => loadImage(word.imageData)));
     recorder.start(200);
-    await drawExportFrame(ctx, width, height, -1, backgroundImage, null);
-    await sleep(Math.min(700, Math.max(350, stepMs)));
+    await runExportSequence(recorder, canvas, ctx, width, height);
 
-    for (let index = 0; index < words.length; index += 1) {
-      await drawExportFrame(ctx, width, height, index, backgroundImage, wordImages[index]);
-      setStatus(`Rendering video: word ${index + 1} of ${words.length}…`);
-      await sleep(stepMs);
-    }
-
-    // Nudge the encoder to flush any buffered frame before we stop —
-    // helps at 2K/4K where software encoding can lag behind real time.
     if (recorder.state === 'recording' && recorder.requestData) {
       recorder.requestData();
       await sleep(150);
@@ -3013,14 +4344,13 @@ async function exportVideo() {
 
 exportBtn.addEventListener('click', exportVideo);
 
-// ===== Record video WITH narration audio (WebM, includes the audio track) =====
+// ===== Record video WITH narration audio =====
 function getRecordAudioNodes() {
   if (!recordAudioContext) {
     const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
     recordAudioContext = new AudioContextCtor();
     recordAudioSourceNode = recordAudioContext.createMediaElementSource(audioPlayer);
     recordAudioDestNode = recordAudioContext.createMediaStreamDestination();
-    // Feed the recorder AND keep it audible on speakers while recording.
     recordAudioSourceNode.connect(recordAudioDestNode);
     recordAudioSourceNode.connect(recordAudioContext.destination);
   }
@@ -3047,8 +4377,11 @@ function waitForAudioToFinish() {
 
 async function recordVideo() {
   if (recordingVideo) return;
-  if (words.length === 0) {
-    setStatus('Please break a sentence before recording a video.');
+  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : words.length > 0;
+  if (!hasContent) {
+    setStatus(layoutMode === 'dialogue'
+      ? 'Please add at least one dialogue turn before recording a video.'
+      : 'Please break a sentence before recording a video.');
     return;
   }
   const mimeType = getSupportedVideoMimeType();
@@ -3098,9 +4431,6 @@ async function recordVideo() {
   });
 
   try {
-    const backgroundImage = await loadImage(getStageBackgroundSource());
-    const wordImages = await Promise.all(words.map(word => loadImage(word.imageData)));
-
     recorder.start(200);
 
     if (hasAudio) {
@@ -3108,24 +4438,13 @@ async function recordVideo() {
       audioPlayer.play().catch(() => {});
     }
 
-    await drawExportFrame(ctx, width, height, -1, backgroundImage, null);
-    await sleep(Math.min(700, Math.max(350, stepMs)));
+    await runExportSequence(recorder, canvas, ctx, width, height);
 
-    for (let index = 0; index < words.length; index += 1) {
-      await drawExportFrame(ctx, width, height, index, backgroundImage, wordImages[index]);
-      setStatus(`Recording: word ${index + 1} of ${words.length}…`);
-      await sleep(stepMs);
-    }
-
-    // If narration runs longer than the word reveal, hold the last frame
-    // until the audio actually finishes so nothing gets cut off.
     if (hasAudio) {
       setStatus('Finishing narration…');
       await waitForAudioToFinish();
     }
 
-    // Nudge the encoder to flush any buffered frame before we stop —
-    // helps at 2K/4K where software encoding can lag behind real time.
     if (recorder.state === 'recording' && recorder.requestData) {
       recorder.requestData();
       await sleep(150);
@@ -3162,48 +4481,40 @@ recordBtn.addEventListener('click', recordVideo);
 
 // ===== Initialize =====
 function initializeApp() {
-  // Set initial layout mode
   stage.classList.add('mode-stacked');
   stageSentence.style.display = 'flex';
   document.querySelector('.stage-flashcard').style.display = 'none';
-  
-  // Set initial flashcard content
+  stageDialogue.style.display = 'none';
+
   flashEn.textContent = '—';
   flashKm.textContent = '—';
-  
-  // Set initial stage background color
+
+  renderDialogueAvatars();
+  renderTurnList();
+
   stage.style.setProperty('--stage-bg-color', bgColorInput.value);
-  
-  // Set initial text sizes
   stage.style.setProperty('--stage-en-size', enSizeInput.value + 'px');
   stage.style.setProperty('--stage-km-size', kmSizeInput.value + 'px');
   enSizeVal.textContent = enSizeInput.value + 'px';
   kmSizeVal.textContent = kmSizeInput.value + 'px';
-  
-  // Set initial image size
   stage.style.setProperty('--stage-img-size', imgSizeInput.value + 'px');
   imgSizeVal.textContent = imgSizeInput.value + 'px';
-  
-  // Set initial box styles
+
   root.style.setProperty('--box-bg', boxBgInput.value);
   root.style.setProperty('--box-border', boxBorderInput.value);
   root.style.setProperty('--box-radius', boxRadiusInput.value + 'px');
   boxRadiusVal.textContent = boxRadiusInput.value + 'px';
-  
-  // Set initial speed
-  stepMs = parseInt(speedInput.value, 10);
-  speedVal.textContent = (stepMs / 1000).toFixed(2) + 's';
-  
-  // Render initial state
+
+  syncAnimationSpeed();
+
   renderStageGrammar();
   renderTimeline();
   renderStageSentence();
   renderProperties();
-  
+
   setStatus('Ready — this runs entirely in your browser, no server needed.');
 }
 
-// Start the app
 initializeApp();
 </script>
 </body>
