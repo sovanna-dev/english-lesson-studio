@@ -648,6 +648,12 @@ input[type='range'] {
   line-height: 1;
 }
 
+.ratio-icon-text {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
 .ratio-btn.active .ratio-icon {
   color: var(--gold);
 }
@@ -1546,6 +1552,8 @@ input[type='range'] {
 
   .topbar-actions {
     gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .topbar-actions .btn {
@@ -1709,6 +1717,10 @@ input[type='range'] {
           <span class="btn-icon" aria-hidden="true">↗</span>
           <span>Export video</span>
         </button>
+        <button id="recordBtn" class="btn btn-secondary" type="button">
+          <span class="btn-icon" aria-hidden="true">⏺</span>
+          <span>Record with audio</span>
+        </button>
     </div>
   </header>
 
@@ -1754,6 +1766,30 @@ input[type='range'] {
             <span class="choice-mark" aria-hidden="true">✓</span>
           </button>
         </div>
+      </section>
+
+      <div class="divider" role="presentation"></div>
+
+      <section class="section-block" aria-labelledby="quality-label">
+        <div id="quality-label" class="field-label">Export quality</div>
+        <div class="ratio-group" id="qualityGroup" role="group" aria-label="Choose export quality">
+          <button class="ratio-btn active" type="button" data-quality="hd" aria-pressed="true">
+            <span class="ratio-icon ratio-icon-text" aria-hidden="true">HD</span>
+            <span class="ratio-copy"><strong>HD</strong><small>720p</small></span>
+            <span class="choice-mark" aria-hidden="true">✓</span>
+          </button>
+          <button class="ratio-btn" type="button" data-quality="2k" aria-pressed="false">
+            <span class="ratio-icon ratio-icon-text" aria-hidden="true">2K</span>
+            <span class="ratio-copy"><strong>2K</strong><small>1440p</small></span>
+            <span class="choice-mark" aria-hidden="true">✓</span>
+          </button>
+          <button class="ratio-btn" type="button" data-quality="4k" aria-pressed="false">
+            <span class="ratio-icon ratio-icon-text" aria-hidden="true">4K</span>
+            <span class="ratio-copy"><strong>4K</strong><small>2160p</small></span>
+            <span class="choice-mark" aria-hidden="true">✓</span>
+          </button>
+        </div>
+        <p class="field-help">Higher quality makes a larger file and takes longer to export or record. 4K needs a fairly modern computer.</p>
       </section>
 
       <div class="divider" role="presentation"></div>
@@ -1905,7 +1941,7 @@ input[type='range'] {
         </div>
       </div>
 
-      <p class="export-note">Video export uses your browser’s WebM format. You can convert it to MP4 with any standard video editor.</p>
+      <p class="export-note">Export video uses your browser's WebM format (silent, no audio). Record with audio also captures your uploaded narration MP3, muxed into the same WebM. Convert either to MP4 with any standard video editor.</p>
       <div class="canvas-meta">
         <p class="canvas-hint">Click a word card below the stage to add its meaning, part of speech, and image.</p>
         <span class="canvas-status"><span class="status-dot" aria-hidden="true"></span> Browser-only workspace</span>
@@ -1986,6 +2022,7 @@ const playBtn = document.getElementById('playBtn');
 const stagePlayBtn = document.getElementById('stagePlayBtn');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
 const ratioGroup = document.getElementById('ratioGroup');
+const qualityGroup = document.getElementById('qualityGroup');
 
 const noSelection = document.getElementById('noSelection');
 const wordForm = document.getElementById('wordForm');
@@ -2001,6 +2038,7 @@ const removeImageBtn = document.getElementById('removeImageBtn');
 
 const saveBtn = document.getElementById('saveBtn');
 const exportBtn = document.getElementById('exportBtn');
+const recordBtn = document.getElementById('recordBtn');
 const statusText = document.getElementById('statusText');
 
 // New settings refs
@@ -2043,6 +2081,11 @@ let layoutMode = 'stacked';
 let playing = false;
 let animationTimer = null;
 let exportingVideo = false;
+let recordingVideo = false;
+let exportQuality = 'hd';
+let recordAudioContext = null;
+let recordAudioSourceNode = null;
+let recordAudioDestNode = null;
 
 // ===== Helpers =====
 function uid() {
@@ -2319,10 +2362,27 @@ removeImageBtn.addEventListener('click', () => {
 ratioGroup.addEventListener('click', (e) => {
   const btn = e.target.closest('.ratio-btn');
   if (!btn) return;
-  ratioGroup.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+  ratioGroup.querySelectorAll('.ratio-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
   btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
   stage.classList.remove('ratio-16-9', 'ratio-9-16', 'ratio-1-1');
   stage.classList.add('ratio-' + btn.dataset.ratio);
+});
+
+// ===== Export quality (HD / 2K / 4K) =====
+qualityGroup.addEventListener('click', (e) => {
+  const btn = e.target.closest('.ratio-btn');
+  if (!btn) return;
+  qualityGroup.querySelectorAll('.ratio-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
+  exportQuality = btn.dataset.quality;
 });
 
 // ===== Full-screen preview =====
@@ -2651,14 +2711,24 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Landscape (16:9) short-edge line counts per quality tier. The other two
+// ratios derive their own dimensions from the same tier so "HD"/"2K"/"4K"
+// mean a consistent step up in resolution across every canvas format.
+const QUALITY_PRESETS = {
+  hd: { landscape: { width: 1280, height: 720 }, portrait: { width: 720, height: 1280 }, square: { width: 1080, height: 1080 } },
+  '2k': { landscape: { width: 2560, height: 1440 }, portrait: { width: 1440, height: 2560 }, square: { width: 1440, height: 1440 } },
+  '4k': { landscape: { width: 3840, height: 2160 }, portrait: { width: 2160, height: 3840 }, square: { width: 2160, height: 2160 } },
+};
+
 function getExportDimensions() {
+  const preset = QUALITY_PRESETS[exportQuality] || QUALITY_PRESETS.hd;
   if (stage.classList.contains('ratio-9-16')) {
-    return { width: 720, height: 1280 };
+    return preset.portrait;
   }
   if (stage.classList.contains('ratio-1-1')) {
-    return { width: 1080, height: 1080 };
+    return preset.square;
   }
-  return { width: 1280, height: 720 };
+  return preset.landscape;
 }
 
 function getSupportedVideoMimeType() {
@@ -2668,6 +2738,13 @@ function getSupportedVideoMimeType() {
     'video/webm;codecs=vp8',
     'video/webm'
   ].find(type => MediaRecorder.isTypeSupported(type)) || '';
+}
+
+// Browsers pick a fairly conservative default bitrate that under-serves
+// 2K/4K (comes out blocky). Set it explicitly per quality tier instead.
+function getVideoBitsPerSecond() {
+  const bitrateByQuality = { hd: 6000000, '2k': 14000000, '4k': 32000000 };
+  return bitrateByQuality[exportQuality] || bitrateByQuality.hd;
 }
 
 function loadImage(src) {
@@ -2868,6 +2945,7 @@ async function exportVideo() {
 
   exportingVideo = true;
   exportBtn.disabled = true;
+  recordBtn.disabled = true;
   if (playing) stopPlayback();
   setStatus('Preparing video export…');
 
@@ -2877,7 +2955,7 @@ async function exportVideo() {
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   const stream = canvas.captureStream(30);
-  const recorder = new MediaRecorder(stream, { mimeType });
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: getVideoBitsPerSecond() });
   const chunks = [];
   const stopped = new Promise((resolve, reject) => {
     recorder.ondataavailable = event => {
@@ -2900,9 +2978,18 @@ async function exportVideo() {
       await sleep(stepMs);
     }
 
+    // Nudge the encoder to flush any buffered frame before we stop —
+    // helps at 2K/4K where software encoding can lag behind real time.
+    if (recorder.state === 'recording' && recorder.requestData) {
+      recorder.requestData();
+      await sleep(150);
+    }
     recorder.stop();
     await stopped;
     const blob = new Blob(chunks, { type: mimeType });
+    if (blob.size === 0) {
+      throw new Error('Recorder produced an empty file (encoder could not keep up).');
+    }
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -2912,16 +2999,166 @@ async function exportVideo() {
     setStatus('Video exported as lesson-preview.webm.');
   } catch (error) {
     if (recorder.state !== 'inactive') recorder.stop();
-    setStatus('Could not export the video. Please try again.');
+    setStatus(exportQuality === 'hd'
+      ? 'Could not export the video. Please try again.'
+      : `Could not export at ${exportQuality.toUpperCase()} — your device may be too slow for this resolution. Try HD or 2K instead.`);
     console.error(error);
   } finally {
     stream.getTracks().forEach(track => track.stop());
     exportingVideo = false;
     exportBtn.disabled = false;
+    recordBtn.disabled = false;
   }
 }
 
 exportBtn.addEventListener('click', exportVideo);
+
+// ===== Record video WITH narration audio (WebM, includes the audio track) =====
+function getRecordAudioNodes() {
+  if (!recordAudioContext) {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    recordAudioContext = new AudioContextCtor();
+    recordAudioSourceNode = recordAudioContext.createMediaElementSource(audioPlayer);
+    recordAudioDestNode = recordAudioContext.createMediaStreamDestination();
+    // Feed the recorder AND keep it audible on speakers while recording.
+    recordAudioSourceNode.connect(recordAudioDestNode);
+    recordAudioSourceNode.connect(recordAudioContext.destination);
+  }
+  return { audioContext: recordAudioContext, audioDestNode: recordAudioDestNode };
+}
+
+function waitForAudioToFinish() {
+  return new Promise(resolve => {
+    if (audioPlayer.paused || audioPlayer.ended) {
+      resolve();
+      return;
+    }
+    const done = () => {
+      audioPlayer.removeEventListener('ended', done);
+      resolve();
+    };
+    audioPlayer.addEventListener('ended', done);
+    const remaining = Number.isFinite(audioPlayer.duration)
+      ? Math.max(0, (audioPlayer.duration - audioPlayer.currentTime) * 1000 + 400)
+      : 15000;
+    setTimeout(done, remaining);
+  });
+}
+
+async function recordVideo() {
+  if (recordingVideo) return;
+  if (words.length === 0) {
+    setStatus('Please break a sentence before recording a video.');
+    return;
+  }
+  const mimeType = getSupportedVideoMimeType();
+  if (!mimeType || !HTMLCanvasElement.prototype.captureStream) {
+    setStatus('Recording is not supported by this browser. Try the latest Chrome, Edge, or Firefox.');
+    return;
+  }
+
+  recordingVideo = true;
+  recordBtn.disabled = true;
+  exportBtn.disabled = true;
+  if (playing) stopPlayback();
+  setStatus('Preparing recording…');
+
+  const { width, height } = getExportDimensions();
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  const videoStream = canvas.captureStream(30);
+
+  const hasAudio = !!audioPlayer.src;
+  let combinedStream = videoStream;
+  let audioNodes = null;
+
+  if (hasAudio) {
+    audioNodes = getRecordAudioNodes();
+    await audioNodes.audioContext.resume();
+    combinedStream = new MediaStream([
+      ...videoStream.getVideoTracks(),
+      ...audioNodes.audioDestNode.stream.getAudioTracks(),
+    ]);
+  }
+
+  const recorder = new MediaRecorder(combinedStream, {
+    mimeType,
+    videoBitsPerSecond: getVideoBitsPerSecond(),
+    audioBitsPerSecond: 160000,
+  });
+  const chunks = [];
+  const stopped = new Promise((resolve, reject) => {
+    recorder.ondataavailable = event => {
+      if (event.data && event.data.size) chunks.push(event.data);
+    };
+    recorder.onerror = event => reject(event.error || new Error('Recorder failed.'));
+    recorder.onstop = () => resolve();
+  });
+
+  try {
+    const backgroundImage = await loadImage(getStageBackgroundSource());
+    const wordImages = await Promise.all(words.map(word => loadImage(word.imageData)));
+
+    recorder.start(200);
+
+    if (hasAudio) {
+      audioPlayer.currentTime = 0;
+      audioPlayer.play().catch(() => {});
+    }
+
+    await drawExportFrame(ctx, width, height, -1, backgroundImage, null);
+    await sleep(Math.min(700, Math.max(350, stepMs)));
+
+    for (let index = 0; index < words.length; index += 1) {
+      await drawExportFrame(ctx, width, height, index, backgroundImage, wordImages[index]);
+      setStatus(`Recording: word ${index + 1} of ${words.length}…`);
+      await sleep(stepMs);
+    }
+
+    // If narration runs longer than the word reveal, hold the last frame
+    // until the audio actually finishes so nothing gets cut off.
+    if (hasAudio) {
+      setStatus('Finishing narration…');
+      await waitForAudioToFinish();
+    }
+
+    // Nudge the encoder to flush any buffered frame before we stop —
+    // helps at 2K/4K where software encoding can lag behind real time.
+    if (recorder.state === 'recording' && recorder.requestData) {
+      recorder.requestData();
+      await sleep(150);
+    }
+    recorder.stop();
+    await stopped;
+    const blob = new Blob(chunks, { type: mimeType });
+    if (blob.size === 0) {
+      throw new Error('Recorder produced an empty file (encoder could not keep up).');
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'lesson-recording.webm';
+    link.click();
+    URL.revokeObjectURL(url);
+    setStatus('Recording saved as lesson-recording.webm.');
+  } catch (error) {
+    if (recorder.state !== 'inactive') recorder.stop();
+    setStatus(exportQuality === 'hd'
+      ? 'Could not record the video. Please try again.'
+      : `Could not record at ${exportQuality.toUpperCase()} — your device may be too slow for this resolution. Try HD or 2K instead.`);
+    console.error(error);
+  } finally {
+    if (hasAudio) audioPlayer.pause();
+    videoStream.getTracks().forEach(track => track.stop());
+    recordingVideo = false;
+    recordBtn.disabled = false;
+    exportBtn.disabled = false;
+  }
+}
+
+recordBtn.addEventListener('click', recordVideo);
 
 // ===== Initialize =====
 function initializeApp() {
