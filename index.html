@@ -1792,14 +1792,26 @@ input[type='range'] {
   white-space: nowrap;
 }
 
+.turn-item-edit,
 .turn-item-remove {
   flex: 0 0 auto;
+  padding: 2px 6px;
+  border-radius: 6px;
   padding: 2px 6px;
   border-radius: 6px;
   background: rgba(196, 87, 74, 0.14);
   color: var(--danger);
   font-size: 10px;
   font-weight: 700;
+}
+
+.turn-item-edit {
+  background: rgba(77, 174, 177, 0.14);
+  color: var(--teal-300);
+}
+
+.turn-item-edit:hover {
+  background: rgba(77, 174, 177, 0.26);
 }
 
 .turn-item-remove:hover {
@@ -2207,8 +2219,13 @@ input[type='range'] {
     <div class="topbar-actions" aria-label="Lesson actions">
       <button id="saveBtn" class="btn btn-ghost" type="button">
         <span class="btn-icon" aria-hidden="true">↓</span>
-        <span>Save lesson</span>
+        <span>Export JSON</span>
       </button>
+      <button id="importBtn" class="btn btn-ghost" type="button">
+        <span class="btn-icon" aria-hidden="true">↑</span>
+        <span>Import JSON</span>
+      </button>
+      <input class="file-input-hidden" type="file" id="importInput" accept="application/json,.json">
         <button id="exportBtn" class="btn btn-primary" type="button">
           <span class="btn-icon" aria-hidden="true">↗</span>
           <span>Export video</span>
@@ -2315,12 +2332,32 @@ input[type='range'] {
             <input class="file-input-hidden" type="file" id="speakerAAvatarInput" accept="image/*">
             <label class="field-label" for="speakerAName">Speaker A name</label>
             <input type="text" id="speakerAName" placeholder="e.g. Sokha" value="Sokha" autocomplete="off">
+            <label class="field-label" for="speakerAGender">Speaker A voice</label>
+            <select id="speakerAGender">
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+            </select>
+            <label class="field-label" for="speakerAVoiceSearch">Search A voice</label>
+            <input type="search" id="speakerAVoiceSearch" placeholder="Search voice…" autocomplete="off">
+            <select id="speakerAVoiceSelect" aria-label="Voice for Speaker A">
+              <option value="">Auto voice for Speaker A</option>
+            </select>
           </div>
           <div class="speaker-setup-card">
             <label class="speaker-avatar-preview" id="speakerBAvatarPreview" for="speakerBAvatarInput" tabindex="0" role="button" aria-label="Upload avatar for Speaker B">B</label>
             <input class="file-input-hidden" type="file" id="speakerBAvatarInput" accept="image/*">
             <label class="field-label" for="speakerBName">Speaker B name</label>
             <input type="text" id="speakerBName" placeholder="e.g. Dara" value="Dara" autocomplete="off">
+            <label class="field-label" for="speakerBGender">Speaker B voice</label>
+            <select id="speakerBGender">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            <label class="field-label" for="speakerBVoiceSearch">Search B voice</label>
+            <input type="search" id="speakerBVoiceSearch" placeholder="Search voice…" autocomplete="off">
+            <select id="speakerBVoiceSelect" aria-label="Voice for Speaker B">
+              <option value="">Auto voice for Speaker B</option>
+            </select>
           </div>
         </div>
 
@@ -2347,6 +2384,7 @@ input[type='range'] {
         <label class="field-label" for="dialogueTextModeSelect">Bubble text</label>
         <select id="dialogueTextModeSelect">
           <option value="together">English + Khmer together</option>
+          <option value="en-only">English only</option>
           <option value="en-then-km">English first, Khmer after</option>
         </select>
       </section>
@@ -2441,7 +2479,27 @@ input[type='range'] {
           <button id="audioRemoveBtn" class="btn btn-danger-ghost btn-block btn-small hidden" type="button">Remove audio</button>
           <label class="field-label field-label-row" for="volumeInput"><span>Volume</span><output id="volumeVal">80%</output></label>
           <input type="range" id="volumeInput" min="0" max="100" value="80">
+          <label class="field-label" style="display:flex;align-items:center;gap:8px;margin-top:14px;cursor:pointer;">
+            <input type="checkbox" id="ttsEnabledInput">
+            <span>Enable automatic Text-to-Speech</span>
+          </label>
+          <label class="field-label" for="ttsLanguageSelect">TTS language</label>
+          <select id="ttsLanguageSelect">
+            <option value="en">English</option>
+            <option value="km">Khmer</option>
+            <option value="both">English + Khmer</option>
+          </select>
+          <label class="field-label" for="ttsVoiceSearch">Search voice</label>
+          <input type="search" id="ttsVoiceSearch" placeholder="Search by name or language…" autocomplete="off">
+          <label class="field-label" for="ttsVoiceSelect">Voice</label>
+          <select id="ttsVoiceSelect">
+            <option value="">Browser default voice</option>
+          </select>
+          <p class="field-help" id="ttsVoiceHint">Voices are supplied by your browser and operating system.</p>
+          <label class="field-label field-label-row" for="ttsRateInput"><span>TTS speaking rate</span><output id="ttsRateVal">0.95×</output></label>
+          <input type="range" id="ttsRateInput" min="0.5" max="1.5" step="0.05" value="0.95">
           <audio id="audioPlayer" hidden></audio>
+          <p class="field-help" id="audioDurationHint">មិនទាន់មាន MP3 ទេ។</p>
         </div>
       </details>
 
@@ -2450,6 +2508,11 @@ input[type='range'] {
         <div class="settings-content">
           <label class="field-label field-label-row" for="speedInput"><span>Time per word</span><output id="speedVal">0.65s</output></label>
           <input type="range" id="speedInput" min="200" max="2000" step="50" value="650">
+          <label class="field-label" style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;">
+            <input type="checkbox" id="autoSyncInput">
+            <span>Auto sync to MP3 duration</span>
+          </label>
+          <p class="field-help">When enabled, the animation timing is calculated from the MP3 length and the number of words or dialogue turns.</p>
         </div>
       </details>
     </aside>
@@ -2562,8 +2625,9 @@ input[type='range'] {
 let words = [];
 let selectedWordId = null;
 let turns = [];
-let speakerA = { name: 'Sokha', avatarData: null };
-let speakerB = { name: 'Dara', avatarData: null };
+let editingTurnId = null;
+let speakerA = { name: 'Sokha', gender: 'female', voiceName: '', avatarData: null };
+let speakerB = { name: 'Dara', gender: 'male', voiceName: '', avatarData: null };
 let dialogueTextMode = 'together';
 let dialoguePlaybackState = {
   currentIndex: -1,
@@ -2602,6 +2666,8 @@ const imageUploadHint = document.getElementById('imageUploadHint');
 const removeImageBtn = document.getElementById('removeImageBtn');
 
 const saveBtn = document.getElementById('saveBtn');
+const importBtn = document.getElementById('importBtn');
+const importInput = document.getElementById('importInput');
 const exportBtn = document.getElementById('exportBtn');
 const recordBtn = document.getElementById('recordBtn');
 const statusText = document.getElementById('statusText');
@@ -2632,9 +2698,18 @@ const audioInput = document.getElementById('audioInput');
 const audioRemoveBtn = document.getElementById('audioRemoveBtn');
 const volumeInput = document.getElementById('volumeInput');
 const audioPlayer = document.getElementById('audioPlayer');
+const audioDurationHint = document.getElementById('audioDurationHint');
+const ttsEnabledInput = document.getElementById('ttsEnabledInput');
+const ttsLanguageSelect = document.getElementById('ttsLanguageSelect');
+const ttsVoiceSearch = document.getElementById('ttsVoiceSearch');
+const ttsVoiceSelect = document.getElementById('ttsVoiceSelect');
+const ttsVoiceHint = document.getElementById('ttsVoiceHint');
+const ttsRateInput = document.getElementById('ttsRateInput');
+const ttsRateVal = document.getElementById('ttsRateVal');
 
 const speedInput = document.getElementById('speedInput');
 const speedVal = document.getElementById('speedVal');
+const autoSyncInput = document.getElementById('autoSyncInput');
 
 const flashEn = document.getElementById('flashEn');
 const flashKm = document.getElementById('flashKm');
@@ -2642,9 +2717,15 @@ const flashKm = document.getElementById('flashKm');
 const speakerAAvatarPreview = document.getElementById('speakerAAvatarPreview');
 const speakerAAvatarInput = document.getElementById('speakerAAvatarInput');
 const speakerAName = document.getElementById('speakerAName');
+const speakerAGender = document.getElementById('speakerAGender');
+const speakerAVoiceSearch = document.getElementById('speakerAVoiceSearch');
+const speakerAVoiceSelect = document.getElementById('speakerAVoiceSelect');
 const speakerBAvatarPreview = document.getElementById('speakerBAvatarPreview');
 const speakerBAvatarInput = document.getElementById('speakerBAvatarInput');
 const speakerBName = document.getElementById('speakerBName');
+const speakerBGender = document.getElementById('speakerBGender');
+const speakerBVoiceSearch = document.getElementById('speakerBVoiceSearch');
+const speakerBVoiceSelect = document.getElementById('speakerBVoiceSelect');
 const turnSpeakerSelect = document.getElementById('turnSpeakerSelect');
 const turnEnInput = document.getElementById('turnEnInput');
 const turnKmInput = document.getElementById('turnKmInput');
@@ -2657,6 +2738,13 @@ const dialogueChatContainer = document.getElementById('dialogueChatContainer');
 
 const root = document.documentElement;
 let stepMs = 650;
+let audioDurationMs = 0;
+let autoSyncAudio = false;
+let ttsEnabled = false;
+let ttsLanguage = 'en';
+let ttsVoiceName = '';
+let availableTtsVoices = [];
+let ttsRate = 0.95;
 let layoutMode = 'stacked';
 let playing = false;
 let animationTimer = null;
@@ -3056,6 +3144,14 @@ speakerBName.addEventListener('input', () => {
   }
 });
 
+speakerAGender.addEventListener('change', () => {
+  speakerA.gender = speakerAGender.value === 'male' ? 'male' : 'female';
+});
+
+speakerBGender.addEventListener('change', () => {
+  speakerB.gender = speakerBGender.value === 'female' ? 'female' : 'male';
+});
+
 dialogueTextModeSelect.addEventListener('change', () => {
   dialogueTextMode = dialogueTextModeSelect.value;
   if (layoutMode === 'dialogue') {
@@ -3092,6 +3188,23 @@ function renderTurnList() {
       textWrap.appendChild(small);
     }
 
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'turn-item-edit';
+    editBtn.textContent = '✎';
+    editBtn.title = 'Edit turn';
+    editBtn.setAttribute('aria-label', `Edit turn ${i + 1}`);
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      turnSpeakerSelect.value = t.speaker;
+      turnEnInput.value = t.en;
+      turnKmInput.value = t.km || '';
+      editingTurnId = t.id;
+      addTurnBtn.querySelector('span:last-child').textContent = 'Update turn';
+      turnEnInput.focus();
+      setStatus(`Editing turn ${i + 1}. Update the text and press Update turn.`);
+    });
+
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'turn-item-remove';
@@ -3099,6 +3212,10 @@ function renderTurnList() {
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       turns = turns.filter(x => x.id !== t.id);
+      if (editingTurnId === t.id) {
+        editingTurnId = null;
+        addTurnBtn.querySelector('span:last-child').textContent = 'Add turn';
+      }
       renderTurnList();
       setStatus('Turn removed.');
       if (layoutMode === 'dialogue') {
@@ -3108,6 +3225,7 @@ function renderTurnList() {
 
     li.addEventListener('click', () => {
       if (layoutMode === 'dialogue') {
+        if (playing) stopPlayback();
         dialoguePlaybackState.currentIndex = i;
         renderDialogueChat();
       }
@@ -3115,6 +3233,7 @@ function renderTurnList() {
 
     li.appendChild(order);
     li.appendChild(textWrap);
+    li.appendChild(editBtn);
     li.appendChild(removeBtn);
     turnListEl.appendChild(li);
   });
@@ -3127,17 +3246,29 @@ addTurnBtn.addEventListener('click', () => {
     setStatus('Type the English line for this turn first.');
     return;
   }
-  turns.push({
-    id: uid(),
-    speaker: turnSpeakerSelect.value,
-    en,
-    km
-  });
+  if (editingTurnId) {
+    const turn = turns.find(item => item.id === editingTurnId);
+    if (turn) {
+      turn.speaker = turnSpeakerSelect.value;
+      turn.en = en;
+      turn.km = km;
+    }
+    editingTurnId = null;
+    addTurnBtn.querySelector('span:last-child').textContent = 'Add turn';
+    setStatus('Dialogue turn updated.');
+  } else {
+    turns.push({
+      id: uid(),
+      speaker: turnSpeakerSelect.value,
+      en,
+      km
+    });
+    setStatus(`Added turn ${turns.length}. Add the next line, or press Play to preview.`);
+    turnSpeakerSelect.value = turnSpeakerSelect.value === 'A' ? 'B' : 'A';
+  }
   turnEnInput.value = '';
   turnKmInput.value = '';
-  turnSpeakerSelect.value = turnSpeakerSelect.value === 'A' ? 'B' : 'A';
   renderTurnList();
-  setStatus(`Added turn ${turns.length}. Add the next line, or press Play to preview.`);
   turnEnInput.focus();
   
   if (layoutMode === 'dialogue') {
@@ -3217,7 +3348,7 @@ function renderDialogueChat() {
     enText.textContent = turn.en;
     bubble.appendChild(enText);
     
-    if (turn.km) {
+    if (turn.km && dialogueTextMode !== 'en-only') {
       const kmText = document.createElement('div');
       kmText.className = 'dialogue-bubble-km';
       kmText.textContent = turn.km;
@@ -3258,6 +3389,7 @@ function addDialogueNavigationToStage() {
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
       if (dialoguePlaybackState.currentIndex > 0) {
+        if (playing) stopPlayback();
         dialoguePlaybackState.currentIndex--;
         renderDialogueChat();
       }
@@ -3267,6 +3399,7 @@ function addDialogueNavigationToStage() {
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
       if (dialoguePlaybackState.currentIndex < turns.length - 1) {
+        if (playing) stopPlayback();
         dialoguePlaybackState.currentIndex++;
         renderDialogueChat();
       }
@@ -3362,6 +3495,7 @@ playBtn.addEventListener('click', handlePlayToggle);
 stagePlayBtn.addEventListener('click', handlePlayToggle);
 
 function stopPlayback() {
+  stopTextToSpeech();
   playing = false;
   dialoguePlaybackState.isPlaying = false;
   
@@ -3409,7 +3543,7 @@ function startPlayback() {
     audioPlayer.play().catch(() => {});
   }
 
-  let i = 0;
+  let i = -1;
 
   function updateImage(w) {
     if (w.imageData) {
@@ -3426,6 +3560,13 @@ function startPlayback() {
   }
 
   function step() {
+    if (i === -1) {
+      setStatus('Ready — starting animation…');
+      i = 0;
+      animationTimer = setTimeout(step, getEffectiveStepMs());
+      return;
+    }
+
     if (i > 0 && layoutMode === 'stacked') {
       const prevEl = stageSentence.children[i - 1];
       if (prevEl) prevEl.classList.remove('highlight');
@@ -3456,10 +3597,11 @@ function startPlayback() {
     }
 
     updateImage(w);
+    speakItem(w);
     setStatus(`Showing word ${i + 1} of ${words.length}: "${w.text}"`);
 
     i++;
-    animationTimer = setTimeout(step, stepMs);
+    animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(w)));
   }
   step();
 }
@@ -3490,29 +3632,35 @@ function startDialoguePlayback() {
     
     dialoguePlaybackState.currentIndex = i;
     renderDialogueChat();
+    speakItem(turns[i]);
     
     const speakerName = turns[i].speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
     setStatus(`Turn ${i + 1} of ${turns.length} — ${speakerName}: "${turns[i].en}"`);
     
     i++;
-    animationTimer = setTimeout(step, stepMs);
+    animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[i - 1])));
   }
   
-  animationTimer = setTimeout(step, Math.max(0, stepMs));
+  animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[0])));
 }
 
 // ===== Keyboard navigation =====
 document.addEventListener('keydown', (e) => {
   if (layoutMode !== 'dialogue') return;
+  const active = document.activeElement;
+  const isTextEditing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable);
+  if (isTextEditing) return;
   
   if (e.key === 'ArrowLeft') {
     e.preventDefault();
+    if (playing) stopPlayback();
     if (dialoguePlaybackState.currentIndex > 0) {
       dialoguePlaybackState.currentIndex--;
       renderDialogueChat();
     }
   } else if (e.key === 'ArrowRight') {
     e.preventDefault();
+    if (playing) stopPlayback();
     if (dialoguePlaybackState.currentIndex < turns.length - 1) {
       dialoguePlaybackState.currentIndex++;
       renderDialogueChat();
@@ -3608,16 +3756,29 @@ audioInput.addEventListener('change', (e) => {
   reader.onload = (ev) => {
     audioPlayer.src = ev.target.result;
     audioRemoveBtn.classList.remove('hidden');
-    setStatus('Audio loaded — it will play from the start when you click Play.');
+    audioDurationMs = 0;
+    audioDurationHint.textContent = 'កំពុងអានរយៈពេល MP3…';
+    audioPlayer.addEventListener('loadedmetadata', () => {
+      audioDurationMs = Number.isFinite(audioPlayer.duration) ? Math.round(audioPlayer.duration * 1000) : 0;
+      audioDurationHint.textContent = audioDurationMs > 0
+        ? `រយៈពេល MP3: ${(audioDurationMs / 1000).toFixed(2)} វិនាទី។`
+        : 'មិនអាចអានរយៈពេល MP3 បានទេ។';
+      if (autoSyncAudio) syncAnimationSpeed();
+    }, { once: true });
+    setStatus('Audio loaded — duration is being detected.');
   };
   reader.readAsDataURL(file);
 });
 
 audioRemoveBtn.addEventListener('click', () => {
   audioPlayer.pause();
-  audioPlayer.src = '';
+  audioPlayer.removeAttribute('src');
+  audioPlayer.load();
   audioInput.value = '';
+  audioDurationMs = 0;
+  audioDurationHint.textContent = 'មិនទាន់មាន MP3 ទេ។';
   audioRemoveBtn.classList.add('hidden');
+  if (autoSyncAudio) syncAnimationSpeed();
   setStatus('Audio removed.');
 });
 
@@ -3626,24 +3787,201 @@ volumeInput.addEventListener('input', () => {
 });
 audioPlayer.volume = 0.8;
 
-// ===== Animation speed =====
+// ===== Text-to-Speech =====
+function stopTextToSpeech() {
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+function refreshTtsVoices() {
+  if (!('speechSynthesis' in window)) {
+    ttsVoiceHint.textContent = 'This browser does not support Text-to-Speech.';
+    ttsVoiceSelect.innerHTML = '<option value="">Browser default voice</option>';
+    return;
+  }
+  availableTtsVoices = window.speechSynthesis.getVoices().sort((a, b) => a.name.localeCompare(b.name));
+  const query = ttsVoiceSearch.value.trim().toLowerCase();
+  const current = ttsVoiceName;
+  const filtered = availableTtsVoices.filter(voice => {
+    const haystack = `${voice.name} ${voice.lang}`.toLowerCase();
+    return !query || haystack.includes(query);
+  });
+  ttsVoiceSelect.innerHTML = '<option value="">Browser default voice</option>';
+  filtered.forEach(voice => {
+    const option = document.createElement('option');
+    option.value = voice.name;
+    option.textContent = `${voice.name} (${voice.lang})`;
+    ttsVoiceSelect.appendChild(option);
+  });
+  ttsVoiceSelect.value = filtered.some(voice => voice.name === current) ? current : '';
+  ttsVoiceHint.textContent = availableTtsVoices.length
+    ? `${filtered.length} voice(s) shown. Search by voice name or language code.`
+    : 'No browser voices are available yet. Try reopening the page or checking system speech settings.';
+}
+
+function refreshSpeakerVoiceOptions(speakerKey) {
+  const isA = speakerKey === 'A';
+  const search = isA ? speakerAVoiceSearch : speakerBVoiceSearch;
+  const select = isA ? speakerAVoiceSelect : speakerBVoiceSelect;
+  const speaker = isA ? speakerA : speakerB;
+  const query = search.value.trim().toLowerCase();
+  const languagePrefix = ttsLanguage === 'km' ? 'km' : 'en';
+  const filtered = availableTtsVoices.filter(voice => {
+    const haystack = `${voice.name} ${voice.lang}`.toLowerCase();
+    return (!query || haystack.includes(query)) && voice.lang.toLowerCase().startsWith(languagePrefix);
+  });
+  select.innerHTML = `<option value="">Auto ${isA ? 'A' : 'B'} voice (${speaker.gender})</option>`;
+  filtered.forEach(voice => {
+    const option = document.createElement('option');
+    option.value = voice.name;
+    option.textContent = `${voice.name} (${voice.lang})`;
+    select.appendChild(option);
+  });
+  select.value = speaker.voiceName && filtered.some(voice => voice.name === speaker.voiceName) ? speaker.voiceName : '';
+}
+
+function refreshAllSpeakerVoices() {
+  refreshSpeakerVoiceOptions('A');
+  refreshSpeakerVoiceOptions('B');
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    refreshTtsVoices();
+    refreshAllSpeakerVoices();
+  };
+  setTimeout(() => {
+    refreshTtsVoices();
+    refreshAllSpeakerVoices();
+  }, 100);
+}
+
+ttsVoiceSearch.addEventListener('input', refreshTtsVoices);
+ttsVoiceSelect.addEventListener('change', () => {
+  ttsVoiceName = ttsVoiceSelect.value;
+  if (playing) {
+    stopPlayback();
+    startPlayback();
+  }
+});
+
+function getTtsText(item) {
+  if (!item) return [];
+  const result = [];
+  if (ttsLanguage === 'en' || ttsLanguage === 'both') {
+    if (item.en || item.text) result.push({ text: item.en || item.text, lang: 'en-US' });
+  }
+  if (ttsLanguage === 'km' || ttsLanguage === 'both') {
+    if (item.km || item.khmer) result.push({ text: item.km || item.khmer, lang: 'km-KH' });
+  }
+  return result;
+}
+
+function estimateTtsDurationMs(item) {
+  if (!ttsEnabled || !('speechSynthesis' in window)) return 0;
+  const parts = getTtsText(item);
+  const units = parts.reduce((sum, part) => sum + Array.from(part.text).length, 0);
+  return Math.max(550, Math.round((units / 13) * 1000 / Math.max(0.5, ttsRate)));
+}
+
+function speakItem(item) {
+  if (!ttsEnabled || !('speechSynthesis' in window)) return;
+  stopTextToSpeech();
+  getTtsText(item).forEach(part => {
+    const utterance = new SpeechSynthesisUtterance(part.text);
+    utterance.lang = part.lang;
+    const speaker = item.speaker === 'B' ? speakerB : speakerA;
+    const preferredVoiceName = item.speaker ? speaker.voiceName : ttsVoiceName;
+    const genderWords = speaker.gender === 'male'
+      ? /male|man|boy|david|daniel|alex|george|james|thomas|mark/i
+      : /female|woman|girl|samantha|victoria|karen|susan|ava|zira|sara/i;
+    const compatibleVoices = availableTtsVoices.filter(voice => voice.lang.toLowerCase().startsWith(part.lang.slice(0, 2).toLowerCase()));
+    const selectedVoice = compatibleVoices.find(voice => voice.name === preferredVoiceName);
+    const genderVoice = compatibleVoices.find(voice => genderWords.test(voice.name));
+    const compatibleVoice = selectedVoice || genderVoice || compatibleVoices[0];
+    if (compatibleVoice) utterance.voice = compatibleVoice;
+    utterance.rate = ttsRate;
+    utterance.volume = audioPlayer.volume;
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+ttsEnabledInput.addEventListener('change', () => {
+  ttsEnabled = ttsEnabledInput.checked;
+  if (!ttsEnabled) stopTextToSpeech();
+  setStatus(ttsEnabled ? 'Text-to-Speech enabled for preview.' : 'Text-to-Speech disabled.');
+});
+ttsLanguageSelect.addEventListener('change', () => {
+  ttsLanguage = ttsLanguageSelect.value;
+  refreshAllSpeakerVoices();
+  if (playing) {
+    stopPlayback();
+    startPlayback();
+  }
+});
+
+speakerAVoiceSearch.addEventListener('input', () => refreshSpeakerVoiceOptions('A'));
+speakerBVoiceSearch.addEventListener('input', () => refreshSpeakerVoiceOptions('B'));
+speakerAVoiceSelect.addEventListener('change', () => {
+  speakerA.voiceName = speakerAVoiceSelect.value;
+});
+speakerBVoiceSelect.addEventListener('change', () => {
+  speakerB.voiceName = speakerBVoiceSelect.value;
+});
+ttsRateInput.addEventListener('input', () => {
+  ttsRate = Number.parseFloat(ttsRateInput.value) || 0.95;
+  ttsRateVal.textContent = `${ttsRate.toFixed(2)}×`;
+  if (playing) {
+    stopPlayback();
+    startPlayback();
+  }
+});
+
+// ===== Animation speed and MP3 auto-sync =====
+function getAnimationItemCount() {
+  return layoutMode === 'dialogue' ? turns.length : words.length;
+}
+
+function getEffectiveStepMs() {
+  const itemCount = getAnimationItemCount();
+  if (autoSyncAudio && audioDurationMs > 0 && itemCount > 0) {
+    // Stacked mode has one opening frame before the first word; dialogue does not.
+    const frameCount = layoutMode === 'dialogue' ? itemCount : itemCount + 1;
+    return Math.max(200, Math.round(audioDurationMs / frameCount));
+  }
+  return stepMs;
+}
+
+function updateSpeedLabel() {
+  const effectiveMs = getEffectiveStepMs();
+  speedVal.textContent = autoSyncAudio && audioDurationMs > 0
+    ? `Auto ${(effectiveMs / 1000).toFixed(2)}s`
+    : `${(stepMs / 1000).toFixed(2)}s`;
+}
+
 function syncAnimationSpeed({ restart = false } = {}) {
   const nextSpeed = Number.parseInt(speedInput.value, 10);
   stepMs = Number.isFinite(nextSpeed) ? Math.min(2000, Math.max(200, nextSpeed)) : 650;
   speedInput.value = String(stepMs);
-  speedVal.textContent = (stepMs / 1000).toFixed(2) + 's';
+  updateSpeedLabel();
 
-  // A timeout that is already waiting cannot change its duration. Restarting
-  // keeps the new speed observable immediately and avoids a stale timer.
   if (restart && playing) {
     stopPlayback();
     startPlayback();
-    setStatus(`Playback restarted at ${(stepMs / 1000).toFixed(2)}s per ${layoutMode === 'dialogue' ? 'turn' : 'word'}.`);
+    setStatus(autoSyncAudio && audioDurationMs > 0
+      ? 'Playback restarted and synced to MP3 duration.'
+      : `Playback restarted at ${(stepMs / 1000).toFixed(2)}s per ${layoutMode === 'dialogue' ? 'turn' : 'word'}.`);
   }
 }
 
 speedInput.addEventListener('input', () => syncAnimationSpeed({ restart: true }));
 speedInput.addEventListener('change', () => syncAnimationSpeed());
+autoSyncInput.addEventListener('change', () => {
+  autoSyncAudio = autoSyncInput.checked;
+  updateSpeedLabel();
+  setStatus(autoSyncAudio
+    ? (audioDurationMs > 0 ? 'Auto sync enabled — timing follows MP3 duration.' : 'Upload an MP3 to enable automatic timing.')
+    : 'Auto sync disabled — using manual animation speed.');
+});
 
 // ===== Save lesson =====
 saveBtn.addEventListener('click', () => {
@@ -3662,7 +4000,12 @@ saveBtn.addEventListener('click', () => {
       boxBorder: boxBorderInput.value,
       boxRadius: boxRadiusInput.value,
       imgSize: imgSizeInput.value,
-      stepMs
+      stepMs,
+      autoSyncAudio,
+      ttsEnabled,
+      ttsLanguage,
+      ttsVoiceName,
+      ttsRate
     },
     words: words.map(w => ({
       text: w.text,
@@ -3672,8 +4015,8 @@ saveBtn.addEventListener('click', () => {
       hasImage: !!w.imageData
     })),
     dialogue: {
-      speakerA: { name: speakerA.name, hasAvatar: !!speakerA.avatarData },
-      speakerB: { name: speakerB.name, hasAvatar: !!speakerB.avatarData },
+      speakerA: { name: speakerA.name, gender: speakerA.gender, voiceName: speakerA.voiceName, hasAvatar: !!speakerA.avatarData },
+      speakerB: { name: speakerB.name, gender: speakerB.gender, voiceName: speakerB.voiceName, hasAvatar: !!speakerB.avatarData },
       textMode: dialogueTextMode,
       turns: turns.map(t => ({ speaker: t.speaker, en: t.en, km: t.km }))
     }
@@ -3685,7 +4028,111 @@ saveBtn.addEventListener('click', () => {
   a.download = 'lesson.json';
   a.click();
   URL.revokeObjectURL(url);
-  setStatus('Lesson saved as lesson.json.');
+  setStatus('Lesson saved as lesson.json. Note: images, avatars, background image, and MP3 are not included in JSON.');
+});
+
+importBtn.addEventListener('click', () => importInput.click());
+
+importInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || typeof data !== 'object') throw new Error('Invalid JSON object');
+
+      sentenceInput.value = typeof data.sentence === 'string' ? data.sentence : '';
+      grammarInput.value = typeof data.grammar === 'string' ? data.grammar : '';
+
+      const style = data.style || {};
+      if (style.bgColor) bgColorInput.value = style.bgColor;
+      if (style.enFont) enFontSelect.value = style.enFont;
+      if (style.enSize) enSizeInput.value = style.enSize;
+      if (style.kmFont) kmFontSelect.value = style.kmFont;
+      if (style.kmSize) kmSizeInput.value = style.kmSize;
+      if (style.boxBg) boxBgInput.value = style.boxBg;
+      if (style.boxBorder) boxBorderInput.value = style.boxBorder;
+      if (style.boxRadius) boxRadiusInput.value = style.boxRadius;
+      if (style.imgSize) imgSizeInput.value = style.imgSize;
+      if (style.stepMs) speedInput.value = style.stepMs;
+      ttsEnabled = Boolean(style.ttsEnabled);
+      ttsLanguage = ['en', 'km', 'both'].includes(style.ttsLanguage) ? style.ttsLanguage : 'en';
+      ttsVoiceName = typeof style.ttsVoiceName === 'string' ? style.ttsVoiceName : '';
+      ttsRate = Number.isFinite(Number(style.ttsRate)) ? Math.min(1.5, Math.max(0.5, Number(style.ttsRate))) : 0.95;
+      ttsEnabledInput.checked = ttsEnabled;
+      ttsLanguageSelect.value = ttsLanguage;
+      ttsRateInput.value = String(ttsRate);
+      refreshTtsVoices();
+      ttsVoiceSelect.value = ttsVoiceName;
+      ttsVoiceSearch.value = '';
+      ttsRateVal.textContent = `${ttsRate.toFixed(2)}×`;
+
+      words = Array.isArray(data.words) ? data.words.map(word => ({
+        id: uid(),
+        text: String(word.text || ''),
+        khmer: String(word.khmer || ''),
+        pos: String(word.pos || ''),
+        example: String(word.example || ''),
+        imageData: null
+      })).filter(word => word.text) : [];
+      selectedWordId = words[0]?.id || null;
+
+      const dialogue = data.dialogue || {};
+      speakerA.name = String(dialogue.speakerA?.name || 'Sokha');
+      speakerA.gender = dialogue.speakerA?.gender === 'male' ? 'male' : 'female';
+      speakerA.voiceName = typeof dialogue.speakerA?.voiceName === 'string' ? dialogue.speakerA.voiceName : '';
+      speakerB.name = String(dialogue.speakerB?.name || 'Dara');
+      speakerB.gender = dialogue.speakerB?.gender === 'female' ? 'female' : 'male';
+      speakerB.voiceName = typeof dialogue.speakerB?.voiceName === 'string' ? dialogue.speakerB.voiceName : '';
+      dialogueTextMode = ['together', 'en-only', 'en-then-km'].includes(dialogue.textMode) ? dialogue.textMode : 'together';
+      if (Array.isArray(dialogue.turns)) {
+        turns = dialogue.turns.map(turn => ({
+          id: uid(),
+          speaker: turn.speaker === 'B' ? 'B' : 'A',
+          en: String(turn.en || ''),
+          km: String(turn.km || '')
+        })).filter(turn => turn.en);
+      } else {
+        turns = [];
+      }
+
+      speakerAName.value = speakerA.name;
+      speakerAGender.value = speakerA.gender;
+      speakerBName.value = speakerB.name;
+      speakerBGender.value = speakerB.gender;
+      refreshAllSpeakerVoices();
+      speakerAVoiceSelect.value = speakerA.voiceName;
+      speakerBVoiceSelect.value = speakerB.voiceName;
+      dialogueTextModeSelect.value = dialogueTextMode;
+      renderTimeline();
+      renderTurnList();
+      renderStageGrammar();
+      renderStageSentence();
+      renderProperties();
+      renderWordCards();
+      renderDialogueAvatars();
+      renderDialogueChat();
+      updateFlashcardPreview();
+      syncAnimationSpeed();
+
+      const targetRatio = data.ratio || '16-9';
+      ratioGroup.querySelector(`[data-ratio="${targetRatio}"]`)?.click();
+      const targetLayout = data.layout || 'stacked';
+      layoutGroup.querySelector(`[data-layout="${targetLayout}"]`)?.click();
+
+      autoSyncAudio = Boolean(style.autoSyncAudio);
+      autoSyncInput.checked = autoSyncAudio;
+      updateSpeedLabel();
+      setStatus(`Lesson imported from ${file.name}. Re-upload images, avatars, background image, or MP3 because media files are not included in JSON.`);
+    } catch (error) {
+      setStatus('Could not import JSON. Please choose a valid lesson.json file.');
+      console.error(error);
+    } finally {
+      importInput.value = '';
+    }
+  };
+  reader.readAsText(file);
 });
 
 // ===== Video export =====
@@ -4045,7 +4492,7 @@ function drawDialogueExportFrame(ctx, width, height, turnIndex, scale, avatarImg
   ctx.fillText(speakerB.name || 'B', cxB, cy + avatarRadius + 10 * scale);
 
   // Dialogue bubble
-  const showKm = dialogueTextMode === 'together' ? !!turn.km : (turnIndex !== 'preview' && !!turn.km);
+  const showKm = dialogueTextMode !== 'en-only' && (dialogueTextMode === 'together' ? !!turn.km : (turnIndex !== 'preview' && !!turn.km));
   const fontSize = Math.max(18, Math.round(Number(enSizeInput.value) * scale));
   const kmFontSize = Math.max(15, Math.round(Number(kmSizeInput.value) * scale));
   const bubbleMaxWidth = width - (marginX + avatarRadius) * 2 - 40 * scale;
@@ -4217,7 +4664,7 @@ async function runExportSequence(recorder, canvas, ctx, width, height) {
         drawDialogueExportFrame(ctx, width, height, index, width / 640, avatarImgA, avatarImgB);
       }
       setStatus(`Rendering video: turn ${index + 1} of ${turns.length}…`);
-      await sleep(stepMs);
+      await sleep(getEffectiveStepMs());
     }
     return;
   }
@@ -4239,7 +4686,7 @@ async function runExportSequence(recorder, canvas, ctx, width, height) {
   }
   drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
   await drawExportFrame(ctx, width, height, -1, backgroundImage, null);
-  await sleep(Math.min(700, Math.max(350, stepMs)));
+  await sleep(Math.min(700, Math.max(350, getEffectiveStepMs())));
 
   for (let index = 0; index < words.length; index += 1) {
     ctx.clearRect(0, 0, width, height);
@@ -4256,7 +4703,7 @@ async function runExportSequence(recorder, canvas, ctx, width, height) {
     drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
     await drawExportFrame(ctx, width, height, index, backgroundImage, wordImages[index]);
     setStatus(`Rendering video: word ${index + 1} of ${words.length}…`);
-    await sleep(stepMs);
+        await sleep(getEffectiveStepMs());
   }
 }
 
