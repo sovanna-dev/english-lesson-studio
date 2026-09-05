@@ -3746,7 +3746,7 @@ function startPlayback() {
   let sentenceIndex = 0;
   let wordIndex = -1;
 
-  function step() {
+  async function step() {
     if (sentenceIndex >= sentences.length) {
       playing = false;
       setPlayingUI(false);
@@ -3803,11 +3803,11 @@ function startPlayback() {
       stageImageSlot.innerHTML = '';
     }
 
-    speakItem(w);
     setStatus(`Sentence ${sentenceIndex + 1}, word ${wordIndex + 1} of ${words.length}: "${w.text}"`);
-
     wordIndex++;
-    animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(w)));
+    await speakItem(w);
+    if (!playing) return;
+    animationTimer = setTimeout(step, getEffectiveStepMs());
   }
   step();
 }
@@ -3987,8 +3987,17 @@ audioPlayer.volume = 0.8;
 
 // ===== Text-to-Speech =====
 function stopTextToSpeech() {
+  speechRunId++;
+  if (activeSpeechResolve) {
+    const resolve = activeSpeechResolve;
+    activeSpeechResolve = null;
+    resolve();
+  }
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
+
+let speechRunId = 0;
+let activeSpeechResolve = null;
 
 function refreshTtsVoices() {
   if (!('speechSynthesis' in window)) {
@@ -4011,30 +4020,26 @@ function refreshTtsVoices() {
     ttsVoiceSelect.appendChild(option);
   });
   ttsVoiceSelect.value = filtered.some(voice => voice.name === current) ? current : '';
-  ttsVoiceHint.textContent = availableTtsVoices.length
-    ? `${filtered.length} voice(s) shown.`
-    : 'No browser voices are available yet.';
 }
 
-function refreshSpeakerVoiceOptions(speakerKey) {
-  const isA = speakerKey === 'A';
-  const search = isA ? speakerAVoiceSearch : speakerBVoiceSearch;
-  const select = isA ? speakerAVoiceSelect : speakerBVoiceSelect;
-  const speaker = isA ? speakerA : speakerB;
+function refreshSpeakerVoiceOptions(which) {
+  const speaker = which === 'B' ? speakerB : speakerA;
+  const select = which === 'B' ? speakerBVoiceSelect : speakerAVoiceSelect;
+  const search = which === 'B' ? speakerBVoiceSearch : speakerAVoiceSearch;
+  if (!select || !search) return;
   const query = search.value.trim().toLowerCase();
-  const languagePrefix = ttsLanguage === 'km' ? 'km' : 'en';
-  const filtered = availableTtsVoices.filter(voice => {
+  const voices = availableTtsVoices.filter(voice => {
     const haystack = `${voice.name} ${voice.lang}`.toLowerCase();
-    return (!query || haystack.includes(query)) && voice.lang.toLowerCase().startsWith(languagePrefix);
+    return (!query || haystack.includes(query));
   });
-  select.innerHTML = `<option value="">Auto ${isA ? 'A' : 'B'} voice (${speaker.gender})</option>`;
-  filtered.forEach(voice => {
+  select.innerHTML = '<option value="">Automatic voice</option>';
+  voices.forEach(voice => {
     const option = document.createElement('option');
     option.value = voice.name;
     option.textContent = `${voice.name} (${voice.lang})`;
     select.appendChild(option);
   });
-  select.value = speaker.voiceName && filtered.some(voice => voice.name === speaker.voiceName) ? speaker.voiceName : '';
+  select.value = voices.some(voice => voice.name === speaker.voiceName) ? speaker.voiceName : '';
 }
 
 function refreshAllSpeakerVoices() {
@@ -4078,35 +4083,55 @@ function estimateTtsDurationMs(item) {
   if (!ttsEnabled || !('speechSynthesis' in window)) return 0;
   const parts = getTtsText(item);
   const units = parts.reduce((sum, part) => sum + Array.from(part.text).length, 0);
-  return Math.max(550, Math.round((units / 13) * 1000 / Math.max(0.5, ttsRate)));
+  return Math.max(700, Math.round((units / 12) * 1000 / Math.max(0.5, ttsRate)) + 250);
 }
 
 function speakItem(item) {
-  if (!ttsEnabled || !('speechSynthesis' in window)) return;
-  stopTextToSpeech();
-  getTtsText(item).forEach(part => {
-    const utterance = new SpeechSynthesisUtterance(part.text);
-    utterance.lang = part.lang;
-    const speaker = item.speaker === 'B' ? speakerB : speakerA;
-    const preferredVoiceName = item.speaker ? speaker.voiceName : ttsVoiceName;
-    const genderWords = speaker.gender === 'male'
-      ? /male|man|boy|david|daniel|alex|george|james|thomas|mark/i
-      : /female|woman|girl|samantha|victoria|karen|susan|ava|zira|sara/i;
-    const compatibleVoices = availableTtsVoices.filter(voice => voice.lang.toLowerCase().startsWith(part.lang.slice(0, 2).toLowerCase()));
-    const selectedVoice = compatibleVoices.find(voice => voice.name === preferredVoiceName);
-    const genderVoice = compatibleVoices.find(voice => genderWords.test(voice.name));
-    const compatibleVoice = selectedVoice || genderVoice || compatibleVoices[0];
-    if (compatibleVoice) utterance.voice = compatibleVoice;
-    utterance.rate = ttsRate;
-    utterance.volume = audioPlayer.volume;
-    window.speechSynthesis.speak(utterance);
+  if (!ttsEnabled || !('speechSynthesis' in window)) return Promise.resolve();
+  const parts = getTtsText(item);
+  if (!parts.length) return Promise.resolve();
+  const runId = speechRunId;
+  return new Promise(resolve => {
+    activeSpeechResolve = resolve;
+    let index = 0;
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      if (activeSpeechResolve === resolve) activeSpeechResolve = null;
+      resolve();
+    };
+    const speakNext = () => {
+      if (runId !== speechRunId || index >= parts.length) {
+        finish();
+        return;
+      }
+      const part = parts[index++];
+      const utterance = new SpeechSynthesisUtterance(part.text);
+      utterance.lang = part.lang;
+      const speaker = item.speaker === 'B' ? speakerB : speakerA;
+      const preferredVoiceName = item.speaker ? speaker.voiceName : ttsVoiceName;
+      const genderWords = speaker.gender === 'male'
+        ? /male|man|boy|david|daniel|alex|george|james|thomas|mark/i
+        : /female|woman|girl|samantha|victoria|karen|susan|ava|zira|sara/i;
+      const compatibleVoices = availableTtsVoices.filter(voice => voice.lang.toLowerCase().startsWith(part.lang.slice(0, 2).toLowerCase()));
+      const selectedVoice = compatibleVoices.find(voice => voice.name === preferredVoiceName);
+      const genderVoice = compatibleVoices.find(voice => genderWords.test(voice.name));
+      if (selectedVoice || genderVoice || compatibleVoices[0]) utterance.voice = selectedVoice || genderVoice || compatibleVoices[0];
+      utterance.rate = ttsRate;
+      utterance.volume = audioPlayer.volume;
+      utterance.onend = speakNext;
+      utterance.onerror = speakNext;
+      window.speechSynthesis.speak(utterance);
+    };
+    speakNext();
   });
 }
 
 ttsEnabledInput.addEventListener('change', () => {
   ttsEnabled = ttsEnabledInput.checked;
   if (!ttsEnabled) stopTextToSpeech();
-  setStatus(ttsEnabled ? 'Text-to-Speech enabled for preview.' : 'Text-to-Speech disabled.');
+  setStatus(ttsEnabled ? 'Text-to-Speech enabled for word-by-word preview.' : 'Text-to-Speech disabled.');
 });
 ttsLanguageSelect.addEventListener('change', () => {
   ttsLanguage = ttsLanguageSelect.value;
@@ -4119,12 +4144,8 @@ ttsLanguageSelect.addEventListener('change', () => {
 
 speakerAVoiceSearch.addEventListener('input', () => refreshSpeakerVoiceOptions('A'));
 speakerBVoiceSearch.addEventListener('input', () => refreshSpeakerVoiceOptions('B'));
-speakerAVoiceSelect.addEventListener('change', () => {
-  speakerA.voiceName = speakerAVoiceSelect.value;
-});
-speakerBVoiceSelect.addEventListener('change', () => {
-  speakerB.voiceName = speakerBVoiceSelect.value;
-});
+speakerAVoiceSelect.addEventListener('change', () => { speakerA.voiceName = speakerAVoiceSelect.value; });
+speakerBVoiceSelect.addEventListener('change', () => { speakerB.voiceName = speakerBVoiceSelect.value; });
 ttsRateInput.addEventListener('input', () => {
   ttsRate = Number.parseFloat(ttsRateInput.value) || 0.95;
   ttsRateVal.textContent = `${ttsRate.toFixed(2)}×`;
@@ -4185,7 +4206,8 @@ saveBtn.addEventListener('click', () => {
         khmer: w.khmer,
         pos: w.pos,
         example: w.example,
-        hasImage: !!w.imageData
+        hasImage: !!w.imageData,
+        imageData: w.imageData || null
       }))
     })),
     ratio: document.querySelector('#ratioGroup .ratio-btn.active')?.dataset.ratio || '16-9',
@@ -4193,6 +4215,7 @@ saveBtn.addEventListener('click', () => {
     layout: layoutMode,
     style: {
       bgColor: bgColorInput.value,
+      backgroundImage: extractBackgroundImageUrl() || null,
       enFont: enFontSelect.value,
       enSize: enSizeInput.value,
       kmFont: kmFontSelect.value,
@@ -4238,6 +4261,11 @@ importInput.addEventListener('change', (e) => {
 
       const style = data.style || {};
       if (style.bgColor) bgColorInput.value = style.bgColor;
+      if (style.backgroundImage) {
+        stage.style.backgroundImage = `url(\"${style.backgroundImage}\")`;
+        stage.style.setProperty('--stage-bg-image', `url(\"${style.backgroundImage}\")`);
+        bgImageRemoveBtn.classList.remove('hidden');
+      }
       if (style.enFont) enFontSelect.value = style.enFont;
       if (style.enSize) enSizeInput.value = style.enSize;
       if (style.kmFont) kmFontSelect.value = style.kmFont;
@@ -4271,7 +4299,7 @@ importInput.addEventListener('change', (e) => {
             khmer: String(w.khmer || ''),
             pos: String(w.pos || ''),
             example: String(w.example || ''),
-            imageData: null
+            imageData: typeof w.imageData === 'string' ? w.imageData : null
           })) : []
         })).filter(s => s.text && s.words.length > 0);
       } else if (data.sentence) {
@@ -4297,7 +4325,7 @@ importInput.addEventListener('change', (e) => {
             khmer: String(w.khmer || ''),
             pos: String(w.pos || ''),
             example: String(w.example || ''),
-            imageData: null
+            imageData: typeof w.imageData === 'string' ? w.imageData : null
           }));
         }
       } else {
@@ -4369,7 +4397,9 @@ importInput.addEventListener('change', (e) => {
   reader.readAsText(file);
 });
 
-// ===== Video export functions (simplified for multi-sentence) =====
+// Replace the original section from "// ===== Video export functions" through the record button listener with this block.
+
+// ===== Video export functions =====
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -4389,160 +4419,277 @@ function getExportDimensions() {
 
 function getSupportedVideoMimeType() {
   if (!window.MediaRecorder) return '';
-  return [
-    'video/webm;codecs=vp9',
-    'video/webm;codecs=vp8',
-    'video/webm'
-  ].find(type => MediaRecorder.isTypeSupported(type)) || '';
+  return ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+    .find(type => MediaRecorder.isTypeSupported(type)) || '';
 }
 
 function getVideoBitsPerSecond() {
-  const bitrateByQuality = { hd: 6000000, '2k': 14000000, '4k': 32000000 };
-  return bitrateByQuality[exportQuality] || bitrateByQuality.hd;
+  return ({ hd: 6000000, '2k': 14000000, '4k': 32000000 })[exportQuality] || 6000000;
 }
 
-async function exportVideo() {
-  if (exportingVideo) return;
-  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : sentences.length > 0;
-  if (!hasContent) {
-    setStatus(layoutMode === 'dialogue'
-      ? 'Please add at least one dialogue turn before exporting a video.'
-      : 'Please add a sentence before exporting a video.');
-    return;
-  }
-  const mimeType = getSupportedVideoMimeType();
-  if (!mimeType || !HTMLCanvasElement.prototype.captureStream) {
-    setStatus('Video export is not supported by this browser. Try the latest Chrome, Edge, or Firefox.');
-    return;
-  }
-
-  exportingVideo = true;
-  exportBtn.disabled = true;
-  recordBtn.disabled = true;
-  if (playing) stopPlayback();
-  setStatus('Preparing video export…');
-
-  const { width, height } = getExportDimensions();
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  const stream = canvas.captureStream(30);
-  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: getVideoBitsPerSecond() });
-  const chunks = [];
-  const stopped = new Promise((resolve, reject) => {
-    recorder.ondataavailable = event => {
-      if (event.data && event.data.size) chunks.push(event.data);
+function loadImageForExport(src) {
+  return new Promise(resolve => {
+    const value = String(src || '').trim();
+    if (!value || value === 'none' || value === 'url("none")') return resolve(null);
+    const image = new Image();
+    let settled = false;
+    const finish = result => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      resolve(result && image.naturalWidth > 0 && image.naturalHeight > 0 ? image : null);
     };
-    recorder.onerror = event => reject(event.error || new Error('Video recorder failed.'));
-    recorder.onstop = () => resolve();
+    const timeout = setTimeout(() => finish(null), 12000);
+    image.onload = () => finish(true);
+    image.onerror = () => {
+      console.warn('Could not load export image:', value.slice(0, 100));
+      finish(null);
+    };
+    image.decoding = 'async';
+    image.src = value;
+    if (image.complete && image.naturalWidth > 0) finish(true);
   });
-
-  try {
-    recorder.start(200);
-    
-    if (layoutMode === 'dialogue') {
-      for (let i = 0; i < turns.length; i++) {
-        ctx.fillStyle = bgColorInput.value || '#12142a';
-        ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = '#fff';
-        ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const speaker = turns[i].speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
-        ctx.fillText(`${speaker}: ${turns[i].en}`, width / 2, height / 2);
-        setStatus(`Rendering video: turn ${i + 1} of ${turns.length}…`);
-        await sleep(getEffectiveStepMs());
-      }
-    } else {
-      for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
-        const sentence = sentences[sIdx];
-        for (let wIdx = -1; wIdx < sentence.words.length; wIdx++) {
-          ctx.fillStyle = bgColorInput.value || '#12142a';
-          ctx.fillRect(0, 0, width, height);
-          ctx.fillStyle = '#fff';
-          ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          
-          if (wIdx === -1) {
-            ctx.fillText(sentence.text, width / 2, height / 2);
-          } else {
-            ctx.fillText(sentence.words[wIdx].text, width / 2, height / 2);
-            if (sentence.words[wIdx].khmer) {
-              ctx.fillStyle = '#ffd071';
-              ctx.font = `${Math.max(15, Number(kmSizeInput.value))}px ${kmFontSelect.value}`;
-              ctx.fillText(sentence.words[wIdx].khmer, width / 2, height / 2 + 60);
-            }
-          }
-          setStatus(`Rendering video: sentence ${sIdx + 1} of ${sentences.length}, word ${wIdx + 1} of ${sentence.words.length}…`);
-          await sleep(getEffectiveStepMs());
-        }
-      }
-    }
-
-    if (recorder.state === 'recording' && recorder.requestData) {
-      recorder.requestData();
-      await sleep(150);
-    }
-    recorder.stop();
-    await stopped;
-    const blob = new Blob(chunks, { type: mimeType });
-    if (blob.size === 0) throw new Error('Recorder produced an empty file.');
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'lesson-preview.webm';
-    link.click();
-    URL.revokeObjectURL(url);
-    setStatus('Video exported as lesson-preview.webm.');
-  } catch (error) {
-    if (recorder.state !== 'inactive') recorder.stop();
-    setStatus('Could not export the video. Please try again.');
-    console.error(error);
-  } finally {
-    stream.getTracks().forEach(track => track.stop());
-    exportingVideo = false;
-    exportBtn.disabled = false;
-    recordBtn.disabled = false;
-  }
 }
 
-exportBtn.addEventListener('click', exportVideo);
+function extractBackgroundImageUrl() {
+  const inline = stage.style.getPropertyValue('--stage-bg-image').trim();
+  const value = inline && inline !== 'none' ? inline : (getComputedStyle(stage).backgroundImage || '');
+  const match = value.match(/url\(["']?(.*?)["']?\)/);
+  return match ? match[1] : '';
+}
 
-async function recordVideo() {
-  if (recordingVideo) return;
-  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : sentences.length > 0;
-  if (!hasContent) {
-    setStatus(layoutMode === 'dialogue'
-      ? 'Please add at least one dialogue turn before recording a video.'
-      : 'Please add a sentence before recording a video.');
-    return;
+function drawCoverImage(ctx, image, width, height) {
+  if (!image) return;
+  const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+  const dw = image.naturalWidth * scale;
+  const dh = image.naturalHeight * scale;
+  ctx.drawImage(image, (width - dw) / 2, (height - dh) / 2, dw, dh);
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
   }
+  if (line) lines.push(line);
+  const top = y - ((lines.length - 1) * lineHeight) / 2;
+  lines.forEach((value, index) => ctx.fillText(value, x, top + index * lineHeight));
+}
+
+async function createExportRenderer(canvas) {
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const { width, height } = canvas;
+  const backgroundImage = await loadImageForExport(extractBackgroundImageUrl());
+  const imageCache = new Map();
+
+  async function getCachedImage(src) {
+    if (!src) return null;
+    if (!imageCache.has(src)) imageCache.set(src, loadImageForExport(src));
+    return imageCache.get(src);
+  }
+
+  async function drawBase() {
+    ctx.fillStyle = bgColorInput.value || '#12142a';
+    ctx.fillRect(0, 0, width, height);
+    drawCoverImage(ctx, backgroundImage, width, height);
+    if (backgroundImage) {
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx.fillRect(0, 0, width, height);
+    }
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+  }
+
+  async function drawSentence(sentence, wordIndex) {
+    await drawBase();
+    const scale = width / Math.max(320, stage.clientWidth || 640);
+    const enSize = Math.max(12, Number(enSizeInput.value) * scale);
+    const kmSize = Math.max(10, Number(kmSizeInput.value) * scale);
+    const imageSize = Math.max(40, Number(imgSizeInput.value) * scale);
+    const words = sentence.words || [];
+
+    const grammarText = String(sentence.grammar || (sentence.id === activeSentenceId ? grammarInput.value : '')).trim();
+    const grammarHeight = grammarText ? Math.max(30, 34 * scale) : 0;
+    if (grammarText) {
+      const grammar = grammarText.toUpperCase();
+      ctx.font = `700 ${Math.max(10, 13 * scale)}px Inter, sans-serif`;
+      const pillWidth = Math.min(width * 0.82, ctx.measureText(grammar).width + 28 * scale);
+      const pillHeight = grammarHeight;
+      const pillY = height * 0.08;
+      ctx.fillStyle = 'rgba(242,184,75,0.14)';
+      ctx.strokeStyle = 'rgba(242,184,75,0.55)';
+      ctx.lineWidth = Math.max(1, scale);
+      ctx.beginPath();
+      ctx.roundRect((width - pillWidth) / 2, pillY, pillWidth, pillHeight, pillHeight / 2);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffd071';
+      ctx.fillText(grammar, width / 2, pillY + pillHeight / 2);
+    }
+
+    if (layoutMode === 'sidebyside' && wordIndex >= 0) {
+      const word = words[wordIndex] || {};
+      const boxWidth = width * 0.38;
+      const boxHeight = height * 0.48;
+      const left = width * 0.08;
+      const top = (height - boxHeight) / 2;
+      ctx.fillStyle = boxBgInput.value || 'rgba(255,255,255,0.92)';
+      ctx.strokeStyle = boxBorderInput.value || 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = Math.max(1, scale * 2);
+      ctx.beginPath();
+      ctx.roundRect(left, top, boxWidth, boxHeight, Number(boxRadiusInput.value) || 18);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#101827';
+      ctx.font = `700 ${Math.max(18, enSize * 1.35)}px ${enFontSelect.value}`;
+      drawWrappedText(ctx, word.text || '', left + boxWidth / 2, top + boxHeight * 0.34, boxWidth * 0.82, enSize * 1.35);
+      ctx.fillStyle = '#d89525';
+      ctx.font = `500 ${Math.max(16, kmSize * 1.2)}px ${kmFontSelect.value}`;
+      drawWrappedText(ctx, word.khmer || '—', left + boxWidth / 2, top + boxHeight * 0.68, boxWidth * 0.82, kmSize * 1.3);
+      return;
+    }
+
+    if (wordIndex >= 0 && words[wordIndex]?.imageData) {
+      const image = await getCachedImage(words[wordIndex].imageData);
+      if (image) {
+        const x = width / 2 - imageSize / 2;
+        const y = Math.max(height * 0.18 - imageSize / 2, grammarHeight + height * 0.17);
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(x, y, imageSize, imageSize, 12 * scale);
+        ctx.clip();
+        drawCoverImage(ctx, image, imageSize, imageSize);
+        ctx.restore();
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = Math.max(1, scale * 2);
+        ctx.strokeRect(x, y, imageSize, imageSize);
+      }
+    }
+
+    // Every word is a vertical mini-card: POS, English, then Khmer. This prevents
+    // the three text layers from sharing the same line and colliding in portrait mode.
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const gap = Math.max(6, 10 * scale);
+    const badgeSize = Math.max(10, 10 * scale);
+    const itemWidths = words.map(word => {
+      ctx.font = `600 ${enSize}px ${enFontSelect.value}`;
+      const enWidth = ctx.measureText(word.text || '').width;
+      ctx.font = `500 ${kmSize}px ${kmFontSelect.value}`;
+      const kmWidth = ctx.measureText(word.khmer || '').width;
+      ctx.font = `600 ${badgeSize}px Poppins, sans-serif`;
+      const posWidth = ctx.measureText(word.pos ? (POS_ABBR[word.pos] || word.pos) : '').width;
+      return Math.max(enWidth, kmWidth, posWidth) + gap;
+    });
+    const maxWidth = width * 0.84;
+    const rows = [];
+    let row = [];
+    let rowWidth = 0;
+    words.forEach((word, index) => {
+      const itemWidth = itemWidths[index];
+      if (row.length && rowWidth + itemWidth > maxWidth) {
+        rows.push({ items: row, width: rowWidth - gap });
+        row = []; rowWidth = 0;
+      }
+      row.push({ word, index, width: itemWidth });
+      rowWidth += itemWidth;
+    });
+    if (row.length) rows.push({ items: row, width: rowWidth - gap });
+
+    const slotHeight = Math.max(18 * scale, badgeSize) + Math.max(8, 9 * scale) + enSize + Math.max(8, 10 * scale) + kmSize;
+    const rowGap = Math.max(14, 18 * scale);
+    const availableTop = grammarHeight + height * 0.20;
+    const availableBottom = height * 0.92;
+    const availableHeight = Math.max(slotHeight, availableBottom - availableTop);
+    const actualRowGap = rows.length > 1 ? Math.min(rowGap, Math.max(8, (availableHeight - rows.length * slotHeight) / (rows.length - 1))) : 0;
+    const totalHeight = rows.length * slotHeight + Math.max(0, rows.length - 1) * actualRowGap;
+    const firstTop = availableTop + Math.max(0, (availableHeight - totalHeight) / 2);
+
+    rows.forEach((currentRow, rowIndex) => {
+      let x = (width - currentRow.width) / 2;
+      const rowTop = firstTop + rowIndex * (slotHeight + actualRowGap);
+      currentRow.items.forEach(entry => {
+        const { word, index } = entry;
+        const centerX = x + entry.width / 2 - gap / 2;
+        const revealed = wordIndex >= 0 && index <= wordIndex;
+        const active = index === wordIndex;
+        ctx.globalAlpha = wordIndex < 0 ? 0.25 : (revealed ? 1 : 0.25);
+
+        if (word.pos) {
+          ctx.fillStyle = '#2396ae';
+          ctx.font = `600 ${badgeSize}px Poppins, sans-serif`;
+          ctx.fillText(POS_ABBR[word.pos] || word.pos, centerX, rowTop + badgeSize / 2);
+        }
+        ctx.fillStyle = active ? '#f2b84b' : '#fffdf9';
+        ctx.font = `${active ? 700 : 600} ${enSize}px ${enFontSelect.value}`;
+        ctx.fillText(word.text || '', centerX, rowTop + badgeSize + enSize / 2 + 8 * scale);
+        if (word.khmer) {
+          ctx.fillStyle = active ? '#ffd071' : 'rgba(255,255,255,0.85)';
+          ctx.font = `500 ${kmSize}px ${kmFontSelect.value}`;
+          ctx.fillText(word.khmer, centerX, rowTop + badgeSize + enSize + kmSize / 2 + 18 * scale);
+        }
+        ctx.globalAlpha = 1;
+        x += entry.width;
+      });
+    });
+  }
+
+  async function drawDialogue(turn) {
+    await drawBase();
+    const speaker = turn.speaker === 'A' ? speakerA : speakerB;
+    const avatar = await getCachedImage(speaker.avatarData);
+    const radius = Math.min(width, height) * 0.06;
+    const bubbleWidth = width * 0.72;
+    const bubbleHeight = height * 0.28;
+    const bubbleX = (width - bubbleWidth) / 2;
+    const bubbleY = (height - bubbleHeight) / 2;
+    ctx.fillStyle = boxBgInput.value || 'rgba(255,255,255,0.94)';
+    ctx.beginPath();
+    ctx.roundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, Number(boxRadiusInput.value) || 18);
+    ctx.fill();
+    if (avatar) drawCoverImage(ctx, avatar, radius * 2, radius * 2);
+    ctx.fillStyle = '#14758a';
+    ctx.font = `700 ${Math.max(20, width * 0.022)}px Inter, sans-serif`;
+    ctx.fillText(speaker.name || (turn.speaker === 'A' ? 'A' : 'B'), width / 2, bubbleY + bubbleHeight * 0.25);
+    ctx.fillStyle = '#101827';
+    ctx.font = `600 ${Math.max(24, width * 0.026)}px ${enFontSelect.value}`;
+    drawWrappedText(ctx, turn.en, width / 2, bubbleY + bubbleHeight * 0.55, bubbleWidth * 0.84, Math.max(30, width * 0.032));
+    if (dialogueTextMode !== 'en-only' && turn.km) {
+      ctx.fillStyle = '#14758a';
+      ctx.font = `500 ${Math.max(20, width * 0.021)}px ${kmFontSelect.value}`;
+      drawWrappedText(ctx, turn.km, width / 2, bubbleY + bubbleHeight * 0.82, bubbleWidth * 0.84, Math.max(25, width * 0.026));
+    }
+  }
+
+  return async function renderFrame(kind, index, wordIndex = -1) {
+    if (kind === 'dialogue') return drawDialogue(turns[index]);
+    return drawSentence(sentences[index], wordIndex);
+  };
+}
+
+async function renderAndRecord(withAudio) {
   const mimeType = getSupportedVideoMimeType();
-  if (!mimeType || !HTMLCanvasElement.prototype.captureStream) {
-    setStatus('Recording is not supported by this browser. Try the latest Chrome, Edge, or Firefox.');
-    return;
-  }
-
-  recordingVideo = true;
-  recordBtn.disabled = true;
-  exportBtn.disabled = true;
-  if (playing) stopPlayback();
-  setStatus('Preparing recording…');
-
+  if (!mimeType || !HTMLCanvasElement.prototype.captureStream) throw new Error('Video recording is not supported by this browser.');
   const { width, height } = getExportDimensions();
   const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
+  canvas.width = width; canvas.height = height;
+  const renderFrame = await createExportRenderer(canvas);
   const videoStream = canvas.captureStream(30);
-  const hasAudio = !!audioPlayer.src;
   let combinedStream = videoStream;
+  let hasAudio = withAudio && !!audioPlayer.src;
+  if (withAudio && !hasAudio) {
+    throw new Error('No MP3 narration is loaded. Browser TTS is preview-only and cannot be captured by MediaRecorder. Upload an MP3, then choose Record with audio.');
+  }
 
   if (hasAudio) {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
     if (!recordAudioContext) {
-      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
       recordAudioContext = new AudioContextCtor();
       recordAudioSourceNode = recordAudioContext.createMediaElementSource(audioPlayer);
       recordAudioDestNode = recordAudioContext.createMediaStreamDestination();
@@ -4550,116 +4697,103 @@ async function recordVideo() {
       recordAudioSourceNode.connect(recordAudioContext.destination);
     }
     await recordAudioContext.resume();
-    combinedStream = new MediaStream([
-      ...videoStream.getVideoTracks(),
-      ...recordAudioDestNode.stream.getAudioTracks(),
-    ]);
+    combinedStream = new MediaStream([...videoStream.getVideoTracks(), ...recordAudioDestNode.stream.getAudioTracks()]);
   }
 
   const recorder = new MediaRecorder(combinedStream, {
     mimeType,
     videoBitsPerSecond: getVideoBitsPerSecond(),
-    audioBitsPerSecond: 160000,
+    ...(hasAudio ? { audioBitsPerSecond: 160000 } : {})
   });
   const chunks = [];
   const stopped = new Promise((resolve, reject) => {
-    recorder.ondataavailable = event => {
-      if (event.data && event.data.size) chunks.push(event.data);
-    };
+    recorder.ondataavailable = event => { if (event.data?.size) chunks.push(event.data); };
     recorder.onerror = event => reject(event.error || new Error('Recorder failed.'));
-    recorder.onstop = () => resolve();
+    recorder.onstop = resolve;
   });
 
   try {
     recorder.start(200);
-    if (hasAudio) {
-      audioPlayer.currentTime = 0;
-      audioPlayer.play().catch(() => {});
-    }
-    
+    if (hasAudio) { audioPlayer.currentTime = 0; await audioPlayer.play().catch(() => {}); }
     if (layoutMode === 'dialogue') {
       for (let i = 0; i < turns.length; i++) {
-        ctx.fillStyle = bgColorInput.value || '#12142a';
-        ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = '#fff';
-        ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const speaker = turns[i].speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
-        ctx.fillText(`${speaker}: ${turns[i].en}`, width / 2, height / 2);
-        setStatus(`Recording video: turn ${i + 1} of ${turns.length}…`);
-        await sleep(getEffectiveStepMs());
+        await renderFrame('dialogue', i);
+        setStatus(`${withAudio ? 'Recording' : 'Rendering'} video: turn ${i + 1} of ${turns.length}…`);
+        await sleep(Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[i])));
       }
     } else {
       for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
         const sentence = sentences[sIdx];
-        for (let wIdx = -1; wIdx < sentence.words.length; wIdx++) {
-          ctx.fillStyle = bgColorInput.value || '#12142a';
-          ctx.fillRect(0, 0, width, height);
-          ctx.fillStyle = '#fff';
-          ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          
-          if (wIdx === -1) {
-            ctx.fillText(sentence.text, width / 2, height / 2);
-          } else {
-            ctx.fillText(sentence.words[wIdx].text, width / 2, height / 2);
-          }
-          setStatus(`Recording video: sentence ${sIdx + 1} of ${sentences.length}, word ${wIdx + 1} of ${sentence.words.length}…`);
-          await sleep(getEffectiveStepMs());
+        await renderFrame('sentence', sIdx, -1);
+        await sleep(Math.max(getEffectiveStepMs(), estimateTtsDurationMs(sentence)));
+        for (let wIdx = 0; wIdx < sentence.words.length; wIdx++) {
+          await renderFrame('sentence', sIdx, wIdx);
+          setStatus(`${withAudio ? 'Recording' : 'Rendering'} video: sentence ${sIdx + 1} of ${sentences.length}, word ${wIdx + 1}…`);
+          await sleep(Math.max(getEffectiveStepMs(), estimateTtsDurationMs(sentence.words[wIdx])));
         }
       }
     }
-
     if (hasAudio) {
-      setStatus('Finishing narration…');
       await new Promise(resolve => {
-        if (audioPlayer.paused || audioPlayer.ended) {
-          resolve();
-          return;
-        }
-        const done = () => {
-          audioPlayer.removeEventListener('ended', done);
-          resolve();
-        };
+        if (audioPlayer.paused || audioPlayer.ended) return resolve();
+        const done = () => { audioPlayer.removeEventListener('ended', done); resolve(); };
         audioPlayer.addEventListener('ended', done);
-        const remaining = Number.isFinite(audioPlayer.duration)
-          ? Math.max(0, (audioPlayer.duration - audioPlayer.currentTime) * 1000 + 400)
-          : 15000;
-        setTimeout(done, remaining);
+        setTimeout(done, Number.isFinite(audioPlayer.duration) ? Math.max(0, (audioPlayer.duration - audioPlayer.currentTime) * 1000 + 400) : 15000);
       });
     }
-
-    if (recorder.state === 'recording' && recorder.requestData) {
-      recorder.requestData();
-      await sleep(150);
-    }
+    recorder.requestData?.();
+    await sleep(150);
     recorder.stop();
     await stopped;
     const blob = new Blob(chunks, { type: mimeType });
-    if (blob.size === 0) throw new Error('Recorder produced an empty file.');
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'lesson-recording.webm';
-    link.click();
-    URL.revokeObjectURL(url);
-    setStatus('Recording saved as lesson-recording.webm.');
-  } catch (error) {
-    if (recorder.state !== 'inactive') recorder.stop();
-    setStatus('Could not record the video. Please try again.');
-    console.error(error);
+    if (!blob.size) throw new Error('Recorder produced an empty file.');
+    return blob;
   } finally {
+    if (recorder.state !== 'inactive') recorder.stop();
     if (hasAudio) audioPlayer.pause();
     videoStream.getTracks().forEach(track => track.stop());
-    recordingVideo = false;
-    recordBtn.disabled = false;
-    exportBtn.disabled = false;
   }
 }
 
+async function downloadRecordedVideo(withAudio) {
+  const blob = await renderAndRecord(withAudio);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = withAudio ? 'lesson-recording.webm' : 'lesson-preview.webm';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportVideo() {
+  if (exportingVideo) return;
+  if ((layoutMode === 'dialogue' ? !turns.length : !sentences.length)) {
+    setStatus('Please add content before exporting a video.'); return;
+  }
+  exportingVideo = true; exportBtn.disabled = true; recordBtn.disabled = true;
+  try { setStatus('Preparing video export…'); await downloadRecordedVideo(false); setStatus('Video exported as lesson-preview.webm.'); }
+  catch (error) { console.error(error); setStatus(`Could not export the video: ${error.message}`); }
+  finally { exportingVideo = false; exportBtn.disabled = false; recordBtn.disabled = false; }
+}
+
+async function recordVideo() {
+  if (recordingVideo) return;
+  if ((layoutMode === 'dialogue' ? !turns.length : !sentences.length)) {
+    setStatus('Please add content before recording a video.'); return;
+  }
+  recordingVideo = true; recordBtn.disabled = true; exportBtn.disabled = true;
+  try { setStatus('Preparing recording…'); await downloadRecordedVideo(true); setStatus('Recording saved as lesson-recording.webm.'); }
+  catch (error) { console.error(error); setStatus(`Could not record the video: ${error.message}`); }
+  finally { recordingVideo = false; recordBtn.disabled = false; exportBtn.disabled = false; }
+}
+
+exportBtn.addEventListener('click', exportVideo);
 recordBtn.addEventListener('click', recordVideo);
+
+// ===== End replacement block =====
+
 
 // ===== Initialize =====
 function initializeApp() {
