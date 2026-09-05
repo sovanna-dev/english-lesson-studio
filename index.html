@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Create simple, bilingual English lesson animations in your browser.">
   <meta name="theme-color" content="#101827">
-  <title>Lesson Animation Studio - Modern Chat</title>
+  <title>Lesson Animation Studio - Multi-Sentence Support</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,6 +110,7 @@ select {
 
 textarea,
 input[type='text'],
+input[type='search'],
 select {
   width: 100%;
   border: 1px solid var(--line);
@@ -121,12 +122,14 @@ select {
 
 textarea:hover,
 input[type='text']:hover,
+input[type='search']:hover,
 select:hover {
   border-color: #c9d2df;
 }
 
 textarea:focus,
 input[type='text']:focus,
+input[type='search']:focus,
 select:focus {
   border-color: var(--teal);
   box-shadow: 0 0 0 4px rgba(35, 150, 174, 0.1);
@@ -141,6 +144,7 @@ textarea {
 }
 
 input[type='text'],
+input[type='search'],
 select {
   min-height: 42px;
   padding: 10px 12px;
@@ -710,6 +714,93 @@ input[type='range'] {
   font-size: 9px;
   letter-spacing: 0;
   text-transform: none;
+}
+
+/* ===== CSS សម្រាប់ Sentence List ===== */
+.sentence-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(242, 184, 75, 0.4) transparent;
+}
+
+.sentence-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sentence-list::-webkit-scrollbar-thumb {
+  background: rgba(242, 184, 75, 0.4);
+  border-radius: 4px;
+}
+
+.sentence-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sentence-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.sentence-item:hover {
+  border-color: rgba(242, 184, 75, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(2px);
+}
+
+.sentence-item.active {
+  border-color: var(--gold);
+  background: rgba(242, 184, 75, 0.15);
+}
+
+.sentence-number {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--ink-950);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sentence-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #dfe6ee;
+}
+
+.sentence-delete {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(196, 87, 74, 0.14);
+  color: var(--danger);
+  font-size: 10px;
+  font-weight: 700;
+  transition: background 160ms ease;
+}
+
+.sentence-delete:hover {
+  background: rgba(196, 87, 74, 0.26);
 }
 
 .timeline-list {
@@ -1424,7 +1515,6 @@ input[type='range'] {
   flex-direction: row-reverse;
 }
 
-/* Keep portrait dialogue compositions centered instead of top-heavy. */
 .stage.ratio-9-16 .stage-dialogue {
   align-items: stretch;
   padding: 8% 7% 14%;
@@ -1792,11 +1882,46 @@ input[type='range'] {
   white-space: nowrap;
 }
 
+.studio-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.studio-mode-btn {
+  min-height: 58px;
+  padding: 10px;
+  border: 1px solid var(--line-dark);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #dfe6ee;
+  text-align: left;
+  transition: all 160ms ease;
+}
+
+.studio-mode-btn strong,
+.studio-mode-btn small {
+  display: block;
+}
+
+.studio-mode-btn small {
+  margin-top: 4px;
+  color: #8896a9;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.studio-mode-btn.active {
+  border-color: var(--gold);
+  background: rgba(242, 184, 75, 0.12);
+  color: #ffd071;
+  box-shadow: 0 0 0 2px rgba(242, 184, 75, 0.12);
+}
+
 .turn-item-edit,
 .turn-item-remove {
   flex: 0 0 auto;
-  padding: 2px 6px;
-  border-radius: 6px;
   padding: 2px 6px;
   border-radius: 6px;
   background: rgba(196, 87, 74, 0.14);
@@ -1807,7 +1932,7 @@ input[type='range'] {
 
 .turn-item-edit {
   background: rgba(77, 174, 177, 0.14);
-  color: var(--teal-300);
+  color: #4d9ab1;
 }
 
 .turn-item-edit:hover {
@@ -2206,7 +2331,6 @@ input[type='range'] {
 </style>
 </head>
 <body>
-  <!-- HTML ដូចគ្នានឹងកូដដើម -->
   <header class="topbar">
     <a class="brand" href="#main-content" aria-label="Lesson Animation Studio home">
       <span class="brand-mark" aria-hidden="true">語</span>
@@ -2242,21 +2366,59 @@ input[type='range'] {
       <div class="panel-intro">
         <span class="eyebrow">Lesson builder</span>
         <h1 id="build-title" class="panel-title">Build your lesson</h1>
-        <p class="panel-description">Turn one English sentence into a visual vocabulary lesson — or build a two‑character dialogue.</p>
+        <p class="panel-description">Add multiple English sentences to create a complete visual vocabulary lesson.</p>
       </div>
 
-      <div class="section-block">
+      <section class="section-block" aria-labelledby="studio-mode-label">
+        <div id="studio-mode-label" class="field-label">Create lesson type</div>
+        <div class="studio-mode-switch" id="studioModeGroup" role="group" aria-label="Choose lesson type">
+          <button class="studio-mode-btn active" type="button" data-studio-mode="sentence" aria-pressed="true">
+            <strong>Sentence &amp; Sense</strong>
+            <small>Words, senses, and story cards</small>
+          </button>
+          <button class="studio-mode-btn" type="button" data-studio-mode="dialogue" aria-pressed="false">
+            <strong>Dialogue</strong>
+            <small>Characters, voices, and conversation</small>
+          </button>
+        </div>
+      </section>
+
+      <div id="sentenceBuilderSection" class="section-block">
         <label class="field-label" for="sentenceInput">English sentence</label>
-        <textarea id="sentenceInput" rows="3" placeholder="I am eating breakfast." spellcheck="true">I am eating breakfast.</textarea>
-        <p class="field-help">Start with a short sentence. Each word becomes an editable card.</p>
+        <textarea id="sentenceInput" rows="3" placeholder="Type a sentence and click Add sentence." spellcheck="true"></textarea>
+        <p class="field-help">Each word becomes an editable card. Add multiple sentences to create a full lesson.</p>
         <label class="field-label grammar-input-label" for="grammarInput">Grammar</label>
         <input id="grammarInput" class="grammar-input" type="text" placeholder="e.g. Present continuous" autocomplete="off">
         <p class="field-help">This label appears above the sentence on the stage.</p>
-        <button id="breakBtn" class="btn btn-secondary btn-block" type="button">
-          <span class="btn-icon" aria-hidden="true">✦</span>
-          <span>Break into words</span>
+        <button id="addSentenceBtn" class="btn btn-secondary btn-block" type="button">
+          <span class="btn-icon" aria-hidden="true">＋</span>
+          <span>Add sentence</span>
         </button>
       </div>
+
+      <div class="divider" role="presentation"></div>
+
+      <section class="section-block" aria-labelledby="sentence-list-label">
+        <div class="field-label field-label-row">
+          <span id="sentence-list-label">Sentences</span>
+          <span class="field-badge" id="sentenceCount">0</span>
+        </div>
+        <ul id="sentenceList" class="sentence-list" aria-label="List of sentences">
+          <li class="timeline-empty">No sentences yet — add your first sentence above.</li>
+        </ul>
+      </section>
+
+      <div class="divider" role="presentation"></div>
+
+      <section id="wordOrderSection" class="section-block" aria-labelledby="word-order-label">
+        <div id="word-order-label" class="field-label field-label-row">
+          <span>Word order</span>
+          <span class="field-badge">Timeline</span>
+        </div>
+        <ol id="timelineList" class="timeline-list" aria-label="Lesson word order">
+          <li class="timeline-empty">No words yet — add a sentence to begin.</li>
+        </ol>
+      </section>
 
       <div class="divider" role="presentation"></div>
 
@@ -2307,19 +2469,7 @@ input[type='range'] {
 
       <div class="divider" role="presentation"></div>
 
-      <section class="section-block" aria-labelledby="word-order-label">
-        <div id="word-order-label" class="field-label field-label-row">
-          <span>Word order</span>
-          <span class="field-badge">Timeline</span>
-        </div>
-        <ol id="timelineList" class="timeline-list" aria-label="Lesson word order">
-          <li class="timeline-empty">No words yet — break a sentence to begin.</li>
-        </ol>
-      </section>
-
-      <div class="divider" role="presentation"></div>
-
-      <section class="section-block" aria-labelledby="dialogue-label">
+      <section id="dialogueSection" class="section-block hidden" aria-labelledby="dialogue-label">
         <div id="dialogue-label" class="field-label field-label-row">
           <span>Dialogue</span>
           <span class="field-badge">2 characters</span>
@@ -2526,7 +2676,7 @@ input[type='range'] {
         <div class="canvas-toolbar-actions">
           <button id="playBtn" class="btn btn-play" type="button">
             <span class="play-dot" aria-hidden="true">▶</span>
-            <span>Play preview</span>
+            <span>Play all</span>
           </button>
         </div>
       </div>
@@ -2548,9 +2698,9 @@ input[type='range'] {
 
           <div class="stage-image-slot" id="stageImageSlot"></div>
 
-          <button id="stagePlayBtn" class="stage-overlay-btn stage-play-btn" type="button" aria-pressed="false" title="Play preview">
+          <button id="stagePlayBtn" class="stage-overlay-btn stage-play-btn" type="button" aria-pressed="false" title="Play all">
             <span class="btn-icon" aria-hidden="true">▶</span>
-            <span class="sr-only">Play preview</span>
+            <span class="sr-only">Play all</span>
           </button>
 
           <button id="fullscreenBtn" class="stage-overlay-btn stage-fullscreen-btn" type="button" aria-pressed="false" title="Full screen">
@@ -2578,7 +2728,7 @@ input[type='range'] {
       <div id="noSelection" class="no-selection">
         <div class="empty-icon" aria-hidden="true">✎</div>
         <strong>Select a word to begin</strong>
-        <p>Break a sentence, then choose a word card to edit its details.</p>
+        <p>Add a sentence, then choose a word card to edit its details.</p>
       </div>
 
       <div id="wordForm" class="word-form hidden">
@@ -2622,8 +2772,10 @@ input[type='range'] {
 
   <script>
 // ===== State =====
-let words = [];
+let sentences = [];
+let activeSentenceId = null;
 let selectedWordId = null;
+let studioMode = 'sentence';
 let turns = [];
 let editingTurnId = null;
 let speakerA = { name: 'Sokha', gender: 'female', voiceName: '', avatarData: null };
@@ -2637,10 +2789,16 @@ let dialoguePlaybackState = {
 };
 
 // ===== DOM refs =====
+const studioModeGroup = document.getElementById('studioModeGroup');
+const sentenceBuilderSection = document.getElementById('sentenceBuilderSection');
+const sentenceListSection = document.getElementById('sentenceList');
+const sentenceCountEl = document.getElementById('sentenceCount');
+const wordOrderSection = document.getElementById('wordOrderSection');
+const dialogueSection = document.getElementById('dialogueSection');
 const sentenceInput = document.getElementById('sentenceInput');
 const grammarInput = document.getElementById('grammarInput');
 const stageGrammar = document.getElementById('stageGrammar');
-const breakBtn = document.getElementById('breakBtn');
+const addSentenceBtn = document.getElementById('addSentenceBtn');
 const wordCardsEl = document.getElementById('wordCards');
 const timelineListEl = document.getElementById('timelineList');
 const stage = document.getElementById('stage');
@@ -2784,6 +2942,16 @@ function setStatus(msg) {
   statusText.textContent = msg;
 }
 
+function getActiveSentence() {
+  return sentences.find(s => s.id === activeSentenceId) || sentences[0] || null;
+}
+
+function getActiveWord() {
+  const sentence = getActiveSentence();
+  if (!sentence) return null;
+  return sentence.words.find(w => w.id === selectedWordId) || null;
+}
+
 // ===== Grammar label =====
 grammarInput.addEventListener('input', renderStageGrammar);
 
@@ -2793,38 +2961,141 @@ function renderStageGrammar() {
   stageGrammar.classList.toggle('hidden', !grammar);
 }
 
-// ===== Break sentence into word cards =====
-breakBtn.addEventListener('click', () => {
+// ===== Add Sentence =====
+addSentenceBtn.addEventListener('click', () => {
   const raw = sentenceInput.value.trim();
   if (!raw) {
     setStatus('Type a sentence first.');
     return;
   }
+  
   const tokens = raw.split(/\s+/).filter(Boolean);
-  words = tokens.map(t => ({
+  const newSentence = {
     id: uid(),
-    text: t,
-    khmer: '',
-    pos: '',
-    example: '',
-    imageData: null
-  }));
-  selectedWordId = null;
+    text: raw,
+    grammar: grammarInput.value.trim(),
+    words: tokens.map(t => ({
+      id: uid(),
+      text: t,
+      khmer: '',
+      pos: '',
+      example: '',
+      imageData: null
+    }))
+  };
+  
+  sentences.push(newSentence);
+  activeSentenceId = newSentence.id;
+  selectedWordId = newSentence.words[0]?.id || null;
+  
+  // សម្អាត input សម្រាប់ប្រយោគបន្ទាប់
+  sentenceInput.value = '';
+  grammarInput.value = '';
+  
+  renderSentenceList();
   renderWordCards();
   renderTimeline();
   renderStageSentence();
   renderProperties();
   updateFlashcardPreview();
-  setStatus(`Broke sentence into ${words.length} words. Click a word to add meaning.`);
+  
+  setStatus(`Added sentence ${sentences.length}: "${raw}". Add another or click a word to edit.`);
 });
+
+// ===== Render Sentence List =====
+function renderSentenceList() {
+  sentenceListSection.innerHTML = '';
+  sentenceCountEl.textContent = sentences.length;
+  
+  if (sentences.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'timeline-empty';
+    li.textContent = 'No sentences yet — add your first sentence above.';
+    sentenceListSection.appendChild(li);
+    return;
+  }
+  
+  sentences.forEach((sentence, index) => {
+    const li = document.createElement('li');
+    li.className = 'sentence-item' + (sentence.id === activeSentenceId ? ' active' : '');
+    
+    const number = document.createElement('span');
+    number.className = 'sentence-number';
+    number.textContent = index + 1;
+    
+    const text = document.createElement('span');
+    text.className = 'sentence-text';
+    text.textContent = sentence.text;
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'sentence-delete';
+    deleteBtn.textContent = '×';
+    deleteBtn.title = 'Remove this sentence';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeSentence(sentence.id);
+    });
+    
+    li.addEventListener('click', () => {
+      selectSentence(sentence.id);
+    });
+    
+    li.appendChild(number);
+    li.appendChild(text);
+    li.appendChild(deleteBtn);
+    sentenceListSection.appendChild(li);
+  });
+}
+
+// ===== Select Sentence =====
+function selectSentence(id) {
+  activeSentenceId = id;
+  const sentence = sentences.find(s => s.id === id);
+  if (sentence) {
+    sentenceInput.value = sentence.text;
+    grammarInput.value = sentence.grammar || '';
+    selectedWordId = sentence.words[0]?.id || null;
+  }
+  renderSentenceList();
+  renderWordCards();
+  renderTimeline();
+  renderStageSentence();
+  renderProperties();
+  updateFlashcardPreview();
+  setStatus(`Showing sentence: "${sentence.text}"`);
+}
+
+// ===== Remove Sentence =====
+function removeSentence(id) {
+  if (sentences.length <= 1) {
+    setStatus('At least one sentence is required.');
+    return;
+  }
+  sentences = sentences.filter(s => s.id !== id);
+  if (activeSentenceId === id) {
+    activeSentenceId = sentences[0].id;
+    const firstSentence = sentences[0];
+    sentenceInput.value = firstSentence.text;
+    grammarInput.value = firstSentence.grammar || '';
+    selectedWordId = firstSentence.words[0]?.id || null;
+  }
+  renderSentenceList();
+  renderWordCards();
+  renderTimeline();
+  renderStageSentence();
+  renderProperties();
+  updateFlashcardPreview();
+  setStatus(`Removed sentence. ${sentences.length} sentence(s) remaining.`);
+}
 
 // ===== Render word cards under the stage =====
 function renderWordCards() {
   wordCardsEl.innerHTML = '';
-  if (words.length === 0) {
+  const sentence = getActiveSentence();
+  if (!sentence || sentence.words.length === 0) {
     return;
   }
-  words.forEach(w => {
+  sentence.words.forEach(w => {
     const card = document.createElement('div');
     card.className = 'word-card' + (w.id === selectedWordId ? ' selected' : '');
     card.dataset.id = w.id;
@@ -2858,14 +3129,15 @@ function renderWordCards() {
 // ===== Render timeline list =====
 function renderTimeline() {
   timelineListEl.innerHTML = '';
-  if (words.length === 0) {
+  const sentence = getActiveSentence();
+  if (!sentence || sentence.words.length === 0) {
     const li = document.createElement('li');
     li.className = 'timeline-empty';
-    li.textContent = 'No words yet — break a sentence to begin.';
+    li.textContent = 'No words yet — add a sentence to begin.';
     timelineListEl.appendChild(li);
     return;
   }
-  words.forEach((w, i) => {
+  sentence.words.forEach((w, i) => {
     const li = document.createElement('li');
     li.className = 'timeline-item';
     const order = document.createElement('span');
@@ -2885,7 +3157,11 @@ function renderStageSentence() {
   stageSentence.innerHTML = '';
   stageImageSlot.classList.remove('visible');
   stageImageSlot.innerHTML = '';
-  words.forEach(w => {
+  
+  const sentence = getActiveSentence();
+  if (!sentence) return;
+  
+  sentence.words.forEach(w => {
     const span = document.createElement('span');
     span.className = 'stage-word';
     span.dataset.id = w.id;
@@ -2929,7 +3205,7 @@ function clearFlashcard() {
 }
 
 function updateFlashcardPreview() {
-  const w = words.find(x => x.id === selectedWordId) || words[0];
+  const w = getActiveWord() || getActiveSentence()?.words[0];
   if (w) {
     setFlashcardWord(w);
   } else {
@@ -2946,7 +3222,7 @@ function selectWord(id) {
 }
 
 function renderProperties() {
-  const w = words.find(x => x.id === selectedWordId);
+  const w = getActiveWord();
   if (!w) {
     noSelection.classList.remove('hidden');
     wordForm.classList.add('hidden');
@@ -2974,7 +3250,7 @@ function renderProperties() {
 
 // ===== Properties panel: live edits =====
 khmerInput.addEventListener('input', () => {
-  const w = words.find(x => x.id === selectedWordId);
+  const w = getActiveWord();
   if (!w) return;
   w.khmer = khmerInput.value;
   renderWordCards();
@@ -2983,7 +3259,7 @@ khmerInput.addEventListener('input', () => {
 });
 
 posInput.addEventListener('change', () => {
-  const w = words.find(x => x.id === selectedWordId);
+  const w = getActiveWord();
   if (!w) return;
   w.pos = posInput.value;
   renderWordCards();
@@ -2992,7 +3268,7 @@ posInput.addEventListener('change', () => {
 });
 
 exampleInput.addEventListener('input', () => {
-  const w = words.find(x => x.id === selectedWordId);
+  const w = getActiveWord();
   if (!w) return;
   w.example = exampleInput.value;
 });
@@ -3003,7 +3279,7 @@ imagePreviewWrap.addEventListener('click', () => imageInput.click());
 imageInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  const w = words.find(x => x.id === selectedWordId);
+  const w = getActiveWord();
   if (!w) return;
   const reader = new FileReader();
   reader.onload = (ev) => {
@@ -3016,7 +3292,7 @@ imageInput.addEventListener('change', (e) => {
 });
 
 removeImageBtn.addEventListener('click', () => {
-  const w = words.find(x => x.id === selectedWordId);
+  const w = getActiveWord();
   if (!w) return;
   w.imageData = null;
   imageInput.value = '';
@@ -3073,7 +3349,7 @@ document.addEventListener('fullscreenchange', () => {
   fullscreenBtn.querySelector('.sr-only').textContent = isFullscreen ? 'Exit full screen' : 'Full screen';
 });
 
-// ===== Dialogue: speaker setup =====
+// ===== Dialogue functions (same as before, but simplified) =====
 function renderSpeakerAvatarPreview(previewEl, fallbackLetter, speaker) {
   previewEl.innerHTML = '';
   if (speaker.avatarData) {
@@ -3107,9 +3383,7 @@ speakerAAvatarInput.addEventListener('change', (e) => {
   reader.onload = (ev) => {
     speakerA.avatarData = ev.target.result;
     renderDialogueAvatars();
-    if (layoutMode === 'dialogue') {
-      renderDialogueChat();
-    }
+    if (layoutMode === 'dialogue') renderDialogueChat();
   };
   reader.readAsDataURL(file);
 });
@@ -3121,9 +3395,7 @@ speakerBAvatarInput.addEventListener('change', (e) => {
   reader.onload = (ev) => {
     speakerB.avatarData = ev.target.result;
     renderDialogueAvatars();
-    if (layoutMode === 'dialogue') {
-      renderDialogueChat();
-    }
+    if (layoutMode === 'dialogue') renderDialogueChat();
   };
   reader.readAsDataURL(file);
 });
@@ -3131,17 +3403,13 @@ speakerBAvatarInput.addEventListener('change', (e) => {
 speakerAName.addEventListener('input', () => {
   speakerA.name = speakerAName.value.trim() || 'A';
   renderDialogueAvatars();
-  if (layoutMode === 'dialogue') {
-    renderDialogueChat();
-  }
+  if (layoutMode === 'dialogue') renderDialogueChat();
 });
 
 speakerBName.addEventListener('input', () => {
   speakerB.name = speakerBName.value.trim() || 'B';
   renderDialogueAvatars();
-  if (layoutMode === 'dialogue') {
-    renderDialogueChat();
-  }
+  if (layoutMode === 'dialogue') renderDialogueChat();
 });
 
 speakerAGender.addEventListener('change', () => {
@@ -3154,12 +3422,9 @@ speakerBGender.addEventListener('change', () => {
 
 dialogueTextModeSelect.addEventListener('change', () => {
   dialogueTextMode = dialogueTextModeSelect.value;
-  if (layoutMode === 'dialogue') {
-    renderDialogueChat();
-  }
+  if (layoutMode === 'dialogue') renderDialogueChat();
 });
 
-// ===== Dialogue: turns =====
 function renderTurnList() {
   turnListEl.innerHTML = '';
   if (turns.length === 0) {
@@ -3192,8 +3457,6 @@ function renderTurnList() {
     editBtn.type = 'button';
     editBtn.className = 'turn-item-edit';
     editBtn.textContent = '✎';
-    editBtn.title = 'Edit turn';
-    editBtn.setAttribute('aria-label', `Edit turn ${i + 1}`);
     editBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       turnSpeakerSelect.value = t.speaker;
@@ -3202,7 +3465,6 @@ function renderTurnList() {
       editingTurnId = t.id;
       addTurnBtn.querySelector('span:last-child').textContent = 'Update turn';
       turnEnInput.focus();
-      setStatus(`Editing turn ${i + 1}. Update the text and press Update turn.`);
     });
 
     const removeBtn = document.createElement('button');
@@ -3217,10 +3479,7 @@ function renderTurnList() {
         addTurnBtn.querySelector('span:last-child').textContent = 'Add turn';
       }
       renderTurnList();
-      setStatus('Turn removed.');
-      if (layoutMode === 'dialogue') {
-        renderDialogueChat();
-      }
+      if (layoutMode === 'dialogue') renderDialogueChat();
     });
 
     li.addEventListener('click', () => {
@@ -3257,23 +3516,15 @@ addTurnBtn.addEventListener('click', () => {
     addTurnBtn.querySelector('span:last-child').textContent = 'Add turn';
     setStatus('Dialogue turn updated.');
   } else {
-    turns.push({
-      id: uid(),
-      speaker: turnSpeakerSelect.value,
-      en,
-      km
-    });
-    setStatus(`Added turn ${turns.length}. Add the next line, or press Play to preview.`);
+    turns.push({ id: uid(), speaker: turnSpeakerSelect.value, en, km });
+    setStatus(`Added turn ${turns.length}.`);
     turnSpeakerSelect.value = turnSpeakerSelect.value === 'A' ? 'B' : 'A';
   }
   turnEnInput.value = '';
   turnKmInput.value = '';
   renderTurnList();
   turnEnInput.focus();
-  
-  if (layoutMode === 'dialogue') {
-    renderDialogueChat();
-  }
+  if (layoutMode === 'dialogue') renderDialogueChat();
 });
 
 turnEnInput.addEventListener('keydown', (e) => {
@@ -3283,10 +3534,8 @@ turnEnInput.addEventListener('keydown', (e) => {
   }
 });
 
-// ===== មុខងារថ្មី: បង្ហាញ Dialogue ជា Modern Chat =====
 function renderDialogueChat() {
   if (!dialogueChatContainer) return;
-  
   dialogueChatContainer.innerHTML = '';
   
   if (turns.length === 0) {
@@ -3313,12 +3562,10 @@ function renderDialogueChat() {
     if (isA && speakerA.avatarData) {
       const img = document.createElement('img');
       img.src = speakerA.avatarData;
-      img.alt = speakerA.name;
       avatar.appendChild(img);
     } else if (!isA && speakerB.avatarData) {
       const img = document.createElement('img');
       img.src = speakerB.avatarData;
-      img.alt = speakerB.name;
       avatar.appendChild(img);
     } else {
       avatar.textContent = isA ? (speakerA.name || 'A').charAt(0).toUpperCase() : (speakerB.name || 'B').charAt(0).toUpperCase();
@@ -3332,11 +3579,7 @@ function renderDialogueChat() {
     avatarCol.appendChild(nameLabel);
     
     const bubble = document.createElement('div');
-    bubble.className = `dialogue-bubble ${isA ? 'side-a' : 'side-b'}`;
-    
-    if (isCurrentTurn) {
-      bubble.classList.add('chat-animation');
-    }
+    bubble.className = `dialogue-bubble ${isA ? 'side-a' : 'side-b'}${isCurrentTurn ? ' chat-animation' : ''}`;
     
     const speakerLabel = document.createElement('span');
     speakerLabel.className = 'dialogue-bubble-speaker';
@@ -3357,69 +3600,33 @@ function renderDialogueChat() {
     
     row.appendChild(avatarCol);
     row.appendChild(bubble);
-    
     dialogueChatContainer.appendChild(row);
   });
-  
-  addDialogueNavigationToStage();
 }
 
-// ===== Navigation controls =====
-function createDialogueNavControls() {
-  const navControls = document.createElement('div');
-  navControls.className = 'dialogue-nav-controls';
-  navControls.innerHTML = `
-    <button class="dialogue-nav-btn" id="dialoguePrevBtn" aria-label="Previous turn">◀</button>
-    <span class="dialogue-progress-text" id="dialogueProgressText">0/0</span>
-    <button class="dialogue-nav-btn" id="dialogueNextBtn" aria-label="Next turn">▶</button>
-  `;
-  return navControls;
+// ===== Studio mode =====
+function syncStudioModeUI() {
+  const isDialogue = studioMode === 'dialogue';
+  sentenceBuilderSection.style.display = isDialogue ? 'none' : '';
+  sentenceListSection.parentElement.style.display = isDialogue ? 'none' : '';
+  wordOrderSection.style.display = isDialogue ? 'none' : '';
+  dialogueSection.style.display = isDialogue ? '' : 'none';
+  studioModeGroup.querySelectorAll('[data-studio-mode]').forEach(button => {
+    const active = button.dataset.studioMode === studioMode;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
 }
 
-function addDialogueNavigationToStage() {
-  const existingControls = document.querySelector('.dialogue-nav-controls');
-  if (existingControls) existingControls.remove();
-  
-  const navControls = createDialogueNavControls();
-  stage.appendChild(navControls);
-  
-  const prevBtn = document.getElementById('dialoguePrevBtn');
-  const nextBtn = document.getElementById('dialogueNextBtn');
-  
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => {
-      if (dialoguePlaybackState.currentIndex > 0) {
-        if (playing) stopPlayback();
-        dialoguePlaybackState.currentIndex--;
-        renderDialogueChat();
-      }
-    });
-  }
-  
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      if (dialoguePlaybackState.currentIndex < turns.length - 1) {
-        if (playing) stopPlayback();
-        dialoguePlaybackState.currentIndex++;
-        renderDialogueChat();
-      }
-    });
-  }
-  
-  updateNavUI();
-}
+studioModeGroup.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-studio-mode]');
+  if (!button) return;
+  studioMode = button.dataset.studioMode === 'dialogue' ? 'dialogue' : 'sentence';
+  syncStudioModeUI();
+  setStatus(studioMode === 'dialogue' ? 'Dialogue Conversation mode selected.' : 'Sentence & Sense mode selected.');
+});
 
-function updateNavUI() {
-  const progressText = document.getElementById('dialogueProgressText');
-  const prevBtn = document.getElementById('dialoguePrevBtn');
-  const nextBtn = document.getElementById('dialogueNextBtn');
-  const totalTurns = turns.length;
-  const currentIndex = dialoguePlaybackState.currentIndex;
-  
-  if (progressText) progressText.textContent = totalTurns > 0 ? `${Math.max(0, currentIndex + 1)}/${totalTurns}` : '0/0';
-  if (prevBtn) prevBtn.disabled = currentIndex <= 0;
-  if (nextBtn) nextBtn.disabled = currentIndex >= totalTurns - 1;
-}
+syncStudioModeUI();
 
 // ===== Layout mode =====
 layoutGroup.addEventListener('click', (e) => {
@@ -3443,15 +3650,11 @@ layoutGroup.addEventListener('click', (e) => {
     document.querySelectorAll('.stage-word').forEach(el => {
       el.style.display = 'inline';
     });
-    const existingControls = document.querySelector('.dialogue-nav-controls');
-    if (existingControls) existingControls.remove();
   } else if (layoutMode === 'sidebyside') {
     stageSentence.style.display = 'none';
     flashcard.style.display = 'flex';
     stageDialogue.style.display = 'none';
     updateFlashcardPreview();
-    const existingControls = document.querySelector('.dialogue-nav-controls');
-    if (existingControls) existingControls.remove();
   } else {
     stageSentence.style.display = 'none';
     flashcard.style.display = 'none';
@@ -3460,17 +3663,14 @@ layoutGroup.addEventListener('click', (e) => {
     dialoguePlaybackState.currentIndex = 0;
     renderDialogueChat();
   }
-
-  const layoutNames = { stacked: 'Stacked', sidebyside: 'Side-by-side', dialogue: 'Dialogue' };
-  setStatus(`Switched to ${layoutNames[layoutMode]} layout`);
 });
 
 // ===== Play preview =====
 function setPlayingUI(isPlaying) {
   playBtn.querySelector('.play-dot').textContent = isPlaying ? '⏸' : '▶';
-  playBtn.querySelector('span:last-child').textContent = isPlaying ? 'Stop' : 'Play preview';
+  playBtn.querySelector('span:last-child').textContent = isPlaying ? 'Stop' : 'Play all';
   stagePlayBtn.querySelector('.btn-icon').textContent = isPlaying ? '⏸' : '▶';
-  stagePlayBtn.title = isPlaying ? 'Stop' : 'Play preview';
+  stagePlayBtn.title = isPlaying ? 'Stop' : 'Play all';
   stagePlayBtn.setAttribute('aria-pressed', String(isPlaying));
 }
 
@@ -3484,8 +3684,8 @@ function handlePlayToggle() {
       setStatus('Please add at least one dialogue turn first.');
       return;
     }
-  } else if (words.length === 0) {
-    setStatus('Please break a sentence first.');
+  } else if (sentences.length === 0) {
+    setStatus('Please add a sentence first.');
     return;
   }
   startPlayback();
@@ -3543,36 +3743,11 @@ function startPlayback() {
     audioPlayer.play().catch(() => {});
   }
 
-  let i = -1;
-
-  function updateImage(w) {
-    if (w.imageData) {
-      stageImageSlot.innerHTML = '';
-      const img = document.createElement('img');
-      img.src = w.imageData;
-      img.alt = w.text;
-      stageImageSlot.appendChild(img);
-      stageImageSlot.classList.add('visible');
-    } else {
-      stageImageSlot.classList.remove('visible');
-      stageImageSlot.innerHTML = '';
-    }
-  }
+  let sentenceIndex = 0;
+  let wordIndex = -1;
 
   function step() {
-    if (i === -1) {
-      setStatus('Ready — starting animation…');
-      i = 0;
-      animationTimer = setTimeout(step, getEffectiveStepMs());
-      return;
-    }
-
-    if (i > 0 && layoutMode === 'stacked') {
-      const prevEl = stageSentence.children[i - 1];
-      if (prevEl) prevEl.classList.remove('highlight');
-    }
-
-    if (i >= words.length) {
+    if (sentenceIndex >= sentences.length) {
       playing = false;
       setPlayingUI(false);
       if (audioPlayer.src) audioPlayer.pause();
@@ -3580,10 +3755,30 @@ function startPlayback() {
       return;
     }
 
-    const w = words[i];
+    const currentSentence = sentences[sentenceIndex];
+    const words = currentSentence.words;
+    
+    if (wordIndex === -1) {
+      // បង្ហាញ sentence ថ្មី
+      selectSentence(currentSentence.id);
+      setStatus(`Sentence ${sentenceIndex + 1} of ${sentences.length}: "${currentSentence.text}"`);
+      wordIndex = 0;
+      animationTimer = setTimeout(step, getEffectiveStepMs());
+      return;
+    }
+    
+    if (wordIndex >= words.length) {
+      // បន្ទាប់ sentence
+      sentenceIndex++;
+      wordIndex = -1;
+      animationTimer = setTimeout(step, getEffectiveStepMs());
+      return;
+    }
+
+    const w = words[wordIndex];
 
     if (layoutMode === 'stacked') {
-      const el = stageSentence.children[i];
+      const el = stageSentence.children[wordIndex];
       if (el) {
         el.classList.add('revealed', 'highlight');
       }
@@ -3596,17 +3791,27 @@ function startPlayback() {
       flashKm.classList.add('flash-pop');
     }
 
-    updateImage(w);
-    speakItem(w);
-    setStatus(`Showing word ${i + 1} of ${words.length}: "${w.text}"`);
+    if (w.imageData) {
+      stageImageSlot.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = w.imageData;
+      img.alt = w.text;
+      stageImageSlot.appendChild(img);
+      stageImageSlot.classList.add('visible');
+    } else {
+      stageImageSlot.classList.remove('visible');
+      stageImageSlot.innerHTML = '';
+    }
 
-    i++;
+    speakItem(w);
+    setStatus(`Sentence ${sentenceIndex + 1}, word ${wordIndex + 1} of ${words.length}: "${w.text}"`);
+
+    wordIndex++;
     animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(w)));
   }
   step();
 }
 
-// ===== Dialogue playback =====
 function startDialoguePlayback() {
   playing = true;
   setPlayingUI(true);
@@ -3644,7 +3849,7 @@ function startDialoguePlayback() {
   animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[0])));
 }
 
-// ===== Keyboard navigation =====
+// ===== Keyboard navigation for dialogue =====
 document.addEventListener('keydown', (e) => {
   if (layoutMode !== 'dialogue') return;
   const active = document.activeElement;
@@ -3681,12 +3886,10 @@ bgImageBtn.addEventListener('click', () => {
 bgImageInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
-
   if (!file.type.startsWith('image/')) {
     setStatus('Please choose an image file for the stage background.');
     return;
   }
-
   const reader = new FileReader();
   reader.onload = (ev) => {
     const dataUrl = ev.target.result;
@@ -3711,16 +3914,13 @@ bgImageRemoveBtn.addEventListener('click', () => {
 enFontSelect.addEventListener('change', () => {
   stage.style.setProperty('--stage-en-font', enFontSelect.value);
 });
-
 enSizeInput.addEventListener('input', () => {
   stage.style.setProperty('--stage-en-size', enSizeInput.value + 'px');
   enSizeVal.textContent = enSizeInput.value + 'px';
 });
-
 kmFontSelect.addEventListener('change', () => {
   stage.style.setProperty('--stage-km-font', kmFontSelect.value);
 });
-
 kmSizeInput.addEventListener('input', () => {
   stage.style.setProperty('--stage-km-size', kmSizeInput.value + 'px');
   kmSizeVal.textContent = kmSizeInput.value + 'px';
@@ -3730,11 +3930,9 @@ kmSizeInput.addEventListener('input', () => {
 boxBgInput.addEventListener('input', () => {
   root.style.setProperty('--box-bg', boxBgInput.value);
 });
-
 boxBorderInput.addEventListener('input', () => {
   root.style.setProperty('--box-border', boxBorderInput.value);
 });
-
 boxRadiusInput.addEventListener('input', () => {
   root.style.setProperty('--box-radius', boxRadiusInput.value + 'px');
   boxRadiusVal.textContent = boxRadiusInput.value + 'px';
@@ -3814,8 +4012,8 @@ function refreshTtsVoices() {
   });
   ttsVoiceSelect.value = filtered.some(voice => voice.name === current) ? current : '';
   ttsVoiceHint.textContent = availableTtsVoices.length
-    ? `${filtered.length} voice(s) shown. Search by voice name or language code.`
-    : 'No browser voices are available yet. Try reopening the page or checking system speech settings.';
+    ? `${filtered.length} voice(s) shown.`
+    : 'No browser voices are available yet.';
 }
 
 function refreshSpeakerVoiceOptions(speakerKey) {
@@ -3936,16 +4134,15 @@ ttsRateInput.addEventListener('input', () => {
   }
 });
 
-// ===== Animation speed and MP3 auto-sync =====
+// ===== Animation speed =====
 function getAnimationItemCount() {
-  return layoutMode === 'dialogue' ? turns.length : words.length;
+  return layoutMode === 'dialogue' ? turns.length : sentences.reduce((sum, s) => sum + s.words.length, 0);
 }
 
 function getEffectiveStepMs() {
   const itemCount = getAnimationItemCount();
   if (autoSyncAudio && audioDurationMs > 0 && itemCount > 0) {
-    // Stacked mode has one opening frame before the first word; dialogue does not.
-    const frameCount = layoutMode === 'dialogue' ? itemCount : itemCount + 1;
+    const frameCount = layoutMode === 'dialogue' ? itemCount : itemCount + sentences.length;
     return Math.max(200, Math.round(audioDurationMs / frameCount));
   }
   return stepMs;
@@ -3967,9 +4164,6 @@ function syncAnimationSpeed({ restart = false } = {}) {
   if (restart && playing) {
     stopPlayback();
     startPlayback();
-    setStatus(autoSyncAudio && audioDurationMs > 0
-      ? 'Playback restarted and synced to MP3 duration.'
-      : `Playback restarted at ${(stepMs / 1000).toFixed(2)}s per ${layoutMode === 'dialogue' ? 'turn' : 'word'}.`);
   }
 }
 
@@ -3978,17 +4172,24 @@ speedInput.addEventListener('change', () => syncAnimationSpeed());
 autoSyncInput.addEventListener('change', () => {
   autoSyncAudio = autoSyncInput.checked;
   updateSpeedLabel();
-  setStatus(autoSyncAudio
-    ? (audioDurationMs > 0 ? 'Auto sync enabled — timing follows MP3 duration.' : 'Upload an MP3 to enable automatic timing.')
-    : 'Auto sync disabled — using manual animation speed.');
 });
 
-// ===== Save lesson =====
+// ===== Save/Import lesson =====
 saveBtn.addEventListener('click', () => {
   const lesson = {
-    sentence: sentenceInput.value,
-    grammar: grammarInput.value,
+    sentences: sentences.map(s => ({
+      text: s.text,
+      grammar: s.grammar,
+      words: s.words.map(w => ({
+        text: w.text,
+        khmer: w.khmer,
+        pos: w.pos,
+        example: w.example,
+        hasImage: !!w.imageData
+      }))
+    })),
     ratio: document.querySelector('#ratioGroup .ratio-btn.active')?.dataset.ratio || '16-9',
+    mode: studioMode,
     layout: layoutMode,
     style: {
       bgColor: bgColorInput.value,
@@ -4007,13 +4208,6 @@ saveBtn.addEventListener('click', () => {
       ttsVoiceName,
       ttsRate
     },
-    words: words.map(w => ({
-      text: w.text,
-      khmer: w.khmer,
-      pos: w.pos,
-      example: w.example,
-      hasImage: !!w.imageData
-    })),
     dialogue: {
       speakerA: { name: speakerA.name, gender: speakerA.gender, voiceName: speakerA.voiceName, hasAvatar: !!speakerA.avatarData },
       speakerB: { name: speakerB.name, gender: speakerB.gender, voiceName: speakerB.voiceName, hasAvatar: !!speakerB.avatarData },
@@ -4042,9 +4236,6 @@ importInput.addEventListener('change', (e) => {
       const data = JSON.parse(reader.result);
       if (!data || typeof data !== 'object') throw new Error('Invalid JSON object');
 
-      sentenceInput.value = typeof data.sentence === 'string' ? data.sentence : '';
-      grammarInput.value = typeof data.grammar === 'string' ? data.grammar : '';
-
       const style = data.style || {};
       if (style.bgColor) bgColorInput.value = style.bgColor;
       if (style.enFont) enFontSelect.value = style.enFont;
@@ -4063,20 +4254,58 @@ importInput.addEventListener('change', (e) => {
       ttsEnabledInput.checked = ttsEnabled;
       ttsLanguageSelect.value = ttsLanguage;
       ttsRateInput.value = String(ttsRate);
+      ttsRateVal.textContent = `${ttsRate.toFixed(2)}×`;
       refreshTtsVoices();
       ttsVoiceSelect.value = ttsVoiceName;
       ttsVoiceSearch.value = '';
-      ttsRateVal.textContent = `${ttsRate.toFixed(2)}×`;
 
-      words = Array.isArray(data.words) ? data.words.map(word => ({
-        id: uid(),
-        text: String(word.text || ''),
-        khmer: String(word.khmer || ''),
-        pos: String(word.pos || ''),
-        example: String(word.example || ''),
-        imageData: null
-      })).filter(word => word.text) : [];
-      selectedWordId = words[0]?.id || null;
+      // Parse sentences
+      if (Array.isArray(data.sentences) && data.sentences.length > 0) {
+        sentences = data.sentences.map(s => ({
+          id: uid(),
+          text: String(s.text || ''),
+          grammar: String(s.grammar || ''),
+          words: Array.isArray(s.words) ? s.words.map(w => ({
+            id: uid(),
+            text: String(w.text || ''),
+            khmer: String(w.khmer || ''),
+            pos: String(w.pos || ''),
+            example: String(w.example || ''),
+            imageData: null
+          })) : []
+        })).filter(s => s.text && s.words.length > 0);
+      } else if (data.sentence) {
+        // Backward compatibility: single sentence
+        const tokens = String(data.sentence).split(/\s+/).filter(Boolean);
+        sentences = [{
+          id: uid(),
+          text: String(data.sentence),
+          grammar: String(data.grammar || ''),
+          words: tokens.map(t => ({
+            id: uid(),
+            text: t,
+            khmer: '',
+            pos: '',
+            example: '',
+            imageData: null
+          }))
+        }];
+        if (Array.isArray(data.words)) {
+          sentences[0].words = data.words.map(w => ({
+            id: uid(),
+            text: String(w.text || ''),
+            khmer: String(w.khmer || ''),
+            pos: String(w.pos || ''),
+            example: String(w.example || ''),
+            imageData: null
+          }));
+        }
+      } else {
+        sentences = [];
+      }
+      
+      activeSentenceId = sentences[0]?.id || null;
+      selectedWordId = sentences[0]?.words[0]?.id || null;
 
       const dialogue = data.dialogue || {};
       speakerA.name = String(dialogue.speakerA?.name || 'Sokha');
@@ -4105,7 +4334,8 @@ importInput.addEventListener('change', (e) => {
       speakerAVoiceSelect.value = speakerA.voiceName;
       speakerBVoiceSelect.value = speakerB.voiceName;
       dialogueTextModeSelect.value = dialogueTextMode;
-      renderTimeline();
+      
+      renderSentenceList();
       renderTurnList();
       renderStageGrammar();
       renderStageSentence();
@@ -4116,10 +4346,14 @@ importInput.addEventListener('change', (e) => {
       updateFlashcardPreview();
       syncAnimationSpeed();
 
+      studioMode = data.mode === 'dialogue' || data.layout === 'dialogue' ? 'dialogue' : 'sentence';
+      syncStudioModeUI();
+
       const targetRatio = data.ratio || '16-9';
       ratioGroup.querySelector(`[data-ratio="${targetRatio}"]`)?.click();
-      const targetLayout = data.layout || 'stacked';
+      const targetLayout = data.layout || (studioMode === 'dialogue' ? 'dialogue' : 'stacked');
       layoutGroup.querySelector(`[data-layout="${targetLayout}"]`)?.click();
+      syncStudioModeUI();
 
       autoSyncAudio = Boolean(style.autoSyncAudio);
       autoSyncInput.checked = autoSyncAudio;
@@ -4135,7 +4369,7 @@ importInput.addEventListener('change', (e) => {
   reader.readAsText(file);
 });
 
-// ===== Video export =====
+// ===== Video export functions (simplified for multi-sentence) =====
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -4148,12 +4382,8 @@ const QUALITY_PRESETS = {
 
 function getExportDimensions() {
   const preset = QUALITY_PRESETS[exportQuality] || QUALITY_PRESETS.hd;
-  if (stage.classList.contains('ratio-9-16')) {
-    return preset.portrait;
-  }
-  if (stage.classList.contains('ratio-1-1')) {
-    return preset.square;
-  }
+  if (stage.classList.contains('ratio-9-16')) return preset.portrait;
+  if (stage.classList.contains('ratio-1-1')) return preset.square;
   return preset.landscape;
 }
 
@@ -4171,559 +4401,13 @@ function getVideoBitsPerSecond() {
   return bitrateByQuality[exportQuality] || bitrateByQuality.hd;
 }
 
-function loadImage(src) {
-  return new Promise(resolve => {
-    if (!src) {
-      resolve(null);
-      return;
-    }
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => resolve(null);
-    image.src = src;
-  });
-}
-
-function getStageBackgroundSource() {
-  const value = stage.style.getPropertyValue('--stage-bg-image').trim();
-  const match = value.match(/^url\(["']?(.*?)["']?\)$/);
-  return match ? match[1] : '';
-}
-
-function drawRoundedRect(ctx, x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, height / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + width, y, x + width, y + height, r);
-  ctx.arcTo(x + width, y + height, x, y + height, r);
-  ctx.arcTo(x, y + height, x, y, r);
-  ctx.arcTo(x, y, x + width, y, r);
-  ctx.closePath();
-}
-
-function drawExportBackdrop(ctx, width, height, bgColor, backgroundImage) {
-  ctx.save();
-  ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = bgColor || '#12142a';
-  ctx.fillRect(0, 0, width, height);
-  if (backgroundImage) {
-    const ratio = Math.max(width / backgroundImage.width, height / backgroundImage.height);
-    const drawWidth = backgroundImage.width * ratio;
-    const drawHeight = backgroundImage.height * ratio;
-    ctx.globalAlpha = 0.82;
-    ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
-    ctx.globalAlpha = 1;
-  }
-  const glow = ctx.createRadialGradient(width * 0.18, height * 0.12, 0, width * 0.18, height * 0.12, width * 0.62);
-  glow.addColorStop(0, 'rgba(35, 150, 174, 0.18)');
-  glow.addColorStop(1, 'rgba(35, 150, 174, 0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, width, height);
-  const glow2 = ctx.createRadialGradient(width * 0.86, height * 0.86, 0, width * 0.86, height * 0.86, width * 0.5);
-  glow2.addColorStop(0, 'rgba(242, 184, 75, 0.15)');
-  glow2.addColorStop(1, 'rgba(242, 184, 75, 0)');
-  ctx.fillStyle = glow2;
-  ctx.fillRect(0, 0, width, height);
-  ctx.restore();
-}
-
-function wrapCanvasText(ctx, text, maxWidth) {
-  const rawTokens = String(text || '').trim().split(/\s+/).filter(Boolean);
-  if (!rawTokens.length) return [''];
-
-  // Break long unspaced strings as well. This is important for Khmer text,
-  // URLs, IDs, and user-entered placeholder text such as "sdf...".
-  const tokens = [];
-  rawTokens.forEach(token => {
-    if (ctx.measureText(token).width <= maxWidth) {
-      tokens.push(token);
-      return;
-    }
-    let chunk = '';
-    Array.from(token).forEach(character => {
-      const candidate = chunk + character;
-      if (chunk && ctx.measureText(candidate).width > maxWidth) {
-        tokens.push(chunk);
-        chunk = character;
-      } else {
-        chunk = candidate;
-      }
-    });
-    if (chunk) tokens.push(chunk);
-  });
-
-  const lines = [];
-  let line = tokens[0] || '';
-  for (let i = 1; i < tokens.length; i += 1) {
-    const candidate = `${line} ${tokens[i]}`;
-    if (ctx.measureText(candidate).width <= maxWidth) {
-      line = candidate;
-    } else {
-      lines.push(line);
-      line = tokens[i];
-    }
-  }
-  if (line) lines.push(line);
-  return lines.length ? lines : [''];
-}
-
-function drawStageImage(ctx, image, width, y, scale) {
-  if (!image) return y;
-  const configuredSize = Math.max(40, Number(imgSizeInput.value) * scale);
-  const size = Math.min(configuredSize, width * 0.3, 220 * scale);
-  const x = (width - size) / 2;
-  ctx.save();
-  drawRoundedRect(ctx, x, y, size, size, 14 * scale);
-  ctx.clip();
-  const ratio = Math.max(size / image.width, size / image.height);
-  const drawWidth = image.width * ratio;
-  const drawHeight = image.height * ratio;
-  ctx.drawImage(image, x + (size - drawWidth) / 2, y + (size - drawHeight) / 2, drawWidth, drawHeight);
-  ctx.restore();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-  ctx.lineWidth = Math.max(2, scale * 2);
-  drawRoundedRect(ctx, x, y, size, size, 14 * scale);
-  ctx.stroke();
-  return y + size + 18 * scale;
-}
-
-function drawGrammarLabel(ctx, text, width, y, scale) {
-  if (!text) return y;
-  const fontSize = Math.max(16, Math.round(13 * scale));
-  ctx.font = `700 ${fontSize}px Inter, sans-serif`;
-  const labelWidth = Math.min(width * 0.82, ctx.measureText(text.toUpperCase()).width + 36 * scale);
-  const labelHeight = fontSize + 18 * scale;
-  const x = (width - labelWidth) / 2;
-  ctx.fillStyle = 'rgba(242, 184, 75, 0.2)';
-  drawRoundedRect(ctx, x, y, labelWidth, labelHeight, labelHeight / 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(242, 184, 75, 0.7)';
-  ctx.lineWidth = Math.max(1, scale);
-  ctx.stroke();
-  ctx.fillStyle = '#ffd071';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text.toUpperCase(), width / 2, y + labelHeight / 2);
-  return y + labelHeight;
-}
-
-// ===== កែតម្រូវ drawStackedExportFrame =====
-function drawStackedExportFrame(ctx, width, height, activeIndex, scale, activeImage) {
-  const fontSize = Math.max(20, Math.round(Number(enSizeInput.value) * scale));
-  const kmFontSize = Math.max(15, Math.round(Number(kmSizeInput.value) * scale));
-  const gap = Math.max(12, Math.round(fontSize * 0.38));
-  const maxLineWidth = width * 0.82;
-  
-  // រៀបចំ words ជា lines
-  const lines = [];
-  let currentLine = [];
-  let currentWidth = 0;
-
-  ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
-  words.forEach((word, index) => {
-    const wordWidth = ctx.measureText(word.text).width;
-    const nextWidth = currentLine.length ? currentWidth + gap + wordWidth : wordWidth;
-    if (currentLine.length && nextWidth > maxLineWidth) {
-      lines.push(currentLine);
-      currentLine = [];
-      currentWidth = 0;
-    }
-    currentLine.push({ word, index, width: wordWidth });
-    currentWidth = currentLine.length === 1 ? wordWidth : currentWidth + gap + wordWidth;
-  });
-  if (currentLine.length) lines.push(currentLine);
-
-  const grammar = grammarInput.value.trim();
-  const grammarHeight = grammar ? Math.max(38, Math.round(42 * scale)) : 0;
-  const imageHeight = activeImage ? Math.min(Math.max(40, Number(imgSizeInput.value) * scale), width * 0.3, 220 * scale) + 18 * scale : 0;
-  const lineHeight = Math.round(fontSize * 1.65);
-  
-  // គណនាកម្ពស់សរុប
-  let totalHeight = imageHeight + grammarHeight + (grammar ? 16 * scale : 0);
-  lines.forEach(line => {
-    totalHeight += lineHeight;
-  });
-  
-  let y = (height - totalHeight) / 2;
-  y = drawStageImage(ctx, activeImage, width, y, scale);
-  y = drawGrammarLabel(ctx, grammar, width, y, scale);
-  if (grammar) y += 16 * scale;
-
-  // គូរពាក្យនីមួយៗ
-  lines.forEach(line => {
-    const lineWidth = line.reduce((sum, entry) => sum + entry.width, 0) + gap * Math.max(0, line.length - 1);
-    let x = (width - lineWidth) / 2;
-    line.forEach(({ word, index, width: wordWidth }) => {
-      const isActive = index === activeIndex;
-      const isRevealed = activeIndex >= 0 && index <= activeIndex;
-      
-      ctx.globalAlpha = activeIndex < 0 || isRevealed ? 1 : 0.28;
-      ctx.fillStyle = isActive ? '#f2b84b' : '#fffdf9';
-      ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'alphabetic';
-      ctx.fillText(word.text, x, y + fontSize);
-      
-      if (word.khmer) {
-        ctx.globalAlpha = isRevealed ? 0.85 : 0.28;
-        ctx.fillStyle = isActive ? '#ffd071' : '#fffdf9';
-        ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
-        const kmText = word.khmer;
-        const kmWidth = ctx.measureText(kmText).width;
-        ctx.fillText(kmText, x + (wordWidth - kmWidth) / 2, y + fontSize + kmFontSize + 5 * scale);
-      }
-      x += wordWidth + gap;
-      ctx.globalAlpha = 1;
-    });
-    y += lineHeight;
-  });
-  ctx.globalAlpha = 1;
-}
-
-// ===== drawSideBySideExportFrame =====
-function drawSideBySideExportFrame(ctx, width, height, activeIndex, scale, activeImage) {
-  const index = activeIndex >= 0 ? activeIndex : 0;
-  const word = words[index] || { text: '—', khmer: '' };
-  const fontSize = Math.max(20, Math.round(Number(enSizeInput.value) * scale));
-  const kmFontSize = Math.max(18, Math.round(Number(kmSizeInput.value) * scale));
-  const boxWidth = width * 0.38;
-  const boxHeight = Math.max(120, height * 0.25);
-  const gap = width * 0.04;
-  const left = (width - boxWidth * 2 - gap) / 2;
-  const grammar = grammarInput.value.trim();
-  const grammarGap = grammar ? Math.round(16 * scale) : 0;
-  const imageHeight = activeImage ? Math.min(Math.max(40, Number(imgSizeInput.value) * scale), width * 0.3, 220 * scale) + 18 * scale : 0;
-  const totalHeight = imageHeight + boxHeight + (grammar ? Math.max(38, Math.round(42 * scale)) + grammarGap : 0);
-  let top = (height - totalHeight) / 2;
-  top = drawStageImage(ctx, activeImage, width, top, scale);
-  if (grammar) {
-    top = drawGrammarLabel(ctx, grammar, width, top, scale) + grammarGap;
-  }
-
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-  drawRoundedRect(ctx, left, top, boxWidth, boxHeight, 18 * scale);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(242, 184, 75, 0.16)';
-  drawRoundedRect(ctx, left + boxWidth + gap, top, boxWidth, boxHeight, 18 * scale);
-  ctx.fill();
-
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#fffdf9';
-  ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
-  ctx.fillText(word.text, left + boxWidth / 2, top + boxHeight / 2);
-  ctx.fillStyle = '#ffd071';
-  ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
-  ctx.fillText(word.khmer || '—', left + boxWidth + gap + boxWidth / 2, top + boxHeight / 2);
-}
-
-// ===== drawDialogueExportFrame =====
-function drawDialogueExportFrame(ctx, width, height, turnIndex, scale, avatarImgA, avatarImgB) {
-  const turn = turns[turnIndex] || turns[0];
-  if (!turn) return;
-  const isA = turn.speaker === 'A';
-  const avatarRadius = Math.max(30, 38 * scale);
-  const marginX = width * 0.1;
-  const cy = height / 2;
-  const cxA = marginX + avatarRadius;
-  const cxB = width - marginX - avatarRadius;
-
-  // Draw avatars
-  ctx.save();
-  ctx.globalAlpha = 1;
-  // Avatar A
-  ctx.beginPath();
-  ctx.arc(cxA, cy, avatarRadius, 0, Math.PI * 2);
-  ctx.closePath();
-  if (avatarImgA) {
-    ctx.save();
-    ctx.clip();
-    const ratio = Math.max((avatarRadius * 2) / avatarImgA.width, (avatarRadius * 2) / avatarImgA.height);
-    const drawWidth = avatarImgA.width * ratio;
-    const drawHeight = avatarImgA.height * ratio;
-    ctx.drawImage(avatarImgA, cxA - drawWidth / 2, cy - drawHeight / 2, drawWidth, drawHeight);
-    ctx.restore();
-  } else {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.font = `700 ${Math.round(avatarRadius * 0.7)}px Poppins, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText((speakerA.name || 'A').charAt(0).toUpperCase(), cxA, cy);
-  }
-  ctx.strokeStyle = isA ? 'rgba(35, 150, 174, 0.6)' : 'rgba(255,255,255,0.2)';
-  ctx.lineWidth = Math.max(2, avatarRadius * 0.05);
-  ctx.stroke();
-  
-  // Avatar B
-  ctx.beginPath();
-  ctx.arc(cxB, cy, avatarRadius, 0, Math.PI * 2);
-  ctx.closePath();
-  if (avatarImgB) {
-    ctx.save();
-    ctx.clip();
-    const ratio = Math.max((avatarRadius * 2) / avatarImgB.width, (avatarRadius * 2) / avatarImgB.height);
-    const drawWidth = avatarImgB.width * ratio;
-    const drawHeight = avatarImgB.height * ratio;
-    ctx.drawImage(avatarImgB, cxB - drawWidth / 2, cy - drawHeight / 2, drawWidth, drawHeight);
-    ctx.restore();
-  } else {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.font = `700 ${Math.round(avatarRadius * 0.7)}px Poppins, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText((speakerB.name || 'B').charAt(0).toUpperCase(), cxB, cy);
-  }
-  ctx.strokeStyle = !isA ? 'rgba(242, 184, 75, 0.6)' : 'rgba(255,255,255,0.2)';
-  ctx.lineWidth = Math.max(2, avatarRadius * 0.05);
-  ctx.stroke();
-  
-  ctx.restore();
-
-  // Labels
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.font = `600 ${Math.max(11, Math.round(11 * scale))}px Inter, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText(speakerA.name || 'A', cxA, cy + avatarRadius + 10 * scale);
-  ctx.fillText(speakerB.name || 'B', cxB, cy + avatarRadius + 10 * scale);
-
-  // Dialogue bubble
-  const showKm = dialogueTextMode !== 'en-only' && (dialogueTextMode === 'together' ? !!turn.km : (turnIndex !== 'preview' && !!turn.km));
-  const fontSize = Math.max(18, Math.round(Number(enSizeInput.value) * scale));
-  const kmFontSize = Math.max(15, Math.round(Number(kmSizeInput.value) * scale));
-  const bubbleMaxWidth = width - (marginX + avatarRadius) * 2 - 40 * scale;
-
-  const textMaxWidth = Math.max(180 * scale, bubbleMaxWidth - 48 * scale);
-  ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
-  const enLines = wrapCanvasText(ctx, turn.en, textMaxWidth);
-  ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
-  const kmLines = showKm && turn.km ? wrapCanvasText(ctx, turn.km, textMaxWidth) : [];
-  const widestLine = Math.max(
-    ...enLines.map(line => { ctx.font = `600 ${fontSize}px ${enFontSelect.value}`; return ctx.measureText(line).width; }),
-    ...kmLines.map(line => { ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`; return ctx.measureText(line).width; }),
-    90 * scale
-  );
-  const bubbleWidth = Math.min(bubbleMaxWidth, widestLine + 48 * scale);
-  const lineGap = 8 * scale;
-  const enLineHeight = fontSize * 1.22;
-  const kmLineHeight = kmFontSize * 1.22;
-  const bubbleHeight = enLines.length * enLineHeight + (kmLines.length ? lineGap + kmLines.length * kmLineHeight : 0) + 28 * scale;
-  const bubbleX = width / 2 - bubbleWidth / 2;
-  const bubbleY = cy - bubbleHeight / 2;
-
-  ctx.fillStyle = isA ? 'rgba(35, 150, 174, 0.25)' : 'rgba(242, 184, 75, 0.2)';
-  drawRoundedRect(ctx, bubbleX, bubbleY, bubbleWidth, bubbleHeight, 16 * scale);
-  ctx.fill();
-  ctx.strokeStyle = isA ? 'rgba(35, 150, 174, 0.3)' : 'rgba(242, 184, 75, 0.3)';
-  ctx.lineWidth = Math.max(1, scale);
-  ctx.stroke();
-
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillStyle = '#fffdf9';
-  ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
-  let textY = bubbleY + 14 * scale;
-  enLines.forEach(line => { ctx.fillText(line, width / 2, textY); textY += enLineHeight; });
-
-  if (kmLines.length) {
-    textY += lineGap;
-    ctx.fillStyle = '#ffd071';
-    ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
-    kmLines.forEach(line => { ctx.fillText(line, width / 2, textY); textY += kmLineHeight; });
-  }
-}
-
-function drawDialoguePortraitExportFrame(ctx, width, height, activeIndex, scale, avatarImgA, avatarImgB) {
-  const topMargin = Math.max(34 * scale, height * 0.065);
-  const bottomMargin = Math.max(70 * scale, height * 0.13);
-  const grammar = grammarInput.value.trim();
-  let y = topMargin;
-  if (grammar) {
-    y = drawGrammarLabel(ctx, grammar, width, y, scale) + 34 * scale;
-  }
-
-  const rowGap = Math.max(24 * scale, height * 0.035);
-  const avatarRadius = Math.max(26 * scale, Math.min(34 * scale, width * 0.085));
-  const sidePadding = width * 0.07;
-  const bubbleMaxWidth = width * 0.68;
-  const contentWidth = width - sidePadding * 2;
-  const rows = turns.map((turn, index) => {
-    const isA = turn.speaker === 'A';
-    const fontSize = Math.max(22, Math.round(Number(enSizeInput.value) * scale));
-    const kmFontSize = Math.max(17, Math.round(Number(kmSizeInput.value) * scale));
-    const bubbleWidth = Math.min(bubbleMaxWidth, Math.max(190 * scale, width * 0.42));
-    const innerWidth = bubbleWidth - 42 * scale;
-    ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
-    const enLines = wrapCanvasText(ctx, turn.en, innerWidth);
-    ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
-    const kmLines = turn.km ? wrapCanvasText(ctx, turn.km, innerWidth) : [];
-    const enLineHeight = fontSize * 1.2;
-    const kmLineHeight = kmFontSize * 1.2;
-    const bubbleHeight = enLines.length * enLineHeight + (kmLines.length ? 10 * scale + kmLines.length * kmLineHeight : 0) + 34 * scale;
-    return { turn, index, isA, fontSize, kmFontSize, enLines, kmLines, enLineHeight, kmLineHeight, bubbleHeight, bubbleWidth };
-  });
-
-  const totalHeight = rows.reduce((sum, row) => sum + Math.max(row.bubbleHeight, avatarRadius * 2 + 26 * scale), 0) + rowGap * Math.max(0, rows.length - 1);
-  y += Math.max(0, (height - bottomMargin - y - totalHeight) / 2);
-
-  rows.forEach(row => {
-    const { turn, index, isA, fontSize, kmFontSize, enLines, kmLines, enLineHeight, kmLineHeight, bubbleHeight, bubbleWidth } = row;
-    const rowHeight = Math.max(bubbleHeight, avatarRadius * 2 + 26 * scale);
-    const bubbleX = isA ? sidePadding + avatarRadius * 2 + 16 * scale : width - sidePadding - avatarRadius * 2 - 16 * scale - bubbleWidth;
-    const bubbleY = y + (rowHeight - bubbleHeight) / 2;
-    const avatarX = isA ? sidePadding + avatarRadius : width - sidePadding - avatarRadius;
-    const avatarY = y + (rowHeight - avatarRadius * 2 - 26 * scale) / 2;
-    const avatarImg = isA ? avatarImgA : avatarImgB;
-    const name = isA ? (speakerA.name || 'A') : (speakerB.name || 'B');
-    const isActive = index === activeIndex;
-
-    ctx.save();
-    ctx.globalAlpha = isActive ? 1 : 0.78;
-    ctx.beginPath();
-    ctx.arc(avatarX, avatarY + avatarRadius, avatarRadius, 0, Math.PI * 2);
-    ctx.closePath();
-    if (avatarImg) {
-      ctx.save();
-      ctx.clip();
-      const ratio = Math.max((avatarRadius * 2) / avatarImg.width, (avatarRadius * 2) / avatarImg.height);
-      ctx.drawImage(avatarImg, avatarX - avatarImg.width * ratio / 2, avatarY + avatarRadius - avatarImg.height * ratio / 2, avatarImg.width * ratio, avatarImg.height * ratio);
-      ctx.restore();
-    } else {
-      ctx.fillStyle = 'rgba(255,255,255,0.12)';
-      ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.78)';
-      ctx.font = `700 ${Math.round(avatarRadius * 0.72)}px Poppins, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(name.charAt(0).toUpperCase(), avatarX, avatarY + avatarRadius);
-    }
-    ctx.strokeStyle = isActive ? (isA ? 'rgba(35,150,174,0.95)' : 'rgba(242,184,75,0.95)') : 'rgba(255,255,255,0.28)';
-    ctx.lineWidth = Math.max(2, scale * 2);
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = `600 ${Math.max(11, Math.round(11 * scale))}px Inter, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(name, avatarX, avatarY + avatarRadius * 2 + 7 * scale);
-    ctx.restore();
-
-    ctx.save();
-    ctx.globalAlpha = isActive ? 1 : 0.78;
-    ctx.fillStyle = isA ? 'rgba(35,150,174,0.42)' : 'rgba(242,184,75,0.34)';
-    drawRoundedRect(ctx, bubbleX, bubbleY, bubbleWidth, bubbleHeight, 18 * scale);
-    ctx.fill();
-    ctx.strokeStyle = isA ? 'rgba(35,150,174,0.68)' : 'rgba(242,184,75,0.62)';
-    ctx.lineWidth = Math.max(1, scale);
-    ctx.stroke();
-    ctx.fillStyle = '#ffd071';
-    ctx.font = `700 ${Math.max(11, Math.round(10 * scale))}px Inter, sans-serif`;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillText(name.toUpperCase(), bubbleX + 18 * scale, bubbleY + 12 * scale);
-    let textY = bubbleY + 29 * scale;
-    ctx.fillStyle = '#fffdf9';
-    ctx.font = `600 ${fontSize}px ${enFontSelect.value}`;
-    enLines.forEach(line => { ctx.fillText(line, bubbleX + 18 * scale, textY); textY += enLineHeight; });
-    if (kmLines.length) {
-      textY += 7 * scale;
-      ctx.fillStyle = '#ffd071';
-      ctx.font = `500 ${kmFontSize}px ${kmFontSelect.value}`;
-      kmLines.forEach(line => { ctx.fillText(line, bubbleX + 18 * scale, textY); textY += kmLineHeight; });
-    }
-    ctx.restore();
-    y += rowHeight + rowGap;
-  });
-}
-
-// ===== runExportSequence =====
-async function runExportSequence(recorder, canvas, ctx, width, height) {
-  if (layoutMode === 'dialogue') {
-    const backgroundImage = await loadImage(getStageBackgroundSource());
-    const avatarImgA = await loadImage(speakerA.avatarData);
-    const avatarImgB = await loadImage(speakerB.avatarData);
-    for (let index = 0; index < turns.length; index += 1) {
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = bgColorInput.value || '#12142a';
-      ctx.fillRect(0, 0, width, height);
-      if (backgroundImage) {
-        const ratio = Math.max(width / backgroundImage.width, height / backgroundImage.height);
-        const drawWidth = backgroundImage.width * ratio;
-        const drawHeight = backgroundImage.height * ratio;
-        ctx.globalAlpha = 0.88;
-        ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
-        ctx.globalAlpha = 1;
-      }
-      drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
-      if (height > width) {
-        drawDialoguePortraitExportFrame(ctx, width, height, index, width / 640, avatarImgA, avatarImgB);
-      } else {
-        drawDialogueExportFrame(ctx, width, height, index, width / 640, avatarImgA, avatarImgB);
-      }
-      setStatus(`Rendering video: turn ${index + 1} of ${turns.length}…`);
-      await sleep(getEffectiveStepMs());
-    }
-    return;
-  }
-
-  const backgroundImage = await loadImage(getStageBackgroundSource());
-  const wordImages = await Promise.all(words.map(word => loadImage(word.imageData)));
-  
-  // Draw initial frame
-  ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = bgColorInput.value || '#12142a';
-  ctx.fillRect(0, 0, width, height);
-  if (backgroundImage) {
-    const ratio = Math.max(width / backgroundImage.width, height / backgroundImage.height);
-    const drawWidth = backgroundImage.width * ratio;
-    const drawHeight = backgroundImage.height * ratio;
-    ctx.globalAlpha = 0.88;
-    ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
-    ctx.globalAlpha = 1;
-  }
-  drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
-  await drawExportFrame(ctx, width, height, -1, backgroundImage, null);
-  await sleep(Math.min(700, Math.max(350, getEffectiveStepMs())));
-
-  for (let index = 0; index < words.length; index += 1) {
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = bgColorInput.value || '#12142a';
-    ctx.fillRect(0, 0, width, height);
-    if (backgroundImage) {
-      const ratio = Math.max(width / backgroundImage.width, height / backgroundImage.height);
-      const drawWidth = backgroundImage.width * ratio;
-      const drawHeight = backgroundImage.height * ratio;
-      ctx.globalAlpha = 0.88;
-      ctx.drawImage(backgroundImage, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
-      ctx.globalAlpha = 1;
-    }
-    drawExportBackdrop(ctx, width, height, bgColorInput.value, backgroundImage);
-    await drawExportFrame(ctx, width, height, index, backgroundImage, wordImages[index]);
-    setStatus(`Rendering video: word ${index + 1} of ${words.length}…`);
-        await sleep(getEffectiveStepMs());
-  }
-}
-
-async function drawExportFrame(ctx, width, height, activeIndex, backgroundImage, activeImage) {
-  const scale = width / 640;
-  if (layoutMode === 'sidebyside') {
-    drawSideBySideExportFrame(ctx, width, height, activeIndex, scale, activeImage);
-  } else {
-    drawStackedExportFrame(ctx, width, height, activeIndex, scale, activeImage);
-  }
-}
-
-// ===== exportVideo =====
 async function exportVideo() {
   if (exportingVideo) return;
-  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : words.length > 0;
+  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : sentences.length > 0;
   if (!hasContent) {
     setStatus(layoutMode === 'dialogue'
       ? 'Please add at least one dialogue turn before exporting a video.'
-      : 'Please break a sentence before exporting a video.');
+      : 'Please add a sentence before exporting a video.');
     return;
   }
   const mimeType = getSupportedVideoMimeType();
@@ -4756,7 +4440,46 @@ async function exportVideo() {
 
   try {
     recorder.start(200);
-    await runExportSequence(recorder, canvas, ctx, width, height);
+    
+    if (layoutMode === 'dialogue') {
+      for (let i = 0; i < turns.length; i++) {
+        ctx.fillStyle = bgColorInput.value || '#12142a';
+        ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = '#fff';
+        ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const speaker = turns[i].speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
+        ctx.fillText(`${speaker}: ${turns[i].en}`, width / 2, height / 2);
+        setStatus(`Rendering video: turn ${i + 1} of ${turns.length}…`);
+        await sleep(getEffectiveStepMs());
+      }
+    } else {
+      for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
+        const sentence = sentences[sIdx];
+        for (let wIdx = -1; wIdx < sentence.words.length; wIdx++) {
+          ctx.fillStyle = bgColorInput.value || '#12142a';
+          ctx.fillRect(0, 0, width, height);
+          ctx.fillStyle = '#fff';
+          ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          if (wIdx === -1) {
+            ctx.fillText(sentence.text, width / 2, height / 2);
+          } else {
+            ctx.fillText(sentence.words[wIdx].text, width / 2, height / 2);
+            if (sentence.words[wIdx].khmer) {
+              ctx.fillStyle = '#ffd071';
+              ctx.font = `${Math.max(15, Number(kmSizeInput.value))}px ${kmFontSelect.value}`;
+              ctx.fillText(sentence.words[wIdx].khmer, width / 2, height / 2 + 60);
+            }
+          }
+          setStatus(`Rendering video: sentence ${sIdx + 1} of ${sentences.length}, word ${wIdx + 1} of ${sentence.words.length}…`);
+          await sleep(getEffectiveStepMs());
+        }
+      }
+    }
 
     if (recorder.state === 'recording' && recorder.requestData) {
       recorder.requestData();
@@ -4765,9 +4488,7 @@ async function exportVideo() {
     recorder.stop();
     await stopped;
     const blob = new Blob(chunks, { type: mimeType });
-    if (blob.size === 0) {
-      throw new Error('Recorder produced an empty file (encoder could not keep up).');
-    }
+    if (blob.size === 0) throw new Error('Recorder produced an empty file.');
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -4777,9 +4498,7 @@ async function exportVideo() {
     setStatus('Video exported as lesson-preview.webm.');
   } catch (error) {
     if (recorder.state !== 'inactive') recorder.stop();
-    setStatus(exportQuality === 'hd'
-      ? 'Could not export the video. Please try again.'
-      : `Could not export at ${exportQuality.toUpperCase()} — your device may be too slow for this resolution. Try HD or 2K instead.`);
+    setStatus('Could not export the video. Please try again.');
     console.error(error);
   } finally {
     stream.getTracks().forEach(track => track.stop());
@@ -4791,44 +4510,13 @@ async function exportVideo() {
 
 exportBtn.addEventListener('click', exportVideo);
 
-// ===== Record video WITH narration audio =====
-function getRecordAudioNodes() {
-  if (!recordAudioContext) {
-    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-    recordAudioContext = new AudioContextCtor();
-    recordAudioSourceNode = recordAudioContext.createMediaElementSource(audioPlayer);
-    recordAudioDestNode = recordAudioContext.createMediaStreamDestination();
-    recordAudioSourceNode.connect(recordAudioDestNode);
-    recordAudioSourceNode.connect(recordAudioContext.destination);
-  }
-  return { audioContext: recordAudioContext, audioDestNode: recordAudioDestNode };
-}
-
-function waitForAudioToFinish() {
-  return new Promise(resolve => {
-    if (audioPlayer.paused || audioPlayer.ended) {
-      resolve();
-      return;
-    }
-    const done = () => {
-      audioPlayer.removeEventListener('ended', done);
-      resolve();
-    };
-    audioPlayer.addEventListener('ended', done);
-    const remaining = Number.isFinite(audioPlayer.duration)
-      ? Math.max(0, (audioPlayer.duration - audioPlayer.currentTime) * 1000 + 400)
-      : 15000;
-    setTimeout(done, remaining);
-  });
-}
-
 async function recordVideo() {
   if (recordingVideo) return;
-  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : words.length > 0;
+  const hasContent = layoutMode === 'dialogue' ? turns.length > 0 : sentences.length > 0;
   if (!hasContent) {
     setStatus(layoutMode === 'dialogue'
       ? 'Please add at least one dialogue turn before recording a video.'
-      : 'Please break a sentence before recording a video.');
+      : 'Please add a sentence before recording a video.');
     return;
   }
   const mimeType = getSupportedVideoMimeType();
@@ -4849,17 +4537,22 @@ async function recordVideo() {
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   const videoStream = canvas.captureStream(30);
-
   const hasAudio = !!audioPlayer.src;
   let combinedStream = videoStream;
-  let audioNodes = null;
 
   if (hasAudio) {
-    audioNodes = getRecordAudioNodes();
-    await audioNodes.audioContext.resume();
+    if (!recordAudioContext) {
+      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+      recordAudioContext = new AudioContextCtor();
+      recordAudioSourceNode = recordAudioContext.createMediaElementSource(audioPlayer);
+      recordAudioDestNode = recordAudioContext.createMediaStreamDestination();
+      recordAudioSourceNode.connect(recordAudioDestNode);
+      recordAudioSourceNode.connect(recordAudioContext.destination);
+    }
+    await recordAudioContext.resume();
     combinedStream = new MediaStream([
       ...videoStream.getVideoTracks(),
-      ...audioNodes.audioDestNode.stream.getAudioTracks(),
+      ...recordAudioDestNode.stream.getAudioTracks(),
     ]);
   }
 
@@ -4879,17 +4572,63 @@ async function recordVideo() {
 
   try {
     recorder.start(200);
-
     if (hasAudio) {
       audioPlayer.currentTime = 0;
       audioPlayer.play().catch(() => {});
     }
-
-    await runExportSequence(recorder, canvas, ctx, width, height);
+    
+    if (layoutMode === 'dialogue') {
+      for (let i = 0; i < turns.length; i++) {
+        ctx.fillStyle = bgColorInput.value || '#12142a';
+        ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = '#fff';
+        ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const speaker = turns[i].speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
+        ctx.fillText(`${speaker}: ${turns[i].en}`, width / 2, height / 2);
+        setStatus(`Recording video: turn ${i + 1} of ${turns.length}…`);
+        await sleep(getEffectiveStepMs());
+      }
+    } else {
+      for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
+        const sentence = sentences[sIdx];
+        for (let wIdx = -1; wIdx < sentence.words.length; wIdx++) {
+          ctx.fillStyle = bgColorInput.value || '#12142a';
+          ctx.fillRect(0, 0, width, height);
+          ctx.fillStyle = '#fff';
+          ctx.font = `${Math.max(20, Number(enSizeInput.value))}px ${enFontSelect.value}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          if (wIdx === -1) {
+            ctx.fillText(sentence.text, width / 2, height / 2);
+          } else {
+            ctx.fillText(sentence.words[wIdx].text, width / 2, height / 2);
+          }
+          setStatus(`Recording video: sentence ${sIdx + 1} of ${sentences.length}, word ${wIdx + 1} of ${sentence.words.length}…`);
+          await sleep(getEffectiveStepMs());
+        }
+      }
+    }
 
     if (hasAudio) {
       setStatus('Finishing narration…');
-      await waitForAudioToFinish();
+      await new Promise(resolve => {
+        if (audioPlayer.paused || audioPlayer.ended) {
+          resolve();
+          return;
+        }
+        const done = () => {
+          audioPlayer.removeEventListener('ended', done);
+          resolve();
+        };
+        audioPlayer.addEventListener('ended', done);
+        const remaining = Number.isFinite(audioPlayer.duration)
+          ? Math.max(0, (audioPlayer.duration - audioPlayer.currentTime) * 1000 + 400)
+          : 15000;
+        setTimeout(done, remaining);
+      });
     }
 
     if (recorder.state === 'recording' && recorder.requestData) {
@@ -4899,9 +4638,7 @@ async function recordVideo() {
     recorder.stop();
     await stopped;
     const blob = new Blob(chunks, { type: mimeType });
-    if (blob.size === 0) {
-      throw new Error('Recorder produced an empty file (encoder could not keep up).');
-    }
+    if (blob.size === 0) throw new Error('Recorder produced an empty file.');
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -4911,9 +4648,7 @@ async function recordVideo() {
     setStatus('Recording saved as lesson-recording.webm.');
   } catch (error) {
     if (recorder.state !== 'inactive') recorder.stop();
-    setStatus(exportQuality === 'hd'
-      ? 'Could not record the video. Please try again.'
-      : `Could not record at ${exportQuality.toUpperCase()} — your device may be too slow for this resolution. Try HD or 2K instead.`);
+    setStatus('Could not record the video. Please try again.');
     console.error(error);
   } finally {
     if (hasAudio) audioPlayer.pause();
@@ -4953,13 +4688,13 @@ function initializeApp() {
   boxRadiusVal.textContent = boxRadiusInput.value + 'px';
 
   syncAnimationSpeed();
-
   renderStageGrammar();
+  renderSentenceList();
   renderTimeline();
   renderStageSentence();
   renderProperties();
 
-  setStatus('Ready — this runs entirely in your browser, no server needed.');
+  setStatus('Ready — add multiple sentences to create a full lesson.');
 }
 
 initializeApp();
