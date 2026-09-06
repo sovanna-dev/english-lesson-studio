@@ -1170,6 +1170,38 @@ input[type='range'] {
   overflow-wrap: anywhere;
 }
 
+.stage-sentence-translation {
+  width: min(88%, 620px);
+  margin: 14px auto 0;
+  padding: 9px 14px;
+  border: 1px solid rgba(35, 150, 174, 0.55);
+  border-radius: 12px;
+  background: rgba(12, 30, 44, 0.72);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+  text-align: center;
+}
+
+.stage-translation-en {
+  color: var(--paper);
+  font-family: var(--stage-en-font, 'Poppins', sans-serif);
+  font-size: clamp(11px, 1.55vw, 16px);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.stage-translation-km {
+  margin-top: 4px;
+  color: #ffd071;
+  font-family: var(--stage-km-font, 'Kantumruy Pro', sans-serif);
+  font-size: clamp(11px, 1.5vw, 16px);
+  line-height: 1.35;
+}
+
+.stage.mode-sidebyside .stage-sentence-translation,
+.stage.mode-dialogue .stage-sentence-translation {
+  display: none;
+}
+
 .stage-sentence {
   display: flex;
   max-width: 100%;
@@ -2349,6 +2381,18 @@ input[type='range'] {
         <span class="btn-icon" aria-hidden="true">↑</span>
         <span>Import JSON</span>
       </button>
+      <button id="historyBtn" class="btn btn-ghost" type="button">
+        <span class="btn-icon" aria-hidden="true">↺</span>
+        <span>Save history</span>
+      </button>
+      <select id="historySelect" class="history-select" aria-label="Load saved lesson history">
+        <option value="">Load history…</option>
+      </select>
+      <label class="toolbar-language-control" for="topDisplayLanguageSelect">Display:</label>
+      <select id="topDisplayLanguageSelect" class="history-select" aria-label="Choose stage display language">
+        <option value="en-km">EN + KH</option>
+        <option value="en-only">EN only</option>
+      </select>
       <input class="file-input-hidden" type="file" id="importInput" accept="application/json,.json">
         <button id="exportBtn" class="btn btn-primary" type="button">
           <span class="btn-icon" aria-hidden="true">↗</span>
@@ -2390,6 +2434,9 @@ input[type='range'] {
         <label class="field-label grammar-input-label" for="grammarInput">Grammar</label>
         <input id="grammarInput" class="grammar-input" type="text" placeholder="e.g. Present continuous" autocomplete="off">
         <p class="field-help">This label appears above the sentence on the stage.</p>
+        <label class="field-label grammar-input-label" for="sentenceKhmerInput">Full Khmer sentence <span class="label-support">optional</span></label>
+        <textarea id="sentenceKhmerInput" class="khmer-input" rows="2" placeholder="ឧទាហរណ៍៖ ខ្ញុំងូតទឹករាល់ថ្ងៃ" spellcheck="true"></textarea>
+        <p class="field-help">This complete translation appears in a box below the word-by-word animation.</p>
         <button id="addSentenceBtn" class="btn btn-secondary btn-block" type="button">
           <span class="btn-icon" aria-hidden="true">＋</span>
           <span>Add sentence</span>
@@ -2591,6 +2638,12 @@ input[type='range'] {
           <label class="field-label field-label-row" for="enSizeInput"><span>English size</span><output id="enSizeVal">22px</output></label>
           <input type="range" id="enSizeInput" min="14" max="48" value="22">
 
+          <label class="field-label" for="displayLanguageSelect">Stage language</label>
+          <select id="displayLanguageSelect">
+            <option value="en-km">English + Khmer</option>
+            <option value="en-only">English only</option>
+          </select>
+
           <label class="field-label" for="kmFontSelect">Khmer font</label>
           <select id="kmFontSelect">
             <option value="'Kantumruy Pro', sans-serif">Kantumruy Pro</option>
@@ -2685,6 +2738,10 @@ input[type='range'] {
         <div id="stage" class="stage ratio-16-9 mode-stacked" aria-label="Lesson animation stage">
           <div id="stageGrammar" class="stage-grammar" aria-live="polite"></div>
           <div id="stageSentence" class="stage-sentence"></div>
+          <div id="stageSentenceTranslation" class="stage-sentence-translation hidden" aria-live="polite">
+            <div id="stageSentenceTranslationEn" class="stage-translation-en"></div>
+            <div id="stageSentenceTranslationKm" class="stage-translation-km"></div>
+          </div>
 
           <div class="stage-flashcard" id="stageFlashcard" aria-live="polite">
             <div class="flash-en" id="flashEn">—</div>
@@ -2745,6 +2802,7 @@ input[type='range'] {
           <option value="Verb">Verb (កិរិយាសព្ទ)</option>
           <option value="Adjective">Adjective (គុណនាម)</option>
           <option value="Pronoun">Pronoun (សព្វនាម)</option>
+          <option value="Article">Article (គុណនាមកំណត់) </option>
           <option value="Preposition">Preposition (ធាតុភ្ជាប់)</option>
           <option value="Other">Other</option>
         </select>
@@ -2797,7 +2855,11 @@ const wordOrderSection = document.getElementById('wordOrderSection');
 const dialogueSection = document.getElementById('dialogueSection');
 const sentenceInput = document.getElementById('sentenceInput');
 const grammarInput = document.getElementById('grammarInput');
+const sentenceKhmerInput = document.getElementById('sentenceKhmerInput');
 const stageGrammar = document.getElementById('stageGrammar');
+const stageSentenceTranslation = document.getElementById('stageSentenceTranslation');
+const stageSentenceTranslationEn = document.getElementById('stageSentenceTranslationEn');
+const stageSentenceTranslationKm = document.getElementById('stageSentenceTranslationKm');
 const addSentenceBtn = document.getElementById('addSentenceBtn');
 const wordCardsEl = document.getElementById('wordCards');
 const timelineListEl = document.getElementById('timelineList');
@@ -2828,6 +2890,10 @@ const importBtn = document.getElementById('importBtn');
 const importInput = document.getElementById('importInput');
 const exportBtn = document.getElementById('exportBtn');
 const recordBtn = document.getElementById('recordBtn');
+const historyBtn = document.getElementById('historyBtn');
+const historySelect = document.getElementById('historySelect');
+const displayLanguageSelect = document.getElementById('displayLanguageSelect');
+const topDisplayLanguageSelect = document.getElementById('topDisplayLanguageSelect');
 const statusText = document.getElementById('statusText');
 
 const layoutGroup = document.getElementById('layoutGroup');
@@ -2903,6 +2969,7 @@ let ttsLanguage = 'en';
 let ttsVoiceName = '';
 let availableTtsVoices = [];
 let ttsRate = 0.95;
+let displayLanguage = 'en-km';
 let layoutMode = 'stacked';
 let playing = false;
 let animationTimer = null;
@@ -2923,6 +2990,7 @@ const POS_ABBR = {
   Verb: 'v.',
   Adjective: 'adj.',
   Pronoun: 'pron.',
+  Article: 'art.',
   Preposition: 'prep.',
   Other: 'other'
 };
@@ -2961,6 +3029,23 @@ function renderStageGrammar() {
   stageGrammar.classList.toggle('hidden', !grammar);
 }
 
+function renderStageTranslation() {
+  const sentence = getActiveSentence();
+  const english = sentence?.text || '';
+  const khmer = sentence?.translationKm || '';
+  stageSentenceTranslationEn.textContent = english;
+  stageSentenceTranslationKm.textContent = khmer;
+  stageSentenceTranslationKm.classList.toggle('hidden', displayLanguage === 'en-only' || !khmer);
+  stageSentenceTranslation.classList.toggle('hidden', !english && !khmer);
+}
+
+sentenceKhmerInput.addEventListener('input', () => {
+  const sentence = getActiveSentence();
+  if (!sentence) return;
+  sentence.translationKm = sentenceKhmerInput.value;
+  renderStageTranslation();
+});
+
 // ===== Add Sentence =====
 addSentenceBtn.addEventListener('click', () => {
   const raw = sentenceInput.value.trim();
@@ -2974,6 +3059,7 @@ addSentenceBtn.addEventListener('click', () => {
     id: uid(),
     text: raw,
     grammar: grammarInput.value.trim(),
+    translationKm: sentenceKhmerInput.value.trim(),
     words: tokens.map(t => ({
       id: uid(),
       text: t,
@@ -2991,6 +3077,7 @@ addSentenceBtn.addEventListener('click', () => {
   // សម្អាត input សម្រាប់ប្រយោគបន្ទាប់
   sentenceInput.value = '';
   grammarInput.value = '';
+  sentenceKhmerInput.value = '';
   
   renderSentenceList();
   renderWordCards();
@@ -3054,6 +3141,7 @@ function selectSentence(id) {
   if (sentence) {
     sentenceInput.value = sentence.text;
     grammarInput.value = sentence.grammar || '';
+    sentenceKhmerInput.value = sentence.translationKm || '';
     selectedWordId = sentence.words[0]?.id || null;
   }
   renderSentenceList();
@@ -3077,6 +3165,7 @@ function removeSentence(id) {
     const firstSentence = sentences[0];
     sentenceInput.value = firstSentence.text;
     grammarInput.value = firstSentence.grammar || '';
+    sentenceKhmerInput.value = firstSentence.translationKm || '';
     selectedWordId = firstSentence.words[0]?.id || null;
   }
   renderSentenceList();
@@ -3154,6 +3243,7 @@ function renderTimeline() {
 // ===== Render sentence on stage =====
 function renderStageSentence() {
   renderStageGrammar();
+  renderStageTranslation();
   stageSentence.innerHTML = '';
   stageImageSlot.classList.remove('visible');
   stageImageSlot.innerHTML = '';
@@ -3175,7 +3265,7 @@ function renderStageSentence() {
     enLine.textContent = w.text;
     span.appendChild(enLine);
 
-    if (w.khmer) {
+    if (displayLanguage !== 'en-only' && w.khmer) {
       const kmLine = document.createElement('span');
       kmLine.className = 'stage-word-km';
       kmLine.textContent = w.khmer;
@@ -3196,7 +3286,7 @@ function setFlashcardWord(w) {
   enText.className = 'flash-en-text';
   enText.textContent = w.text;
   flashEn.appendChild(enText);
-  flashKm.textContent = w.khmer || '—';
+  flashKm.textContent = displayLanguage === 'en-only' ? '' : (w.khmer || '—');
 }
 
 function clearFlashcard() {
@@ -3424,6 +3514,19 @@ dialogueTextModeSelect.addEventListener('change', () => {
   dialogueTextMode = dialogueTextModeSelect.value;
   if (layoutMode === 'dialogue') renderDialogueChat();
 });
+
+function setDisplayLanguage(value) {
+  displayLanguage = value === 'en-only' ? 'en-only' : 'en-km';
+  displayLanguageSelect.value = displayLanguage;
+  topDisplayLanguageSelect.value = displayLanguage;
+  renderStageSentence();
+  renderStageTranslation();
+  updateFlashcardPreview();
+  setStatus(displayLanguage === 'en-only' ? 'English-only display enabled.' : 'English + Khmer display enabled.');
+}
+
+displayLanguageSelect.addEventListener('change', () => setDisplayLanguage(displayLanguageSelect.value));
+topDisplayLanguageSelect.addEventListener('change', () => setDisplayLanguage(topDisplayLanguageSelect.value));
 
 function renderTurnList() {
   turnListEl.innerHTML = '';
@@ -4195,20 +4298,19 @@ autoSyncInput.addEventListener('change', () => {
   updateSpeedLabel();
 });
 
-// ===== Save/Import lesson =====
-saveBtn.addEventListener('click', () => {
-  const lesson = {
+// ===== Lesson history =====
+const HISTORY_KEY = 'lesson-animation-studio-history-v1';
+const HISTORY_LIMIT = 20;
+
+function buildLessonData() {
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
     sentences: sentences.map(s => ({
       text: s.text,
       grammar: s.grammar,
-      words: s.words.map(w => ({
-        text: w.text,
-        khmer: w.khmer,
-        pos: w.pos,
-        example: w.example,
-        hasImage: !!w.imageData,
-        imageData: w.imageData || null
-      }))
+      translationKm: s.translationKm || '',
+      words: s.words.map(w => ({ text: w.text, khmer: w.khmer, pos: w.pos, example: w.example, hasImage: !!w.imageData, imageData: w.imageData || null }))
     })),
     ratio: document.querySelector('#ratioGroup .ratio-btn.active')?.dataset.ratio || '16-9',
     mode: studioMode,
@@ -4220,6 +4322,7 @@ saveBtn.addEventListener('click', () => {
       enSize: enSizeInput.value,
       kmFont: kmFontSelect.value,
       kmSize: kmSizeInput.value,
+      displayLanguage,
       boxBg: boxBgInput.value,
       boxBorder: boxBorderInput.value,
       boxRadius: boxRadiusInput.value,
@@ -4232,20 +4335,73 @@ saveBtn.addEventListener('click', () => {
       ttsRate
     },
     dialogue: {
-      speakerA: { name: speakerA.name, gender: speakerA.gender, voiceName: speakerA.voiceName, hasAvatar: !!speakerA.avatarData },
-      speakerB: { name: speakerB.name, gender: speakerB.gender, voiceName: speakerB.voiceName, hasAvatar: !!speakerB.avatarData },
+      speakerA: { name: speakerA.name, gender: speakerA.gender, voiceName: speakerA.voiceName, hasAvatar: !!speakerA.avatarData, avatarData: speakerA.avatarData || null },
+      speakerB: { name: speakerB.name, gender: speakerB.gender, voiceName: speakerB.voiceName, hasAvatar: !!speakerB.avatarData, avatarData: speakerB.avatarData || null },
       textMode: dialogueTextMode,
       turns: turns.map(t => ({ speaker: t.speaker, en: t.en, km: t.km }))
     }
   };
+}
+
+function readHistory() {
+  try {
+    const value = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function writeHistory(items) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+}
+
+function refreshHistorySelect() {
+  if (!historySelect) return;
+  const current = historySelect.value;
+  historySelect.innerHTML = '<option value="">Load history…</option>';
+  readHistory().forEach(item => {
+    const option = document.createElement('option');
+    option.value = item.id;
+    const date = new Date(item.savedAt);
+    option.textContent = `${item.name || 'Lesson'} — ${Number.isNaN(date.getTime()) ? '' : date.toLocaleString()}`;
+    historySelect.appendChild(option);
+  });
+  if ([...historySelect.options].some(option => option.value === current)) historySelect.value = current;
+}
+
+function saveHistorySnapshot() {
+  const lesson = buildLessonData();
+  const firstSentence = lesson.sentences[0]?.text || '';
+  const name = firstSentence.slice(0, 36) || (lesson.dialogue.turns[0]?.en || 'Untitled lesson').slice(0, 36);
+  const items = readHistory().filter(item => item.name !== name || item.layout !== lesson.layout);
+  items.unshift({ id: `h${Date.now()}`, name, savedAt: lesson.savedAt, lesson });
+  writeHistory(items);
+  refreshHistorySelect();
+  setStatus('Lesson saved to browser history.');
+}
+
+historyBtn.addEventListener('click', saveHistorySnapshot);
+historySelect.addEventListener('change', () => {
+  const item = readHistory().find(entry => entry.id === historySelect.value);
+  if (!item) return;
+  applyLessonData(item.lesson);
+  setStatus(`Loaded lesson history: ${item.name}`);
+});
+
+refreshHistorySelect();
+
+// ===== Save/Import lesson =====
+saveBtn.addEventListener('click', () => {
+  const lesson = buildLessonData();
   const blob = new Blob([JSON.stringify(lesson, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = 'lesson.json';
   a.click();
-  URL.revokeObjectURL(url);
-  setStatus('Lesson saved as lesson.json. Note: images, avatars, background image, and MP3 are not included in JSON.');
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setStatus('Lesson saved as lesson.json. Images and display settings are included.');
 });
 
 importBtn.addEventListener('click', () => importInput.click());
@@ -4274,6 +4430,9 @@ importInput.addEventListener('change', (e) => {
       if (style.boxBorder) boxBorderInput.value = style.boxBorder;
       if (style.boxRadius) boxRadiusInput.value = style.boxRadius;
       if (style.imgSize) imgSizeInput.value = style.imgSize;
+      displayLanguage = style.displayLanguage === 'en-only' ? 'en-only' : 'en-km';
+      displayLanguageSelect.value = displayLanguage;
+      topDisplayLanguageSelect.value = displayLanguage;
       if (style.stepMs) speedInput.value = style.stepMs;
       ttsEnabled = Boolean(style.ttsEnabled);
       ttsLanguage = ['en', 'km', 'both'].includes(style.ttsLanguage) ? style.ttsLanguage : 'en';
@@ -4293,6 +4452,7 @@ importInput.addEventListener('change', (e) => {
           id: uid(),
           text: String(s.text || ''),
           grammar: String(s.grammar || ''),
+          translationKm: String(s.translationKm || ''),
           words: Array.isArray(s.words) ? s.words.map(w => ({
             id: uid(),
             text: String(w.text || ''),
@@ -4309,6 +4469,7 @@ importInput.addEventListener('change', (e) => {
           id: uid(),
           text: String(data.sentence),
           grammar: String(data.grammar || ''),
+          translationKm: String(data.translationKm || ''),
           words: tokens.map(t => ({
             id: uid(),
             text: t,
@@ -4367,6 +4528,7 @@ importInput.addEventListener('change', (e) => {
       renderTurnList();
       renderStageGrammar();
       renderStageSentence();
+      renderStageTranslation();
       renderProperties();
       renderWordCards();
       renderDialogueAvatars();
@@ -4398,6 +4560,15 @@ importInput.addEventListener('change', (e) => {
 });
 
 // Replace the original section from "// ===== Video export functions" through the record button listener with this block.
+
+async function applyLessonData(data) {
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const file = new File([blob], 'history.json', { type: 'application/json' });
+  const transfer = new DataTransfer();
+  transfer.items.add(file);
+  importInput.files = transfer.files;
+  importInput.dispatchEvent(new Event('change', { bubbles: true }));
+}
 
 // ===== Video export functions =====
 function sleep(ms) {
@@ -4551,7 +4722,9 @@ async function createExportRenderer(canvas) {
       drawWrappedText(ctx, word.text || '', left + boxWidth / 2, top + boxHeight * 0.34, boxWidth * 0.82, enSize * 1.35);
       ctx.fillStyle = '#d89525';
       ctx.font = `500 ${Math.max(16, kmSize * 1.2)}px ${kmFontSelect.value}`;
-      drawWrappedText(ctx, word.khmer || '—', left + boxWidth / 2, top + boxHeight * 0.68, boxWidth * 0.82, kmSize * 1.3);
+      if (displayLanguage !== 'en-only') {
+        drawWrappedText(ctx, word.khmer || '—', left + boxWidth / 2, top + boxHeight * 0.68, boxWidth * 0.82, kmSize * 1.3);
+      }
       return;
     }
 
@@ -4602,10 +4775,37 @@ async function createExportRenderer(canvas) {
     });
     if (row.length) rows.push({ items: row, width: rowWidth - gap });
 
-    const slotHeight = Math.max(18 * scale, badgeSize) + Math.max(8, 9 * scale) + enSize + Math.max(8, 10 * scale) + kmSize;
+    const slotHeight = displayLanguage === 'en-only'
+      ? Math.max(18 * scale, badgeSize) + Math.max(8, 9 * scale) + enSize
+      : Math.max(18 * scale, badgeSize) + Math.max(8, 9 * scale) + enSize + Math.max(8, 10 * scale) + kmSize;
     const rowGap = Math.max(14, 18 * scale);
+    const translationEn = String(sentence.text || '').trim();
+    const translationKm = String(sentence.translationKm || '').trim();
+    const showTranslation = translationEn || (displayLanguage !== 'en-only' && translationKm);
+    const translationHeight = showTranslation ? Math.max(62, height * 0.14) : 0;
+    if (showTranslation) {
+      const boxX = width * 0.08;
+      const boxY = height * 0.80;
+      const boxW = width * 0.84;
+      const boxH = Math.min(translationHeight, height * 0.18);
+      ctx.fillStyle = 'rgba(12,30,44,0.82)';
+      ctx.strokeStyle = 'rgba(35,150,174,0.65)';
+      ctx.lineWidth = Math.max(1, scale);
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxW, boxH, 12 * scale);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#fffdf9';
+      ctx.font = `600 ${Math.max(12, enSize * 0.72)}px ${enFontSelect.value}`;
+      drawWrappedText(ctx, translationEn, width / 2, boxY + boxH * (displayLanguage === 'en-only' || !translationKm ? 0.5 : 0.34), boxW * 0.88, Math.max(16, enSize * 0.9));
+      if (displayLanguage !== 'en-only' && translationKm) {
+        ctx.fillStyle = '#ffd071';
+        ctx.font = `500 ${Math.max(11, kmSize * 0.72)}px ${kmFontSelect.value}`;
+        drawWrappedText(ctx, translationKm, width / 2, boxY + boxH * 0.70, boxW * 0.88, Math.max(15, kmSize * 0.9));
+      }
+    }
+
     const availableTop = grammarHeight + height * 0.20;
-    const availableBottom = height * 0.92;
+    const availableBottom = showTranslation ? height * 0.73 : height * 0.92;
     const availableHeight = Math.max(slotHeight, availableBottom - availableTop);
     const actualRowGap = rows.length > 1 ? Math.min(rowGap, Math.max(8, (availableHeight - rows.length * slotHeight) / (rows.length - 1))) : 0;
     const totalHeight = rows.length * slotHeight + Math.max(0, rows.length - 1) * actualRowGap;
@@ -4629,7 +4829,7 @@ async function createExportRenderer(canvas) {
         ctx.fillStyle = active ? '#f2b84b' : '#fffdf9';
         ctx.font = `${active ? 700 : 600} ${enSize}px ${enFontSelect.value}`;
         ctx.fillText(word.text || '', centerX, rowTop + badgeSize + enSize / 2 + 8 * scale);
-        if (word.khmer) {
+        if (displayLanguage !== 'en-only' && word.khmer) {
           ctx.fillStyle = active ? '#ffd071' : 'rgba(255,255,255,0.85)';
           ctx.font = `500 ${kmSize}px ${kmFontSelect.value}`;
           ctx.fillText(word.khmer, centerX, rowTop + badgeSize + enSize + kmSize / 2 + 18 * scale);
@@ -4804,6 +5004,8 @@ function initializeApp() {
 
   flashEn.textContent = '—';
   flashKm.textContent = '—';
+  displayLanguageSelect.value = displayLanguage;
+  topDisplayLanguageSelect.value = displayLanguage;
 
   renderDialogueAvatars();
   renderTurnList();
@@ -4823,6 +5025,7 @@ function initializeApp() {
 
   syncAnimationSpeed();
   renderStageGrammar();
+  renderStageTranslation();
   renderSentenceList();
   renderTimeline();
   renderStageSentence();
