@@ -1152,6 +1152,45 @@ input[type='range'] {
   aspect-ratio: 1 / 1;
 }
 
+.stage-logo {
+  position: absolute;
+  z-index: 8;
+  top: 3.5%;
+  width: min(var(--logo-size, 72px), 16%);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  padding: 4px;
+  object-fit: contain;
+  object-position: center;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  pointer-events: none;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
+}
+
+.stage-logo.logo-top-left { left: 3.5%; }
+.stage-logo.logo-top-right { left: auto; right: 3.5%; }
+
+.logo-preview-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+}
+.logo-preview-wrap img {
+  width: 72px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.2);
+}
+.compact-divider { margin: 12px 0; }
+
 .stage-grammar {
   max-width: 82%;
   margin-bottom: 12px;
@@ -1389,14 +1428,16 @@ input[type='range'] {
   width: 100%;
   height: 100%;
   flex-direction: column;
-  gap: 12px;
-  padding: 10px;
+  justify-content: center;
+  gap: clamp(10px, 4%, 20px);
+  padding: 20px;
 }
 
 .dialogue-bubble {
   position: relative;
   max-width: 75%;
   min-width: 120px;
+  min-height: 0;
   padding: 12px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.12);
@@ -1655,6 +1696,298 @@ input[type='range'] {
   display: inline-flex;
   gap: 3px;
   padding: 8px 12px;
+}
+
+.vocab-form-card {
+  background: rgba(0,0,0,0.03);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vocab-list-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vocab-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+.vocab-item-info b { color: #4daeb1; }
+.vocab-delete {
+  color: #ff4d4f;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Story Mode Styles */
+.stage-story {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #fdfaf5;
+  color: #1a1a1a;
+  padding: 5% 5% 80px 5%; /* បន្ថែម padding bottom 80px ដើម្បីកុំឱ្យបាំងប៊ូតុង */
+  overflow-y: auto;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+}
+
+/* Sense 2: Vocabulary Spotlight Styles */
+.vocab-spotlight-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  animation: vocabFadeIn 0.5s ease-out;
+}
+
+@keyframes vocabFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vocab-spotlight-word {
+  font-size: clamp(28px, 7vw, 56px);
+  font-weight: 800;
+  color: #0c1e2c;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  word-break: break-word;
+  max-width: 90%;
+  line-height: 1.1;
+}
+
+.vocab-spotlight-meaning {
+  font-size: clamp(24px, 6vw, 42px);
+  font-family: 'Kantumruy Pro', sans-serif;
+  color: #4daeb1;
+  margin-bottom: 30px;
+}
+
+.vocab-spotlight-example {
+  font-size: clamp(16px, 4vw, 24px);
+  font-style: italic;
+  color: #666;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+/* Multi-image upload styles */
+.multi-image-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.multi-image-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.multi-image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.multi-image-item .remove-img {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.add-image-placeholder {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed var(--ink-200);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-400);
+  font-size: 12px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.add-image-placeholder:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Sense 3: Mini Exercise Styles */
+.quiz-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 40px;
+  text-align: center;
+}
+
+.quiz-question {
+  font-size: clamp(20px, 5vw, 32px);
+  font-weight: 700;
+  color: #0c1e2c;
+  margin-bottom: 30px;
+  line-height: 1.3;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.quiz-option {
+  background: white;
+  border: 2px solid #e0e0e0;
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-size: clamp(14px, 3.5vw, 18px);
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.quiz-option.correct {
+  border-color: #4daeb1;
+  background: rgba(77, 174, 177, 0.1);
+  color: #4daeb1;
+  font-weight: 700;
+  transform: scale(1.05);
+}
+
+.quiz-label {
+  position: absolute;
+  top: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e8a33d;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.story-header {
+  margin-bottom: 24px;
+}
+
+.story-subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #c4574a;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.story-title {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #0c1e2c;
+  margin: 0;
+}
+
+.story-image-area {
+  width: 100%;
+  margin-bottom: 24px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  background: #eee;
+  aspect-ratio: 4 / 3;
+}
+
+.story-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.story-content {
+  font-size: var(--stage-en-size, 20px);
+  line-height: 1.6;
+  color: #333;
+}
+
+.story-translation-divider {
+  margin: 24px 0 16px;
+  border-top: 2px dashed #e0e0e0;
+  width: 50px;
+}
+
+.story-translation-content {
+  font-size: var(--stage-km-size, 18px);
+  line-height: 1.7;
+  color: #666;
+  font-family: 'Kantumruy Pro', sans-serif;
+}
+
+.story-sentence {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.story-sentence.highlighted {
+  background-color: #4daeb1;
+  color: white;
+}
+
+.stage.ratio-9-16 .story-title {
+  font-size: 28px;
+}
+
+.stage.ratio-9-16 .story-content {
+  font-size: 18px;
 }
 
 .typing-dot {
@@ -2424,6 +2757,10 @@ input[type='range'] {
             <strong>Dialogue</strong>
             <small>Characters, voices, and conversation</small>
           </button>
+          <button class="studio-mode-btn" type="button" data-studio-mode="story" aria-pressed="false">
+            <strong>Story Reading</strong>
+            <small>Text highlight, image, and narration</small>
+          </button>
         </div>
       </section>
 
@@ -2586,6 +2923,91 @@ input[type='range'] {
         </select>
       </section>
 
+      <section id="storySection" class="section-block hidden" aria-labelledby="story-label">
+        <div id="story-label" class="field-label field-label-row">
+          <span>Story Reading</span>
+          <span class="field-badge">Full Text</span>
+        </div>
+        <p class="field-help">Add a full story text and cover image for an immersive reading experience.</p>
+
+        <label class="field-label" for="storyTitleInput">Story title</label>
+        <input type="text" id="storyTitleInput" placeholder="e.g. Talk to Yourself in English" autocomplete="off">
+
+        <label class="field-label" for="storySubtitleInput">Subtitle/Header</label>
+        <input type="text" id="storySubtitleInput" placeholder="e.g. DAILY ENGLISH" autocomplete="off">
+
+        <label class="field-label">Story Images</label>
+        <div class="image-upload-multi">
+          <input class="file-input-hidden" type="file" id="storyImageInput" accept="image/*" multiple>
+          <div id="storyImagePreviewContainer" class="multi-image-preview-container">
+             <!-- Previews will appear here -->
+             <div class="add-image-placeholder" onclick="document.getElementById('storyImageInput').click()">
+                <span>＋ Add Image</span>
+             </div>
+          </div>
+        </div>
+
+        <label class="field-label" for="storyTextInput">Full story text</label>
+        <textarea id="storyTextInput" rows="8" placeholder="Enter the full story text here..."></textarea>
+
+        <label class="field-label" for="storyTranslationInput">Khmer translation <span class="label-support">optional</span></label>
+        <textarea id="storyTranslationInput" rows="4" class="khmer-input" placeholder="អត្ថបទបកប្រែជាភាសាខ្មែរ..."></textarea>
+
+        <label class="field-label" for="storyTextModeSelect">Display mode</label>
+        <select id="storyTextModeSelect">
+          <option value="full">Full Story (Highlighted)</option>
+          <option value="card">Step-by-Step Card</option>
+        </select>
+
+        <div class="divider compact-divider"></div>
+
+        <div id="storyVocabSection">
+          <div class="field-label field-label-row">
+            <span>Vocabulary Spotlight (Sense 2)</span>
+            <span class="field-badge" id="storyVocabCount">0 words</span>
+          </div>
+          <p class="field-help">Add key words from the story to explain after the reading.</p>
+
+          <div class="vocab-form-card">
+            <input type="text" id="vocabWordInput" placeholder="Word (e.g. Energized)" autocomplete="off">
+            <input type="text" id="vocabMeaningInput" class="khmer-input" placeholder="Khmer Meaning (e.g. មានថាមពល)" autocomplete="off">
+            <input type="text" id="vocabExampleInput" placeholder="Example sentence..." autocomplete="off">
+            <button id="addVocabBtn" class="btn btn-soft btn-block btn-small" type="button">＋ Add to Spotlight</button>
+          </div>
+
+          <ul id="storyVocabList" class="vocab-list-items"></ul>
+        </div>
+
+        <div class="divider compact-divider"></div>
+
+        <div id="storyExerciseSection">
+          <div class="field-label field-label-row">
+            <span>Mini Exercises (Sense 3)</span>
+            <span class="field-badge" id="storyQuizCount">0 quizzes</span>
+          </div>
+          <p class="field-help">Create simple multiple-choice questions for the end of the lesson.</p>
+
+          <div class="vocab-form-card">
+            <input type="text" id="quizQuestionInput" placeholder="Question (e.g. What does 'Energized' mean?)" autocomplete="off">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+              <input type="text" id="quizOptA" placeholder="Option A" autocomplete="off">
+              <input type="text" id="quizOptB" placeholder="Option B" autocomplete="off">
+            </div>
+            <select id="quizCorrectSelect">
+              <option value="0">Correct: Option A</option>
+              <option value="1">Correct: Option B</option>
+            </select>
+            <button id="addQuizBtn" class="btn btn-soft btn-block btn-small" type="button">＋ Add Exercise</button>
+          </div>
+
+          <ul id="storyQuizList" class="vocab-list-items"></ul>
+
+          <div class="divider compact-divider"></div>
+          <button id="importStoryJsonBtn" class="btn btn-outline btn-block btn-small" type="button">📥 Import Story JSON</button>
+          <input type="file" id="storyJsonFileInput" accept=".json" style="display:none;">
+        </div>
+      </section>
+
       <div class="divider" role="presentation"></div>
 
       <details class="settings-group" open>
@@ -2607,6 +3029,11 @@ input[type='range'] {
               <span class="ratio-copy"><strong>Dialogue</strong><small>Two characters</small></span>
               <span class="choice-mark" aria-hidden="true">✓</span>
             </button>
+            <button class="ratio-btn" type="button" data-layout="story" aria-pressed="false">
+              <span class="ratio-icon" aria-hidden="true">📖</span>
+              <span class="ratio-copy"><strong>Story</strong><small>Full text reading</small></span>
+              <span class="choice-mark" aria-hidden="true">✓</span>
+            </button>
           </div>
         </div>
       </details>
@@ -2623,6 +3050,23 @@ input[type='range'] {
           <label id="bgImageBtn" class="btn btn-soft btn-block btn-small upload-label" for="bgImageInput">Upload background image</label>
           <input class="file-input" type="file" id="bgImageInput" accept="image/*">
           <button id="bgImageRemoveBtn" class="btn btn-danger-ghost btn-block btn-small hidden" type="button">Remove background image</button>
+          <div class="divider compact-divider" role="presentation"></div>
+          <label class="field-label" for="logoInput">Video logo</label>
+          <label id="logoBtn" class="btn btn-soft btn-block btn-small upload-label" for="logoInput">Upload logo</label>
+          <input class="file-input" type="file" id="logoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+          <div id="logoPreviewWrap" class="logo-preview-wrap hidden">
+            <img id="logoPreview" alt="Uploaded video logo">
+            <button id="logoRemoveBtn" class="btn btn-danger-ghost btn-small" type="button">Remove logo</button>
+          </div>
+          <label class="field-label field-label-row" for="logoSizeInput"><span>Logo size</span><output id="logoSizeVal">72px</output></label>
+          <input type="range" id="logoSizeInput" min="32" max="260" value="72">
+          <label class="field-label field-label-row" for="logoOpacityInput"><span>Logo opacity</span><output id="logoOpacityVal">100%</output></label>
+          <input type="range" id="logoOpacityInput" min="20" max="100" value="100">
+          <label class="field-label" for="logoPositionSelect">Logo position</label>
+          <select id="logoPositionSelect">
+            <option value="top-left">Top left</option>
+            <option value="top-right">Top right</option>
+          </select>
         </div>
       </details>
 
@@ -2736,6 +3180,7 @@ input[type='range'] {
 
       <div class="stage-frame">
         <div id="stage" class="stage ratio-16-9 mode-stacked" aria-label="Lesson animation stage">
+          <img id="stageLogo" class="stage-logo hidden" alt="Video logo">
           <div id="stageGrammar" class="stage-grammar" aria-live="polite"></div>
           <div id="stageSentence" class="stage-sentence"></div>
           <div id="stageSentenceTranslation" class="stage-sentence-translation hidden" aria-live="polite">
@@ -2751,6 +3196,11 @@ input[type='range'] {
 
           <div class="stage-dialogue" id="stageDialogue" aria-live="polite">
             <div class="dialogue-chat-container" id="dialogueChatContainer"></div>
+          </div>
+
+          <div class="stage-story" id="stageStory" aria-live="polite">
+            <div id="storyImageArea" class="story-image-area"></div>
+            <div id="storyTextArea" class="story-text-area"></div>
           </div>
 
           <div class="stage-image-slot" id="stageImageSlot"></div>
@@ -2901,6 +3351,17 @@ const bgColorInput = document.getElementById('bgColorInput');
 const bgImageBtn = document.getElementById('bgImageBtn');
 const bgImageInput = document.getElementById('bgImageInput');
 const bgImageRemoveBtn = document.getElementById('bgImageRemoveBtn');
+const logoInput = document.getElementById('logoInput');
+const logoBtn = document.getElementById('logoBtn');
+const logoRemoveBtn = document.getElementById('logoRemoveBtn');
+const logoPreviewWrap = document.getElementById('logoPreviewWrap');
+const logoPreview = document.getElementById('logoPreview');
+const stageLogo = document.getElementById('stageLogo');
+const logoSizeInput = document.getElementById('logoSizeInput');
+const logoSizeVal = document.getElementById('logoSizeVal');
+const logoOpacityInput = document.getElementById('logoOpacityInput');
+const logoOpacityVal = document.getElementById('logoOpacityVal');
+const logoPositionSelect = document.getElementById('logoPositionSelect');
 
 const enFontSelect = document.getElementById('enFontSelect');
 const enSizeInput = document.getElementById('enSizeInput');
@@ -2960,6 +3421,36 @@ const dialogueTextModeSelect = document.getElementById('dialogueTextModeSelect')
 const stageDialogue = document.getElementById('stageDialogue');
 const dialogueChatContainer = document.getElementById('dialogueChatContainer');
 
+const stageStory = document.getElementById('stageStory');
+const storyImageArea = document.getElementById('storyImageArea');
+const storyTextArea = document.getElementById('storyTextArea');
+
+const storyTitleInput = document.getElementById('storyTitleInput');
+const storySubtitleInput = document.getElementById('storySubtitleInput');
+const storyImageInput = document.getElementById('storyImageInput');
+const storyImagePreviewWrap = document.getElementById('storyImagePreviewWrap');
+const storyImagePreview = document.getElementById('storyImagePreview');
+const removeStoryImageBtn = document.getElementById('removeStoryImageBtn');
+const storyTextInput = document.getElementById('storyTextInput');
+const storyTranslationInput = document.getElementById('storyTranslationInput');
+const storyTextModeSelect = document.getElementById('storyTextModeSelect');
+const vocabWordInput = document.getElementById('vocabWordInput');
+const vocabMeaningInput = document.getElementById('vocabMeaningInput');
+const vocabExampleInput = document.getElementById('vocabExampleInput');
+const addVocabBtn = document.getElementById('addVocabBtn');
+const storyVocabListEl = document.getElementById('storyVocabList');
+const storyVocabCountEl = document.getElementById('storyVocabCount');
+
+const quizQuestionInput = document.getElementById('quizQuestionInput');
+const quizOptA = document.getElementById('quizOptA');
+const quizOptB = document.getElementById('quizOptB');
+const quizCorrectSelect = document.getElementById('quizCorrectSelect');
+const addQuizBtn = document.getElementById('addQuizBtn');
+const storyQuizListEl = document.getElementById('storyQuizList');
+const storyQuizCountEl = document.getElementById('storyQuizCount');
+const importStoryJsonBtn = document.getElementById('importStoryJsonBtn');
+const storyJsonFileInput = document.getElementById('storyJsonFileInput');
+
 const root = document.documentElement;
 let stepMs = 650;
 let audioDurationMs = 0;
@@ -2970,7 +3461,21 @@ let ttsVoiceName = '';
 let availableTtsVoices = [];
 let ttsRate = 0.95;
 let displayLanguage = 'en-km';
+let logoData = 'images/logo_ES.jpg';
+let logoSize = 72;
+let logoOpacity = 1;
+let logoPosition = 'top-right';
 let layoutMode = 'stacked';
+let storyData = {
+  title: 'Talk to Yourself in English',
+  subtitle: 'DAILY ENGLISH',
+  text: '',
+  translation: '',
+  images: [], // Array of base64 strings
+  displayMode: 'full',
+  vocabulary: [],
+  exercises: []
+};
 let playing = false;
 let animationTimer = null;
 let exportingVideo = false;
@@ -3522,6 +4027,7 @@ function setDisplayLanguage(value) {
   renderStageSentence();
   renderStageTranslation();
   updateFlashcardPreview();
+  if (layoutMode === 'story') renderStoryMode();
   setStatus(displayLanguage === 'en-only' ? 'English-only display enabled.' : 'English + Khmer display enabled.');
 }
 
@@ -3649,9 +4155,24 @@ function renderDialogueChat() {
     return;
   }
   
-  turns.forEach((turn, index) => {
+  // Show only current and previous turn for context (Option A: Scrolling Flow)
+  const current = dialoguePlaybackState.currentIndex;
+  const isPlaying = dialoguePlaybackState.isPlaying;
+
+  let visibleIndices = [];
+  if (current >= 0) {
+    if (current > 0) visibleIndices.push(current - 1);
+    visibleIndices.push(current);
+  } else {
+    // Default to showing the first turn if nothing is selected
+    visibleIndices.push(0);
+  }
+
+  visibleIndices.forEach((index) => {
+    const turn = turns[index];
+    if (!turn) return;
     const isA = turn.speaker === 'A';
-    const isCurrentTurn = index === dialoguePlaybackState.currentIndex;
+    const isCurrentTurn = index === current;
     
     const row = document.createElement('div');
     row.className = `dialogue-row ${isA ? 'speaker-a' : 'speaker-b'}`;
@@ -3682,7 +4203,7 @@ function renderDialogueChat() {
     avatarCol.appendChild(nameLabel);
     
     const bubble = document.createElement('div');
-    bubble.className = `dialogue-bubble ${isA ? 'side-a' : 'side-b'}${isCurrentTurn ? ' chat-animation' : ''}`;
+    bubble.className = `dialogue-bubble ${isA ? 'side-a' : 'side-b'}${isCurrentTurn && isPlaying ? ' chat-animation' : ''}`;
     
     const speakerLabel = document.createElement('span');
     speakerLabel.className = 'dialogue-bubble-speaker';
@@ -3710,10 +4231,15 @@ function renderDialogueChat() {
 // ===== Studio mode =====
 function syncStudioModeUI() {
   const isDialogue = studioMode === 'dialogue';
-  sentenceBuilderSection.style.display = isDialogue ? 'none' : '';
-  sentenceListSection.parentElement.style.display = isDialogue ? 'none' : '';
-  wordOrderSection.style.display = isDialogue ? 'none' : '';
-  dialogueSection.style.display = isDialogue ? '' : 'none';
+  const isStory = studioMode === 'story';
+
+  sentenceBuilderSection.classList.toggle('hidden', isDialogue || isStory);
+  sentenceListSection.parentElement.classList.toggle('hidden', isDialogue || isStory);
+  wordOrderSection.classList.toggle('hidden', isDialogue || isStory);
+
+  dialogueSection.classList.toggle('hidden', !isDialogue);
+  storySection.classList.toggle('hidden', !isStory);
+
   studioModeGroup.querySelectorAll('[data-studio-mode]').forEach(button => {
     const active = button.dataset.studioMode === studioMode;
     button.classList.toggle('active', active);
@@ -3724,9 +4250,13 @@ function syncStudioModeUI() {
 studioModeGroup.addEventListener('click', (event) => {
   const button = event.target.closest('[data-studio-mode]');
   if (!button) return;
-  studioMode = button.dataset.studioMode === 'dialogue' ? 'dialogue' : 'sentence';
+  studioMode = button.dataset.studioMode;
   syncStudioModeUI();
-  setStatus(studioMode === 'dialogue' ? 'Dialogue Conversation mode selected.' : 'Sentence & Sense mode selected.');
+
+  let modeLabel = 'Sentence & Sense mode selected.';
+  if (studioMode === 'dialogue') modeLabel = 'Dialogue Conversation mode selected.';
+  if (studioMode === 'story') modeLabel = 'Story Reading mode selected.';
+  setStatus(modeLabel);
 });
 
 syncStudioModeUI();
@@ -3739,7 +4269,7 @@ layoutGroup.addEventListener('click', (e) => {
   btn.classList.add('active');
   layoutMode = btn.dataset.layout;
 
-  stage.classList.remove('mode-stacked', 'mode-sidebyside', 'mode-dialogue');
+  stage.classList.remove('mode-stacked', 'mode-sidebyside', 'mode-dialogue', 'mode-story');
   stage.classList.add('mode-' + layoutMode);
 
   const flashcard = document.querySelector('.stage-flashcard');
@@ -3748,6 +4278,7 @@ layoutGroup.addEventListener('click', (e) => {
     stageSentence.style.display = 'flex';
     flashcard.style.display = 'none';
     stageDialogue.style.display = 'none';
+    stageStory.style.display = 'none';
     flashEn.textContent = '—';
     flashKm.textContent = '—';
     document.querySelectorAll('.stage-word').forEach(el => {
@@ -3757,15 +4288,418 @@ layoutGroup.addEventListener('click', (e) => {
     stageSentence.style.display = 'none';
     flashcard.style.display = 'flex';
     stageDialogue.style.display = 'none';
+    stageStory.style.display = 'none';
     updateFlashcardPreview();
-  } else {
+  } else if (layoutMode === 'dialogue') {
     stageSentence.style.display = 'none';
     flashcard.style.display = 'none';
     stageDialogue.style.display = 'flex';
+    stageStory.style.display = 'none';
     renderDialogueAvatars();
     dialoguePlaybackState.currentIndex = 0;
     renderDialogueChat();
+  } else if (layoutMode === 'story') {
+    stageSentence.style.display = 'none';
+    flashcard.style.display = 'none';
+    stageDialogue.style.display = 'none';
+    stageStory.style.display = 'flex';
+    renderStoryMode();
   }
+});
+
+// ===== Story Mode Logic =====
+function renderStoryMode() {
+  if (!stageStory) return;
+  storyTextArea.innerHTML = '';
+  storyImageArea.innerHTML = '';
+  storyTextArea.style.height = '';
+  storyTextArea.style.display = '';
+  storyTextArea.style.flexDirection = '';
+  storyTextArea.style.alignItems = '';
+  storyTextArea.style.justifyContent = '';
+  storyImageArea.style.display = '';
+  stageStory.style.display = 'flex';
+
+  // Check if we are in Sense 2 (Vocabulary Spotlight)
+  if (playing && storyData.currentSense === 2) {
+      renderVocabularySpotlight();
+      return;
+  }
+
+  // Check if we are in Sense 3 (Mini Exercise)
+  if (playing && storyData.currentSense === 3) {
+      renderStoryExercise();
+      return;
+  }
+
+  // Title & Subtitle (Header)
+  const header = document.createElement('div');
+  header.className = 'story-header';
+
+  const sub = document.createElement('div');
+  sub.className = 'story-subtitle';
+  sub.textContent = storyData.subtitle || 'DAILY ENGLISH';
+
+  const title = document.createElement('h2');
+  title.className = 'story-title';
+  title.textContent = storyData.title || 'Talk to Yourself in English';
+
+  header.appendChild(sub);
+  header.appendChild(title);
+  storyTextArea.appendChild(header);
+
+  // Image Area
+  if (storyData.images && storyData.images.length > 0) {
+    // Determine which image to show based on progress
+    let imgIndex = 0;
+    if (playing && storyData.currentSense === 1) {
+       const sentencesArr = (storyData.text || '').match(/[^.!?]+[.!?]*/g) || [];
+       if (sentencesArr.length > 0) {
+         const progress = dialoguePlaybackState.currentIndex / sentencesArr.length;
+         imgIndex = Math.floor(progress * storyData.images.length);
+         if (imgIndex >= storyData.images.length) imgIndex = storyData.images.length - 1;
+       }
+    }
+
+    const img = document.createElement('img');
+    img.src = storyData.images[imgIndex];
+    img.className = 'story-cover-img';
+    storyImageArea.appendChild(img);
+  } else {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'story-image-placeholder';
+    placeholder.textContent = 'Upload story cover images';
+    storyImageArea.appendChild(placeholder);
+  }
+
+  // Text Content
+  const content = document.createElement('div');
+  content.className = 'story-content';
+
+  const rawText = storyData.text || '';
+  // Split while keeping the delimiters (.!?)
+  const sentencesArr = rawText.match(/[^.!?]+[.!?]*/g) || [];
+
+  sentencesArr.forEach((s, idx) => {
+    const p = document.createElement('span');
+    p.className = 'story-sentence';
+    p.textContent = s + ' ';
+
+    // Highlight effect if playing
+    if (playing && layoutMode === 'story' && dialoguePlaybackState.currentIndex === idx) {
+        p.classList.add('highlighted');
+    }
+
+    content.appendChild(p);
+  });
+
+  storyTextArea.appendChild(content);
+
+  // Khmer Translation Content
+  if (displayLanguage !== 'en-only' && storyData.translation) {
+    const translationDivider = document.createElement('div');
+    translationDivider.className = 'story-translation-divider';
+    storyTextArea.appendChild(translationDivider);
+
+    const translationContent = document.createElement('div');
+    translationContent.className = 'story-translation-content khmer-text';
+    translationContent.textContent = storyData.translation;
+
+    // Apply custom Khmer font size
+    translationContent.style.fontSize = kmSizeInput.value + 'px';
+
+    storyTextArea.appendChild(translationContent);
+  }
+}
+
+function renderVocabularySpotlight() {
+  const vocabIndex = storyData.currentVocabIndex || 0;
+  const item = storyData.vocabulary[vocabIndex];
+  if (!item) return;
+
+  storyTextArea.style.height = '100%';
+  storyTextArea.style.display = 'flex';
+  storyTextArea.style.flexDirection = 'column';
+  storyTextArea.style.alignItems = 'center';
+  storyTextArea.style.justifyContent = 'center';
+
+  const card = document.createElement('div');
+  card.className = 'vocab-spotlight-card';
+
+  const label = document.createElement('div');
+  label.className = 'vocab-spotlight-label';
+  label.textContent = `VOCABULARY SPOTLIGHT ${vocabIndex + 1} OF ${storyData.vocabulary.length}`;
+
+  const word = document.createElement('div');
+  word.className = 'vocab-spotlight-word';
+  word.textContent = item.word || '';
+
+  const meaning = document.createElement('div');
+  meaning.className = 'vocab-spotlight-meaning khmer-text';
+  meaning.textContent = item.meaning || '';
+  // Match user's preferred Khmer size
+  meaning.style.fontSize = (parseInt(kmSizeInput.value) * 1.2) + 'px';
+
+  card.appendChild(label);
+  card.appendChild(word);
+  card.appendChild(meaning);
+
+  if (item.example) {
+    const example = document.createElement('div');
+    example.className = 'vocab-spotlight-example';
+    example.textContent = `"${item.example}"`;
+    card.appendChild(example);
+  }
+
+  storyTextArea.appendChild(card);
+  storyImageArea.style.display = 'none';
+}
+
+function renderStoryExercise() {
+  const quizIndex = storyData.currentQuizIndex || 0;
+  const item = storyData.exercises[quizIndex];
+  if (!item) return;
+
+  storyTextArea.style.height = '100%';
+  storyTextArea.style.display = 'flex';
+  storyTextArea.style.flexDirection = 'column';
+  storyTextArea.style.alignItems = 'center';
+  storyTextArea.style.justifyContent = 'center';
+
+  const container = document.createElement('div');
+  container.className = 'quiz-container';
+
+  const label = document.createElement('div');
+  label.className = 'quiz-label';
+  label.textContent = 'Mini Exercise';
+
+  const q = document.createElement('div');
+  q.className = 'quiz-question';
+  q.textContent = item.question;
+
+  const options = document.createElement('div');
+  options.className = 'quiz-options';
+
+  item.options.forEach((opt, idx) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-option';
+    if (storyData.showQuizAnswer && idx === item.correct) {
+      div.classList.add('correct');
+    }
+    div.textContent = `${idx === 0 ? 'A' : 'B'}. ${opt}`;
+    options.appendChild(div);
+  });
+
+  container.appendChild(label);
+  container.appendChild(q);
+  container.appendChild(options);
+  storyTextArea.appendChild(container);
+  storyImageArea.style.display = 'none';
+}
+
+storyTitleInput.addEventListener('input', () => {
+  storyData.title = storyTitleInput.value;
+  if (layoutMode === 'story') renderStoryMode();
+});
+
+storySubtitleInput.addEventListener('input', () => {
+  storyData.subtitle = storySubtitleInput.value;
+  if (layoutMode === 'story') renderStoryMode();
+});
+
+storyTextInput.addEventListener('input', () => {
+  storyData.text = storyTextInput.value;
+  if (layoutMode === 'story') renderStoryMode();
+});
+
+storyTextModeSelect.addEventListener('change', () => {
+  storyData.displayMode = storyTextModeSelect.value;
+  if (layoutMode === 'story') renderStoryMode();
+});
+
+// Import Story JSON Logic
+importStoryJsonBtn.addEventListener('click', () => storyJsonFileInput.click());
+storyJsonFileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+      // Deep copy vocabulary and exercises to ensure they exist
+      storyData.title = data.title || '';
+      storyData.subtitle = data.subtitle || '';
+      storyData.text = data.text || '';
+      storyData.translation = data.translation || '';
+      storyData.vocabulary = data.vocabulary || [];
+      storyData.exercises = data.exercises || [];
+      storyData.images = data.images || [];
+
+      // Update UI Inputs
+      storyTitleInput.value = storyData.title;
+      storySubtitleInput.value = storyData.subtitle;
+      storyTextInput.value = storyData.text;
+      storyTranslationInput.value = storyData.translation;
+
+      renderStoryVocabList();
+      renderStoryQuizList();
+      renderStoryImagePreviews();
+      if (layoutMode === 'story') renderStoryMode();
+      setStatus('Story data imported successfully.');
+    } catch (err) {
+      console.error(err);
+      setStatus('Invalid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// Initialize logo
+renderStageLogo();
+syncLogoControls();
+function renderStoryVocabList() {
+  storyVocabListEl.innerHTML = '';
+  storyData.vocabulary.forEach((item, idx) => {
+    const li = document.createElement('li');
+    li.className = 'vocab-item';
+    li.innerHTML = `
+      <div class="vocab-item-info">
+        <b>${item.word}</b>: ${item.meaning}
+        <div style="font-size: 11px; color: #999;">${item.example || ''}</div>
+      </div>
+      <span class="vocab-delete" onclick="removeStoryVocab(${idx})">×</span>
+    `;
+    storyVocabListEl.appendChild(li);
+  });
+  storyVocabCountEl.textContent = `${storyData.vocabulary.length} words`;
+}
+
+function renderStoryQuizList() {
+  storyQuizListEl.innerHTML = '';
+  storyData.exercises.forEach((item, idx) => {
+    const li = document.createElement('li');
+    li.className = 'vocab-item';
+
+    const info = document.createElement('div');
+    info.className = 'vocab-item-info';
+    const question = document.createElement('b');
+    question.textContent = item.question;
+    info.appendChild(question);
+    const answer = document.createElement('div');
+    answer.style.cssText = 'font-size: 11px; color: #999;';
+    answer.textContent = `Answer: ${item.options[item.correct] || ''}`;
+    info.appendChild(answer);
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'vocab-delete';
+    remove.textContent = '×';
+    remove.title = 'Remove exercise';
+    remove.addEventListener('click', () => {
+      storyData.exercises.splice(idx, 1);
+      renderStoryQuizList();
+    });
+
+    li.appendChild(info);
+    li.appendChild(remove);
+    storyQuizListEl.appendChild(li);
+  });
+  storyQuizCountEl.textContent = `${storyData.exercises.length} quizzes`;
+}
+
+window.removeStoryVocab = (index) => {
+  storyData.vocabulary.splice(index, 1);
+  renderStoryVocabList();
+};
+
+addVocabBtn.addEventListener('click', () => {
+  const word = vocabWordInput.value.trim();
+  const meaning = vocabMeaningInput.value.trim();
+  const example = vocabExampleInput.value.trim();
+
+  if (!word || !meaning) {
+    setStatus('Please enter both word and meaning.');
+    return;
+  }
+
+  storyData.vocabulary.push({ word, meaning, example });
+  vocabWordInput.value = '';
+  vocabMeaningInput.value = '';
+  vocabExampleInput.value = '';
+  renderStoryVocabList();
+  setStatus(`Added "${word}" to vocabulary spotlight.`);
+});
+
+addQuizBtn.addEventListener('click', () => {
+  const question = quizQuestionInput.value.trim();
+  const optionA = quizOptA.value.trim();
+  const optionB = quizOptB.value.trim();
+  const correct = Number(quizCorrectSelect.value) === 1 ? 1 : 0;
+
+  if (!question || !optionA || !optionB) {
+    setStatus('Please enter a question and both answer options.');
+    return;
+  }
+
+  storyData.exercises.push({ question, options: [optionA, optionB], correct });
+  quizQuestionInput.value = '';
+  quizOptA.value = '';
+  quizOptB.value = '';
+  quizCorrectSelect.value = '0';
+  renderStoryQuizList();
+  setStatus('Added mini exercise.');
+});
+
+const storyImagePreviewContainer = document.getElementById('storyImagePreviewContainer');
+
+function renderStoryImagePreviews() {
+  if (!storyImagePreviewContainer) return;
+  // Keep the placeholder
+  const placeholder = document.createElement('div');
+  placeholder.className = 'add-image-placeholder';
+  placeholder.onclick = () => storyImageInput.click();
+  placeholder.innerHTML = '<span>＋ Add Image</span>';
+
+  storyImagePreviewContainer.innerHTML = '';
+
+  (storyData.images || []).forEach((src, idx) => {
+    const div = document.createElement('div');
+    div.className = 'multi-image-item';
+    div.innerHTML = `
+      <img src="${src}" alt="Preview">
+      <div class="remove-img" onclick="removeStoryImage(${idx})">×</div>
+    `;
+    storyImagePreviewContainer.appendChild(div);
+  });
+
+  storyImagePreviewContainer.appendChild(placeholder);
+}
+
+window.removeStoryImage = (idx) => {
+  storyData.images.splice(idx, 1);
+  renderStoryImagePreviews();
+  if (layoutMode === 'story') renderStoryMode();
+};
+
+storyImageInput.addEventListener('change', (e) => {
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
+
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (!storyData.images) storyData.images = [];
+      storyData.images.push(event.target.result);
+      loaded++;
+      if (loaded === files.length) {
+        renderStoryImagePreviews();
+        if (layoutMode === 'story') renderStoryMode();
+        storyImageInput.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
 });
 
 // ===== Play preview =====
@@ -3787,6 +4721,150 @@ function handlePlayToggle() {
       setStatus('Please add at least one dialogue turn first.');
       return;
     }
+  } else if (layoutMode === 'story') {
+    const rawText = storyData.text || '';
+    const sentencesArr = rawText.match(/[^.!?]+[.!?]*/g) || [];
+    if (sentencesArr.length === 0) {
+      setStatus('Please enter story text first.');
+      return;
+    }
+
+    playing = true;
+    setPlayingUI(true);
+    dialoguePlaybackState.isPlaying = true;
+    speechRunId++;
+    storyData.currentSense = 1; // Start with Sense 1: Story
+
+    let index = 0;
+    async function step() {
+      if (!playing) return;
+
+      // Sense 1: Story Reading
+      if (storyData.currentSense === 1) {
+        if (index >= sentencesArr.length) {
+          // Transition to Sense 2 if vocabulary exists
+          if (storyData.vocabulary && storyData.vocabulary.length > 0) {
+            storyData.currentSense = 2;
+            storyData.currentVocabIndex = 0;
+            index = 0; // Reset for next phase
+            animationTimer = setTimeout(step, 1000); // Pause before Sense 2
+            return;
+          }
+          // If Sense 2 has no items, continue directly to Sense 3.
+          if (storyData.exercises && storyData.exercises.length > 0) {
+            storyData.currentSense = 3;
+            storyData.currentQuizIndex = 0;
+            storyData.showQuizAnswer = false;
+            index = 0;
+            animationTimer = setTimeout(step, 1000);
+            return;
+          }
+          stopPlayback();
+          return;
+        }
+
+        dialoguePlaybackState.currentIndex = index;
+        renderStoryMode();
+        const currentSentence = sentencesArr[index].trim();
+        if (ttsEnabled) {
+          await speakItem({ text: currentSentence });
+          if (playing) {
+            index++;
+            animationTimer = setTimeout(step, 300);
+          }
+        } else {
+          index++;
+          animationTimer = setTimeout(step, getEffectiveStepMs() * 2.5);
+        }
+      }
+      // Sense 2: Vocabulary Spotlight
+      else if (storyData.currentSense === 2) {
+        if (index >= storyData.vocabulary.length) {
+          // Transition to Sense 3 if exercises exist
+          if (storyData.exercises && storyData.exercises.length > 0) {
+            storyData.currentSense = 3;
+            storyData.currentQuizIndex = 0;
+            storyData.showQuizAnswer = false;
+            index = 0;
+            animationTimer = setTimeout(step, 1000);
+            return;
+          }
+          stopPlayback();
+          return;
+        }
+
+        storyData.currentVocabIndex = index;
+        renderStoryMode();
+
+        const item = storyData.vocabulary[index];
+        if (ttsEnabled) {
+          await speakItem({ text: item.word });
+          if (playing) await new Promise(r => setTimeout(r, 600));
+          if (playing) await speakItem({ text: item.meaning });
+          if (playing && item.example) {
+            await new Promise(r => setTimeout(r, 600));
+            await speakItem({ text: item.example });
+          }
+
+          if (playing) {
+            index++;
+            animationTimer = setTimeout(step, 1000);
+          }
+        } else {
+          index++;
+          animationTimer = setTimeout(step, 3500);
+        }
+      }
+      // Sense 3: Mini Exercise
+      else if (storyData.currentSense === 3) {
+        if (index >= storyData.exercises.length) {
+          stopPlayback();
+          return;
+        }
+
+        storyData.currentQuizIndex = index;
+        storyData.showQuizAnswer = false;
+        renderStoryMode();
+
+        const item = storyData.exercises[index];
+        if (ttsEnabled) {
+          // 1. Speak question
+          await speakItem({ text: item.question });
+          if (playing) await new Promise(r => setTimeout(r, 800));
+
+          // 2. Wait 2.5 seconds for student to think
+          if (playing) await new Promise(r => setTimeout(r, 2500));
+
+          // 3. Show and Speak answer
+          if (playing) {
+            storyData.showQuizAnswer = true;
+            renderStoryMode();
+            await speakItem({ text: `The correct answer is ${item.correct === 0 ? 'A' : 'B'}: ${item.options[item.correct]}` });
+
+            if (playing) {
+              index++;
+              animationTimer = setTimeout(step, 1500);
+            }
+          }
+        } else {
+          // Non-TTS fallback
+          setTimeout(() => {
+            if (playing) {
+              storyData.showQuizAnswer = true;
+              renderStoryMode();
+              setTimeout(() => {
+                if (playing) {
+                  index++;
+                  step();
+                }
+              }, 3000);
+            }
+          }, 4000);
+        }
+      }
+    }
+    step();
+    return;
   } else if (sentences.length === 0) {
     setStatus('Please add a sentence first.');
     return;
@@ -3945,11 +5023,12 @@ function startDialoguePlayback() {
     const speakerName = turns[i].speaker === 'A' ? (speakerA.name || 'A') : (speakerB.name || 'B');
     setStatus(`Turn ${i + 1} of ${turns.length} — ${speakerName}: "${turns[i].en}"`);
     
+    const currentDelay = Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[i]));
     i++;
-    animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[i - 1])));
+    animationTimer = setTimeout(step, currentDelay);
   }
   
-  animationTimer = setTimeout(step, Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[0])));
+  step(); // Start immediately
 }
 
 // ===== Keyboard navigation for dialogue =====
@@ -3974,6 +5053,71 @@ document.addEventListener('keydown', (e) => {
       renderDialogueChat();
     }
   }
+});
+
+// ===== Video logo =====
+function renderStageLogo() {
+  if (!stageLogo) return;
+  stageLogo.classList.toggle('hidden', !logoData);
+  if (!logoData) {
+    stageLogo.removeAttribute('src');
+    if (logoPreviewWrap) logoPreviewWrap.classList.add('hidden');
+    return;
+  }
+  stageLogo.src = logoData;
+  stageLogo.style.setProperty('--logo-size', `${logoSize}px`);
+  stageLogo.classList.toggle('logo-top-left', logoPosition === 'top-left');
+  stageLogo.classList.toggle('logo-top-right', logoPosition !== 'top-left');
+  stageLogo.style.opacity = String(logoOpacity);
+  logoPreview.src = logoData;
+  logoPreviewWrap.classList.remove('hidden');
+}
+
+function syncLogoControls() {
+  logoSizeInput.value = String(logoSize);
+  logoSizeVal.textContent = `${logoSize}px`;
+  logoOpacityInput.value = String(Math.round(logoOpacity * 100));
+  logoOpacityVal.textContent = `${Math.round(logoOpacity * 100)}%`;
+  logoPositionSelect.value = logoPosition;
+  renderStageLogo();
+}
+
+logoInput.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (!file || !file.type.startsWith('image/')) {
+    setStatus('Please choose a PNG, JPG, WEBP, or SVG logo image.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (loadEvent) => {
+    logoData = String(loadEvent.target.result || '');
+    renderStageLogo();
+    setStatus('Logo added to the top of the video.');
+  };
+  reader.readAsDataURL(file);
+});
+
+logoRemoveBtn.addEventListener('click', () => {
+  logoData = null;
+  logoInput.value = '';
+  renderStageLogo();
+  setStatus('Video logo removed.');
+});
+
+logoSizeInput.addEventListener('input', () => {
+  logoSize = Math.max(32, Number(logoSizeInput.value) || 96);
+  syncLogoControls();
+});
+
+logoOpacityInput.addEventListener('input', () => {
+  logoOpacity = Math.min(1, Math.max(0.2, (Number(logoOpacityInput.value) || 100) / 100));
+  syncLogoControls();
+});
+
+logoPositionSelect.addEventListener('change', () => {
+  logoPosition = logoPositionSelect.value === 'top-left' ? 'top-left' : 'top-right';
+  syncLogoControls();
+  setStatus(`Logo position set to ${logoPosition === 'top-left' ? 'top left' : 'top right'}.`);
 });
 
 // ===== Background color / image =====
@@ -4323,6 +5467,10 @@ function buildLessonData() {
       kmFont: kmFontSelect.value,
       kmSize: kmSizeInput.value,
       displayLanguage,
+      logoData,
+      logoSize,
+      logoOpacity,
+      logoPosition,
       boxBg: boxBgInput.value,
       boxBorder: boxBorderInput.value,
       boxRadius: boxRadiusInput.value,
@@ -4339,7 +5487,8 @@ function buildLessonData() {
       speakerB: { name: speakerB.name, gender: speakerB.gender, voiceName: speakerB.voiceName, hasAvatar: !!speakerB.avatarData, avatarData: speakerB.avatarData || null },
       textMode: dialogueTextMode,
       turns: turns.map(t => ({ speaker: t.speaker, en: t.en, km: t.km }))
-    }
+    },
+    story: { ...storyData }
   };
 }
 
@@ -4433,6 +5582,11 @@ importInput.addEventListener('change', (e) => {
       displayLanguage = style.displayLanguage === 'en-only' ? 'en-only' : 'en-km';
       displayLanguageSelect.value = displayLanguage;
       topDisplayLanguageSelect.value = displayLanguage;
+      logoData = typeof style.logoData === 'string' ? style.logoData : null;
+      logoSize = Math.min(260, Math.max(32, Number(style.logoSize) || 96));
+      logoOpacity = Math.min(1, Math.max(0.2, Number(style.logoOpacity) || 1));
+      logoPosition = style.logoPosition === 'top-left' ? 'top-left' : 'top-right';
+      syncLogoControls();
       if (style.stepMs) speedInput.value = style.stepMs;
       ttsEnabled = Boolean(style.ttsEnabled);
       ttsLanguage = ['en', 'km', 'both'].includes(style.ttsLanguage) ? style.ttsLanguage : 'en';
@@ -4533,17 +5687,65 @@ importInput.addEventListener('change', (e) => {
       renderWordCards();
       renderDialogueAvatars();
       renderDialogueChat();
+
+      // Smart Story Import: Check if data is at root or inside .story object
+      const story = data.story || (data.text ? data : {});
+      storyData.title = String(story.title || '');
+      storyData.subtitle = String(story.subtitle || '');
+      storyData.text = String(story.text || '');
+      storyData.translation = String(story.translation || '');
+      storyData.imageData = typeof story.imageData === 'string' ? story.imageData : (typeof data.imageData === 'string' ? data.imageData : null);
+      storyData.displayMode = story.displayMode === 'step' ? 'step' : 'full';
+      storyData.vocabulary = Array.isArray(story.vocabulary)
+        ? story.vocabulary.map(item => ({
+            word: String(item?.word || ''),
+            meaning: String(item?.meaning || ''),
+            example: String(item?.example || ''),
+            imageData: typeof item?.imageData === 'string' ? item.imageData : null,
+            imagePrompt: String(item?.imagePrompt || '')
+          })).filter(item => item.word && item.meaning)
+        : [];
+      storyData.exercises = Array.isArray(story.exercises)
+        ? story.exercises.map(item => ({
+            question: String(item?.question || ''),
+            options: Array.isArray(item?.options) ? item.options.map(option => String(option)) : [],
+            correct: Number(item?.correct) === 1 ? 1 : 0
+          })).filter(item => item.question && item.options.length >= 2)
+        : [];
+      storyData.currentSense = 1;
+      storyData.currentVocabIndex = 0;
+      storyData.currentQuizIndex = 0;
+      storyData.showQuizAnswer = false;
+
+      if (storyTitleInput) storyTitleInput.value = storyData.title;
+      if (storySubtitleInput) storySubtitleInput.value = storyData.subtitle;
+      if (storyTextInput) storyTextInput.value = storyData.text;
+      if (storyTranslationInput) storyTranslationInput.value = storyData.translation;
+      renderStoryVocabList();
+      renderStoryQuizList();
+
       updateFlashcardPreview();
       syncAnimationSpeed();
 
-      studioMode = data.mode === 'dialogue' || data.layout === 'dialogue' ? 'dialogue' : 'sentence';
+      studioMode = data.mode === 'story' || data.layout === 'story'
+        ? 'story'
+        : (data.mode === 'dialogue' || data.layout === 'dialogue' ? 'dialogue' : 'sentence');
+      // Auto-detect story mode if text is present but sentences are not
+      if (!data.mode && !data.layout && data.text && (!data.sentences || data.sentences.length === 0)) {
+        studioMode = 'story';
+      }
       syncStudioModeUI();
 
       const targetRatio = data.ratio || '16-9';
       ratioGroup.querySelector(`[data-ratio="${targetRatio}"]`)?.click();
-      const targetLayout = data.layout || (studioMode === 'dialogue' ? 'dialogue' : 'stacked');
+
+      let targetLayout = data.layout;
+      if (!targetLayout && studioMode === 'story') targetLayout = 'story';
+      if (!targetLayout) targetLayout = (studioMode === 'dialogue' ? 'dialogue' : 'stacked');
+
       layoutGroup.querySelector(`[data-layout="${targetLayout}"]`)?.click();
       syncStudioModeUI();
+      if (layoutMode === 'story') renderStoryMode();
 
       autoSyncAudio = Boolean(style.autoSyncAudio);
       autoSyncInput.checked = autoSyncAudio;
@@ -4629,12 +5831,17 @@ function extractBackgroundImageUrl() {
   return match ? match[1] : '';
 }
 
-function drawCoverImage(ctx, image, width, height) {
+function drawCoverImage(ctx, image, x, y, width, height) {
   if (!image) return;
   const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
   const dw = image.naturalWidth * scale;
   const dh = image.naturalHeight * scale;
-  ctx.drawImage(image, (width - dw) / 2, (height - dh) / 2, dw, dh);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, width, height);
+  ctx.clip();
+  ctx.drawImage(image, x + (width - dw) / 2, y + (height - dh) / 2, dw, dh);
+  ctx.restore();
 }
 
 function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -4658,7 +5865,9 @@ function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
 async function createExportRenderer(canvas) {
   const ctx = canvas.getContext('2d', { alpha: false });
   const { width, height } = canvas;
+  const scale = width / Math.max(320, stage.clientWidth || 640);
   const backgroundImage = await loadImageForExport(extractBackgroundImageUrl());
+  const logoImage = await loadImageForExport(logoData);
   const imageCache = new Map();
 
   async function getCachedImage(src) {
@@ -4670,10 +5879,33 @@ async function createExportRenderer(canvas) {
   async function drawBase() {
     ctx.fillStyle = bgColorInput.value || '#12142a';
     ctx.fillRect(0, 0, width, height);
-    drawCoverImage(ctx, backgroundImage, width, height);
+    drawCoverImage(ctx, backgroundImage, 0, 0, width, height);
     if (backgroundImage) {
       ctx.fillStyle = 'rgba(0,0,0,0.18)';
       ctx.fillRect(0, 0, width, height);
+    }
+    if (logoImage) {
+      const logoDiameter = Math.max(32, Math.min(width * 0.16, Number(logoSize) * scale));
+      const logoX = logoPosition === 'top-left' ? width * 0.035 : width - width * 0.035 - logoDiameter;
+      const logoY = height * 0.035;
+      ctx.save();
+      ctx.globalAlpha = logoOpacity;
+      ctx.beginPath();
+      ctx.arc(logoX + logoDiameter / 2, logoY + logoDiameter / 2, logoDiameter / 2, 0, Math.PI * 2);
+      ctx.clip();
+      const innerScale = Math.min((logoDiameter - 8 * scale) / logoImage.naturalWidth, (logoDiameter - 8 * scale) / logoImage.naturalHeight);
+      const logoW = logoImage.naturalWidth * innerScale;
+      const logoH = logoImage.naturalHeight * innerScale;
+      ctx.drawImage(logoImage, logoX + (logoDiameter - logoW) / 2, logoY + (logoDiameter - logoH) / 2, logoW, logoH);
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = logoOpacity;
+      ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+      ctx.lineWidth = Math.max(1, 2 * scale);
+      ctx.beginPath();
+      ctx.arc(logoX + logoDiameter / 2, logoY + logoDiameter / 2, logoDiameter / 2 - ctx.lineWidth / 2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -4681,7 +5913,6 @@ async function createExportRenderer(canvas) {
 
   async function drawSentence(sentence, wordIndex) {
     await drawBase();
-    const scale = width / Math.max(320, stage.clientWidth || 640);
     const enSize = Math.max(12, Number(enSizeInput.value) * scale);
     const kmSize = Math.max(10, Number(kmSizeInput.value) * scale);
     const imageSize = Math.max(40, Number(imgSizeInput.value) * scale);
@@ -4737,7 +5968,7 @@ async function createExportRenderer(canvas) {
         ctx.beginPath();
         ctx.roundRect(x, y, imageSize, imageSize, 12 * scale);
         ctx.clip();
-        drawCoverImage(ctx, image, imageSize, imageSize);
+        drawCoverImage(ctx, image, x, y, imageSize, imageSize);
         ctx.restore();
         ctx.strokeStyle = 'rgba(255,255,255,0.2)';
         ctx.lineWidth = Math.max(1, scale * 2);
@@ -4840,35 +6071,296 @@ async function createExportRenderer(canvas) {
     });
   }
 
-  async function drawDialogue(turn) {
+  async function drawDialogue(index) {
     await drawBase();
-    const speaker = turn.speaker === 'A' ? speakerA : speakerB;
-    const avatar = await getCachedImage(speaker.avatarData);
-    const radius = Math.min(width, height) * 0.06;
-    const bubbleWidth = width * 0.72;
-    const bubbleHeight = height * 0.28;
-    const bubbleX = (width - bubbleWidth) / 2;
-    const bubbleY = (height - bubbleHeight) / 2;
-    ctx.fillStyle = boxBgInput.value || 'rgba(255,255,255,0.94)';
-    ctx.beginPath();
-    ctx.roundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, Number(boxRadiusInput.value) || 18);
-    ctx.fill();
-    if (avatar) drawCoverImage(ctx, avatar, radius * 2, radius * 2);
-    ctx.fillStyle = '#14758a';
-    ctx.font = `700 ${Math.max(20, width * 0.022)}px Inter, sans-serif`;
-    ctx.fillText(speaker.name || (turn.speaker === 'A' ? 'A' : 'B'), width / 2, bubbleY + bubbleHeight * 0.25);
-    ctx.fillStyle = '#101827';
-    ctx.font = `600 ${Math.max(24, width * 0.026)}px ${enFontSelect.value}`;
-    drawWrappedText(ctx, turn.en, width / 2, bubbleY + bubbleHeight * 0.55, bubbleWidth * 0.84, Math.max(30, width * 0.032));
-    if (dialogueTextMode !== 'en-only' && turn.km) {
-      ctx.fillStyle = '#14758a';
-      ctx.font = `500 ${Math.max(20, width * 0.021)}px ${kmFontSelect.value}`;
-      drawWrappedText(ctx, turn.km, width / 2, bubbleY + bubbleHeight * 0.82, bubbleWidth * 0.84, Math.max(25, width * 0.026));
+    const visibleIndices = index > 0 ? [index - 1, index] : [index];
+    const isPortrait = height > width;
+
+    // Adjust layout parameters to match CSS
+    const bubbleWidth = isPortrait ? width * 0.82 : width * 0.70;
+    const avatarDiameter = Math.min(width, height) * (isPortrait ? 0.144 : 0.1);
+    const avatarRadius = avatarDiameter / 2;
+    const avatarGap = 10 * scale;
+    const horizontalPadding = width * 0.04;
+
+    const enSize = Math.max(12, Number(enSizeInput.value) * scale);
+    const kmSize = Math.max(10, Number(kmSizeInput.value) * scale);
+    const gap = (isPortrait ? 40 : 20) * scale;
+
+    const getLines = (text, maxWidth) => {
+      const words = String(text || '').split(/\s+/).filter(Boolean);
+      const lines = [];
+      let line = '';
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+      return lines;
+    };
+
+    const bubbles = [];
+    let totalContentHeight = 0;
+
+    for (const turnIdx of visibleIndices) {
+      const turn = turns[turnIdx];
+      const isA = turn.speaker === 'A';
+
+      ctx.font = `600 ${enSize}px ${enFontSelect.value}`;
+      const enLines = getLines(turn.en, bubbleWidth - 32 * scale);
+
+      let kmLines = [];
+      if (dialogueTextMode !== 'en-only' && turn.km) {
+        ctx.font = `500 ${kmSize}px ${kmFontSelect.value}`;
+        kmLines = getLines(turn.km, bubbleWidth - 32 * scale);
+      }
+
+      const speakerName = (turn.speaker === 'A' ? speakerA.name : speakerB.name) || turn.speaker;
+      const speakerNameUpper = speakerName.toUpperCase();
+
+      // Dynamic height calculation
+      const topPadding = 12 * scale; // Speaker label area
+      const speakerLabelH = 15 * scale;
+      const contentGap = 8 * scale;
+      const enH = enLines.length * enSize * 1.35;
+      const kmH = kmLines.length ? (kmLines.length * kmSize * 1.35 + 8 * scale) : 0;
+      const bottomPadding = 15 * scale;
+
+      const h = topPadding + speakerLabelH + contentGap + enH + kmH + bottomPadding;
+
+      bubbles.push({ turn, isA, enLines, kmLines, height: h, isCurrent: turnIdx === index, speakerName, speakerNameUpper, topPadding, speakerLabelH, contentGap, enH });
+      totalContentHeight += h;
+    }
+
+    totalContentHeight += (bubbles.length - 1) * gap;
+    let currentY = Math.max(height * 0.05, (height - totalContentHeight) / 2);
+
+    for (const b of bubbles) {
+      const isA = b.isA;
+      const speaker = isA ? speakerA : speakerB;
+      const avatar = await getCachedImage(speaker.avatarData);
+
+      let bubbleX, avatarX;
+      if (isA) {
+        avatarX = horizontalPadding;
+        bubbleX = avatarX + avatarDiameter + avatarGap;
+      } else {
+        avatarX = width - horizontalPadding - avatarDiameter;
+        bubbleX = avatarX - avatarGap - bubbleWidth;
+      }
+
+      const bubbleY = currentY;
+
+      ctx.save();
+      ctx.globalAlpha = b.isCurrent ? 1 : 0.6;
+
+      // Draw tail
+      ctx.fillStyle = isA ? 'rgba(35, 150, 174, 0.25)' : 'rgba(242, 184, 75, 0.2)';
+      ctx.beginPath();
+      const tailY = bubbleY + 20 * scale;
+      if (isA) {
+        ctx.moveTo(bubbleX, tailY);
+        ctx.lineTo(bubbleX - 8 * scale, tailY + 8 * scale);
+        ctx.lineTo(bubbleX, tailY + 16 * scale);
+      } else {
+        ctx.moveTo(bubbleX + bubbleWidth, tailY);
+        ctx.lineTo(bubbleX + bubbleWidth + 8 * scale, tailY + 8 * scale);
+        ctx.lineTo(bubbleX + bubbleWidth, tailY + 16 * scale);
+      }
+      ctx.fill();
+
+      // Draw bubble background
+      ctx.fillStyle = isA ? 'rgba(35, 150, 174, 0.25)' : 'rgba(242, 184, 75, 0.2)';
+      ctx.strokeStyle = isA ? 'rgba(35, 150, 174, 0.4)' : 'rgba(242, 184, 75, 0.4)';
+      ctx.lineWidth = Math.max(1, 1.5 * scale);
+      ctx.beginPath();
+      ctx.roundRect(bubbleX, bubbleY, bubbleWidth, b.height, 18 * scale);
+      ctx.fill(); ctx.stroke();
+
+      // Avatar column vertical alignment
+      const nameLabelH = 12 * scale;
+      const avatarColH = avatarDiameter + 4 * scale + nameLabelH;
+      let avatarColY;
+      if (isPortrait) {
+        avatarColY = bubbleY + (b.height - avatarColH) / 2;
+      } else {
+        avatarColY = bubbleY + 5 * scale;
+      }
+
+      // Draw avatar
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(avatarX + avatarRadius, avatarColY + avatarRadius, avatarRadius, 0, Math.PI * 2);
+      ctx.clip();
+      if (avatar) {
+        drawCoverImage(ctx, avatar, avatarX, avatarColY, avatarDiameter, avatarDiameter);
+      } else {
+        ctx.fillStyle = isA ? 'rgba(35, 150, 174, 0.6)' : 'rgba(242, 184, 75, 0.6)';
+        ctx.fillRect(avatarX, avatarColY, avatarDiameter, avatarDiameter);
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = `bold ${avatarRadius}px Inter`;
+        ctx.fillText(b.speakerName[0].toUpperCase(), avatarX + avatarRadius, avatarColY + avatarRadius);
+      }
+      ctx.restore();
+
+      // Draw name under avatar
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.font = `600 ${Math.max(8, 9 * scale)}px Inter`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const nameText = b.speakerName;
+      const avatarLabelWidth = avatarDiameter * 1.35;
+      const nameX = avatarX + avatarRadius;
+      const nameY = avatarColY + avatarDiameter + 4 * scale;
+
+      const nameMeasured = ctx.measureText(nameText).width;
+      if (nameMeasured > avatarLabelWidth) {
+         let shortName = nameText;
+         while (ctx.measureText(shortName + '...').width > avatarLabelWidth && shortName.length > 0) {
+           shortName = shortName.substring(0, shortName.length - 1);
+         }
+         ctx.fillText(shortName + '...', nameX, nameY);
+      } else {
+         ctx.fillText(nameText, nameX, nameY);
+      }
+
+      // Draw content inside bubble
+      const textX = bubbleX + 16 * scale;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+
+      // Speaker label
+      ctx.fillStyle = '#ffd071';
+      ctx.font = `bold ${Math.max(9, 10 * scale)}px Inter`;
+      ctx.fillText(b.speakerNameUpper, textX, bubbleY + b.topPadding);
+
+      // English text
+      ctx.fillStyle = '#fff';
+      ctx.font = `600 ${enSize}px ${enFontSelect.value}`;
+      b.enLines.forEach((line, i) => {
+        ctx.fillText(line, textX, bubbleY + b.topPadding + b.speakerLabelH + b.contentGap + i * enSize * 1.35);
+      });
+
+      // Khmer text
+      if (b.kmLines.length) {
+        ctx.fillStyle = '#ffd071';
+        ctx.font = `500 ${kmSize}px ${kmFontSelect.value}`;
+        const kmStart = bubbleY + b.topPadding + b.speakerLabelH + b.contentGap + b.enH + 8 * scale;
+        b.kmLines.forEach((line, i) => {
+          ctx.fillText(line, textX, kmStart + i * kmSize * 1.35);
+        });
+      }
+      ctx.restore();
+
+      currentY += b.height + gap;
     }
   }
 
+  async function drawStory(index) {
+    await drawBase();
+    ctx.fillStyle = '#fdfaf5';
+    ctx.fillRect(0, 0, width, height);
+
+    const isPortrait = height > width;
+    const padding = width * 0.05;
+
+    // Draw Subtitle
+    ctx.fillStyle = '#c4574a';
+    ctx.textAlign = 'left';
+    ctx.font = `700 ${Math.max(10, 11 * scale)}px Poppins`;
+    ctx.fillText((storyData.subtitle || 'DAILY ENGLISH').toUpperCase(), padding, padding + 15 * scale);
+
+    // Draw Title
+    ctx.fillStyle = '#0c1e2c';
+    ctx.font = `800 ${Math.max(24, 32 * scale)}px Poppins`;
+    const titleLines = drawWrappedTextForStory(ctx, storyData.title || 'Talk to Yourself in English', padding, padding + 50 * scale, width - padding * 2, 36 * scale, false);
+
+    let currentY = padding + 50 * scale + titleLines * 36 * scale + 20 * scale;
+
+    // Draw Image
+    const storyImage = await getCachedImage(storyData.imageData);
+    if (storyImage) {
+        const imgH = isPortrait ? height * 0.35 : height * 0.4;
+        const imgW = width - padding * 2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(padding, currentY, imgW, imgH, 20 * scale);
+        ctx.clip();
+        drawCoverImage(ctx, storyImage, padding, currentY, imgW, imgH);
+        ctx.restore();
+        currentY += imgH + 30 * scale;
+    }
+
+    // Draw Content
+    const contentText = storyData.text || '';
+    const sentencesArr = contentText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+
+    ctx.font = `500 ${Math.max(16, 20 * scale)}px Poppins`;
+    ctx.textBaseline = 'top';
+    const lineHeight = 28 * scale;
+
+    let textX = padding;
+    sentencesArr.forEach((s, idx) => {
+        const txt = s.trim() + '. ';
+        const isHighlighted = index === idx;
+
+        const words = txt.split(' ');
+        words.forEach(word => {
+            const wordWithSpace = word + ' ';
+            const wordWidth = ctx.measureText(wordWithSpace).width;
+
+            if (textX + wordWidth > width - padding) {
+                textX = padding;
+                currentY += lineHeight;
+            }
+
+            if (isHighlighted) {
+                ctx.fillStyle = '#4daeb1';
+                ctx.beginPath();
+                ctx.roundRect(textX - 2 * scale, currentY - 2 * scale, wordWidth + 4 * scale, lineHeight, 4 * scale);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+            } else {
+                ctx.fillStyle = '#333333';
+            }
+
+            ctx.fillText(wordWithSpace, textX, currentY);
+            textX += wordWidth;
+        });
+    });
+  }
+
+  function drawWrappedTextForStory(ctx, text, x, y, maxWidth, lineHeight, draw = true) {
+    const words = String(text || '').split(/\s+/).filter(Boolean);
+    let line = '';
+    let lineCount = 0;
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        if (draw) ctx.fillText(line, x, y + lineCount * lineHeight);
+        lineCount++;
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+    if (line) {
+      if (draw) ctx.fillText(line, x, y + lineCount * lineHeight);
+      lineCount++;
+    }
+    return lineCount;
+  }
+
   return async function renderFrame(kind, index, wordIndex = -1) {
-    if (kind === 'dialogue') return drawDialogue(turns[index]);
+    if (kind === 'dialogue') return drawDialogue(index);
+    if (kind === 'story') return drawStory(index);
     return drawSentence(sentences[index], wordIndex);
   };
 }
@@ -4920,6 +6412,13 @@ async function renderAndRecord(withAudio) {
         await renderFrame('dialogue', i);
         setStatus(`${withAudio ? 'Recording' : 'Rendering'} video: turn ${i + 1} of ${turns.length}…`);
         await sleep(Math.max(getEffectiveStepMs(), estimateTtsDurationMs(turns[i])));
+      }
+    } else if (layoutMode === 'story') {
+      const sentencesArr = (storyData.text || '').split(/[.!?]+/).filter(s => s.trim().length > 0);
+      for (let i = 0; i < sentencesArr.length; i++) {
+        await renderFrame('story', i);
+        setStatus(`${withAudio ? 'Recording' : 'Rendering'} video: story sentence ${i + 1} of ${sentencesArr.length}…`);
+        await sleep(getEffectiveStepMs() * 2);
       }
     } else {
       for (let sIdx = 0; sIdx < sentences.length; sIdx++) {
@@ -5006,6 +6505,7 @@ function initializeApp() {
   flashKm.textContent = '—';
   displayLanguageSelect.value = displayLanguage;
   topDisplayLanguageSelect.value = displayLanguage;
+  syncLogoControls();
 
   renderDialogueAvatars();
   renderTurnList();
